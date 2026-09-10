@@ -1,78 +1,101 @@
-# EVENTO — Intervención constitutiva del CONSTRUCTOR
+# EVENTO — Corrección del plan previa a toda unidad
 
 Intervención previa a toda unidad, en la raíz del repositorio de trabajo. Explica la semántica
-de la entrega; no repite lo que Git demuestra por sí mismo.
+de la entrega; el delta exacto sobre la entrega anterior lo demuestra Git.
 
 ## Qué recibió
 
-Un `next_prompt` de constitución inicial del primer CONSTRUCTOR, con `INCOMING_TURN_ID=1`
-entero, emitido por el AUDITOR constituyente. Transportó identidad del trabajo y carril, método
-gobernante, reglas de transporte, manifiesto, constitución, repositorios de trabajo, auditoría
-y fuentes, raíz y rutas locales, entornos relevantes, capacidades delegadas, y la identidad
-exacta del bootstrap del AUDITOR.
+Un `next_prompt` con la cabecera canónica completa e `INCOMING_TURN_ID=3` entero, que instruyó
+atender la auditoría de la entrega anterior y corregir el mismo `PLAN.md` para cerrar los
+defectos D-01 a D-04, sin ejecutar ninguna unidad material.
 
-El prompt es transporte, no autoridad. Las identidades exactas que transportó se comprobaron
-contra las fuentes antes de producir material.
+La situación se rederivó desde Git sobre el corte recibido, sin suponerla:
+
+- D1: la última entrega de work es `437422f5de52f95ba5959d7a2a652fe1b5c16a4d`.
+- D2: esa entrega tocó solo la raíz; no existe todavía ninguna unidad.
+- D3–D5: la intervención auditora del corte es `auditorias/437422f5de52f95ba5959d7a2a652fe1b5c16a4d.md`,
+  es decir, la auditoría aplicable a la última entrega, con `VEREDICTO=CORRECCION_REQUERIDA`.
+- D6: `PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`; el perímetro vigente es el de
+  `BOOTSTRAP.md`, sin deltas posteriores.
+
+Ambos clones se sincronizaron por avance rápido y el corte de audit desciende del bootstrap del
+AUDITOR preservado en `BOOTSTRAP.md`.
 
 ## Qué hizo y por qué
 
-1. Cargó `metodo/REVOLUTIONS.md` y `metodo/ROL-CONSTRUCTOR.md` en la identidad exacta del
-   método gobernante, antes de cualquier acción sustantiva, conforme exige el propio método.
-2. Localizó y leyó el bootstrap del AUDITOR constituyente en su identidad exacta.
-3. Leyó la constitución inicial y el manifiesto aprobado en sus identidades exactas.
-4. Comprobó el entorno local y las capacidades necesarias para esta intervención.
-5. Creó `BOOTSTRAP.md`, preservando los hechos de origen y la identidad exacta del bootstrap
-   del AUDITOR, porque las dos historias Git son independientes y ninguna puede inferir esa
-   relación.
-6. Creó `PLAN.md`.
+Los cuatro defectos se comprobaron contra el manifiesto aprobado y se sostienen: el plan
+anterior cubría las seis familias de verificación técnica, pero no todo el resultado
+observable ni todo el alcance funcional. La corrección se hizo sobre el mismo `PLAN.md`.
 
-No se aplicó el protocolo de derivación D1–D6: en la constitución inicial no existe todavía un
-corte de work sobre el cual aplicarlo, y el método lo excluye expresamente para este caso.
+- **D-01 — enlace de entrada del creador.** Se ubicó en dos unidades según qué verificación lo
+  ejercita. En U2, el enlace inicia la operación del circuito, confirmando el acceso efectivo
+  (C2.7), con un control negativo contra una IA que presente resultados que no obtuvo del
+  sistema (C2.8, decisión técnica 10, riesgo R12). En U4, el mismo enlace se completa como
+  acompañamiento de instalación adaptado a conocimientos, herramientas y permisos, verificado
+  sobre perfiles sintéticos (C4.5) con su control negativo (C4.6). Se declara que eso no
+  convierte la instalación por una persona externa en condición de cierre.
+- **D-02 — entrada pública de audiencia.** El enlace público pasó a ser entregable de U2, con
+  acceso directo (C2.9), acceso asistido por la IA de referencia (C2.10) y un control negativo
+  de intención y evidencia (C2.11). La decisión técnica 11 fija que la IA del participante
+  asiste la redacción y el envío se hace siempre por el mismo formulario: así el uso de IA es
+  opcional y el sistema no depende de integrarse con la IA de cada participante.
+- **D-03 — recepción permanente con cortes.** Se incorporó a U2 junto con las convocatorias
+  delimitadas. La decisión técnica 12 introduce la ronda de evaluación como unidad común
+  —cierre de convocatoria o corte del canal permanente—, que es lo que impide mezclar ventanas
+  o criterios. C2.12 verifica la coexistencia y C2.13 es su control negativo; C3.4 extiende la
+  reevaluación por cambio de criterios a los cortes.
+- **D-04 — atribución y transparencia.** Cada regla quedó asignada separando comportamiento
+  implementado de documentación o experiencia: transparencia previa al envío (U2, C2.14, con
+  decisión técnica 14), fecha de recepción (U2, C2.15), colaboración de terceros deshabilitada
+  por defecto y diferenciada al habilitarse (U3, C3.9 y C3.10, decisión técnica 13), similitud
+  como señal (U3, C3.11), mejor redacción (U3, C3.12), y la documentación entregada que las
+  explica (U4, C4.7).
 
-No se ejecutó ninguna unidad material. El plan requiere auditoría y aprobación humana antes de
-ejecutar sus unidades.
+Para cerrar la clase de defecto y no solo sus cuatro instancias, se agregó a `PLAN.md` un mapa
+de cobertura que localiza cada exigencia del resultado observable y del alcance funcional en
+una unidad y en los casos que la ejercitan. Al construirlo aparecieron dos exigencias del
+manifiesto que tampoco estaban ejercitadas, y se incorporaron a U3 con el mismo criterio:
 
-## Comprobación de capacidades
+- la configuración de la votación no permite publicar propuestas privadas ni modificar la
+  atribución, y no cambia después de abrir la ronda (C3.13);
+- el límite configurable de volumen o de gasto (C3.14).
 
-Ejecutado en el Windows local del CONSTRUCTOR, bajo `ROOT_LOCAL`.
+Otros cambios derivados, sin alterar la división ni la secuencia:
+
+- §1 fija cómo se tratan en los contratos los casos que dependen de una IA no determinista.
+- §2 justifica por qué los enlaces de entrada no forman una unidad propia.
+- H-2 abarca también la exposición de los enlaces de entrada del creador y de la audiencia.
+
+Se conservó `BOOTSTRAP.md` sin cambios: la corrección no toca ningún hecho constitutivo.
+
+## Verificación de esta entrega
+
+Es una intervención documental: ninguna verificación del plan se ejecutó, ni se ejecuta
+ninguna unidad.
 
 | Comprobación | Resultado |
 |---|---|
-| `git -C <clon> rev-parse HEAD` en los cuatro clones fuente | `manifiestos-trabajo-ai` d369b2f21f35ec0ecaefdf579752a90c98b1c4dd; `metodo-manifiestos-ai` 452d8cce2dd36106e0efce0c957b951c713fdcc8; `rules-orchestrator-ai` e04e653fe6b9d3f394c18dee18274090ddb79ff9; `orchestra-revolutions-ai` 4d88fce3ed3c87bd231c45ec60dcb713538b2514 |
-| `git cat-file -t` sobre las siete identidades exigidas por la constitución | las siete existen y son `commit`; rc=0 |
-| `git -C audit-chatgpt-z fetch origin` y `ls-remote` | `origin/main` = b151dd8ebd2481283872e9437bb0f9cc8607811d; el clon local no tenía HEAD por haber sido clonado vacío |
-| `git -C audit-chatgpt-z show b151dd8…:BOOTSTRAP.md` | bootstrap del AUDITOR leído en su identidad exacta |
-| `git -C work-claude-z rev-list --count --all` y `ls-remote --heads origin` | 0 commits locales y 0 ramas remotas antes de esta intervención; rama `main` |
-| `node --version`, `python --version`, `git --version` | v20.15.1; Python 3.12.4; git 2.54.0.windows.1 |
-| `gh auth status` | sesión autenticada como `francogg89-ai`, con alcance `repo`; el valor del token no se registra ni se transporta |
+| Comprobación cruzada de identificadores de caso en `PLAN.md` (script local de Python sobre el archivo) | 41 casos definidos, ninguno duplicado; todo caso citado en el mapa de cobertura existe, y todo caso definido está citado en el mapa |
+| `git diff --stat` antes del commit | solo `PLAN.md` y `EVENTO.md` modificados; `BOOTSTRAP.md` sin cambios |
 
-Ningún blob de los repositorios fuente fue modificado y no se escribió fuera de
-`work-claude-z`.
+La correspondencia entre cada exigencia del manifiesto y su fila del mapa de cobertura es un
+juicio del CONSTRUCTOR, no una comprobación mecánica: el script demuestra solo la consistencia
+interna de los identificadores.
 
-## Limitaciones de esta entrega
+## Limitaciones
 
-- La capacidad de publicar en `work-claude-z` no se comprobó por adelantado: su evidencia es la
-  existencia del propio commit de esta intervención en el remoto, comprobable por el AUDITOR
-  desde la fuente. Un `gh auth status` con alcance `repo` indica permiso declarado, no
-  escritura ejercida.
-- El `PLAN.md` no ejercita ninguna de sus verificaciones. Define casos, resultados esperados y
-  condiciones de aceptación; los contratos previos discriminantes se propondrán en el
-  `EVENTO.md` de cada unidad, antes de ejecutar, para que el AUDITOR los congele.
-- No se comprobó ninguna integración externa. La viabilidad de operar desde la IA contratada
-  del creador es exactamente la incertidumbre que la unidad 1 debe resolver, y este plan no la
-  presume resuelta en ningún sentido.
-- El directorio `.atl/` presente en el árbol de trabajo es material de herramientas del entorno
-  local, ajeno a esta entrega; queda sin seguimiento y fuera del commit.
+- El plan crece en casos; la división en cuatro unidades y la secuencia no cambian. El aumento
+  recae sobre todo en U2, cuyo riesgo de alcance creciente (R4) sigue acotado a la versión más
+  delgada que hace cerrar el ciclo con todas sus entradas.
+- El directorio `.atl/` del árbol de trabajo es material de herramientas del entorno local,
+  ajeno a esta entrega; queda sin seguimiento y fuera del commit.
 
 ## Necesidad humana detectada
 
-NECESIDAD DEL HUMANO — ejecutar las unidades de `PLAN.md` excede el perímetro delegado
-vigente: la constitución del carril Z reserva al humano la aprobación del plan, y ninguna
-unidad puede iniciarse sin ella. Esta intervención preserva el plan y se detiene antes de la
-primera unidad.
-
-Lo que se necesita es la aprobación humana de `PLAN.md` sobre su identidad exacta, y en
-particular la decisión sobre la división en cuatro unidades y su secuencia.
+NECESIDAD DEL HUMANO — ejecutar las unidades de `PLAN.md` sigue requiriendo la aprobación
+humana del plan sobre su identidad exacta, reservada por la constitución del carril Z. La
+auditoría anterior juzgó prematuro activarla mientras D-01 a D-04 siguieran abiertos; esta
+entrega los corrige y vuelve a registrar la necesidad.
 
 El CONSTRUCTOR registra y rutea esta necesidad; no declara que sea real ni activa al humano.
-Esa determinación corresponde al AUDITOR.
+Esa determinación, y si el plan ya es suficiente para pedirla, corresponde al AUDITOR.
