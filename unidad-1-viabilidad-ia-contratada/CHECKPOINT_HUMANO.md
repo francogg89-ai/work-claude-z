@@ -181,7 +181,12 @@ La ejecución empieza en el paso 1. Desde aquí, todo lo que ocurra es un result
 6. Si la opción Developer mode existía, si la app pudo crearse y qué encontró cada escaneo.
 7. Qué pasó en el paso 6.
 8. Todas las acciones manuales que hubo que hacer, incluidas las de cada mensaje.
-9. Cuánto tardó, y cualquier límite o mensaje de error, tal como apareció.
+9. Cuánto tardó, y cualquier límite que haya aparecido.
+10. **Cada mensaje de rechazo, error o restricción que muestre ChatGPT**: una captura sin el
+    token, la transcripción literal del texto y el momento exacto en que apareció —al activar
+    Developer mode, al abrir la creación de la app, al crearla después de pegar la URL, durante
+    el escaneo, o al usar una herramienta, indicando cuál. No resumir ni parafrasear el mensaje:
+    su texto exacto es lo que permite atribuir el fallo.
 
 ## Lo que el agente externo no decide
 

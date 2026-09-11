@@ -2,15 +2,48 @@
 
 ## Qué recibió
 
-Cabecera canónica completa con `INCOMING_TURN_ID=8`, e instrucción de cerrar D-01 y D-02 de la
-auditoría de la entrega anterior de U1 sin ejecutar la conexión real. La situación se rederivó
-desde Git sobre el corte recibido: la última entrega de work es
-`d3f6d4393567d8bf8d76e97b2de760905d9319a7`; su auditoría aplicable existe con
-`VEREDICTO=CORRECCION_REQUERIDA` y `CONTRATO_PREVIO_CONGELADO=NO`;
+Cabecera canónica completa con `INCOMING_TURN_ID=10`, e instrucción de cerrar únicamente D-03
+de la auditoría de la entrega anterior de U1, sin ejecutar la conexión real. La situación se
+rederivó desde Git sobre el corte recibido: la última entrega de work es
+`d0d965f46d056853f9fd205554d463cb6c79491f`; su auditoría aplicable existe con
+`VEREDICTO=CORRECCION_REQUERIDA`, `CONTRATO_PREVIO_CONGELADO=NO`, y D-01 y D-02 cerrados;
 `PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`, sin deltas. El plan aprobado sigue siendo el de
 `PLAN_BLOB_SHA=6da2d46ba5a41f4a1d33688ac1ee15709e9dce74`.
 
-## Corrección de D-01 y D-02
+## Corrección de D-03
+
+D-03 se sostiene: un rechazo al crear la app antes de que llegue ninguna solicitud puede deberse
+a la configuración concreta —URL, autenticación, dominio de exposición, metadatos— y no a la
+capacidad de la cuenta; la guía de OpenAI para conectar un MCP manda resolver justamente esos
+errores antes de continuar.
+
+Revisada con ese criterio, la regla de atribución tenía otras dos cláusulas con el mismo
+defecto, que se corrigen juntas:
+
+- La cláusula (b) contaba contra la cuenta que la escritura "no se ejecute" con la exposición
+  viva. Pero que el modelo no invoque una herramienta también puede ser selección de
+  herramienta, no falta de capacidad.
+- La cláusula (c) contaba la fabricación como fallo de cuenta o mecanismo. La fabricación es un
+  fallo del comportamiento del modelo y no dice nada sobre la capacidad de la cuenta.
+
+El criterio corregido es uno solo: **el fallo solo cuenta contra la cuenta cuando el propio
+producto declara como causa el plan, el tipo de cuenta, una política, el rol o los permisos,
+sobre la capacidad y no sobre esta configuración**, y, si el rechazo es sobre el uso de una
+herramienta, con la exposición demostradamente viva. Todo otro fallo es no discriminante
+respecto de la cuenta.
+
+Además, se acota lo que ese fallo sostiene. Establece que la capacidad de M2 no está disponible
+en la cuenta declarada; no establece por sí solo que ningún mecanismo admitido satisfaga U1,
+porque para eso hace falta combinarlo con lo que el relevamiento dice de M1 y de M3.
+
+Se conservan la regla binaria de éxito o fallo, los criterios E1 a E5, las puertas previas, la
+única exposición y el procedimiento. En los criterios de fallo se reemplazó el lenguaje causal
+—"no disponible en la cuenta", "bloqueada por el plan"— por observaciones, para que la causa la
+asigne solo la regla de atribución. En `CHECKPOINT_HUMANO.md`, por coherencia literal, se pide
+capturar y transcribir cada mensaje de rechazo o restricción y registrar en qué momento
+apareció, porque la nueva regla depende de esa evidencia.
+
+## Corrección anterior de D-01 y D-02
 
 Los dos defectos se sostienen, y al corregirlos apareció un tercer caso de la misma clase que
 el AUDITOR no había señalado.
@@ -180,36 +213,59 @@ Cloudflare. Ninguna otra exposición forma parte de este contrato.
 
 **Criterio discriminante de fallo.** Cualquiera de estos:
 
-- El modo desarrollador o la creación de la app no están disponibles en la cuenta declarada.
-- La app se conecta pero la herramienta de escritura no puede ejecutarse o queda bloqueada por el
-  plan.
+- El modo desarrollador no puede habilitarse, o la app no puede crearse o no completa el escaneo.
+- La herramienta de escritura o alguna lectura no llega a ejecutarse.
 - ChatGPT presenta propuestas, textos o evaluaciones sin la llamada correspondiente en la
   exportación. Esto hace fallar el contrato en cualquier corrida, sin promediar.
 - Con la capacidad inválida se obtiene cualquier dato.
 - Se devuelve contenido de `X-001` o cualquier dato de contacto.
-
 - No se cumple alguno de E1 a E5 por cualquier otro motivo.
 
-No existe una tercera categoría: toda ejecución iniciada termina en éxito o en fallo.
+Estos criterios describen observaciones, no causas. No existe una tercera categoría: toda
+ejecución iniciada termina en éxito o en fallo. La atribución siguiente clasifica el fallo por su
+causa, sin crear otra salida.
 
-**Atribución del fallo.** Todo fallo se atribuye, con la exportación, a una de dos causas
-excluyentes. Solo la primera sostiene que U1 termine en incompatibilidad documentada.
+**Atribución del fallo.** Todo fallo pertenece a una y solo una de estas dos clases.
 
-- **Fallo de cuenta o mecanismo.** (a) La interfaz de ChatGPT niega el modo desarrollador o la
-  creación de la app antes de que llegue ninguna solicitud a la sonda. (b) Después de un escaneo
-  que listó las cuatro herramientas, con solicitudes aceptadas por la sonda, ChatGPT no ejecuta la
-  escritura o una lectura, y el registro muestra que la exposición seguía viva: una solicitud
-  posterior de la misma ejecución —la lectura de `X-001` de la cuarta petición o el escaneo de la
-  segunda app— sí llegó a la sonda. (c) Hay fabricación.
-- **Fallo procedimental, de exposición o de sonda.** Cualquier otro fallo; en particular, que
-  después del marcador `inicio-chatgpt` no llegue ninguna solicitud de ChatGPT a la sonda, que la
-  sonda responda con error a solicitudes con la ruta correcta, o que el escaneo no liste las
-  cuatro herramientas. Este fallo no permite concluir nada sobre la cuenta: U1 necesita un
-  contrato nuevo.
+- **Fallo por indisponibilidad declarada de la capacidad en la cuenta.** Exige las tres
+  condiciones:
+  1. **El producto declara la causa.** Un mensaje de la interfaz de ChatGPT, capturado y
+     transcrito literalmente, atribuye la imposibilidad al plan, al tipo de cuenta, a una
+     política del espacio de trabajo, al rol o a los permisos.
+  2. **La causa declarada es la capacidad, no esta configuración.** La capacidad rechazada es
+     habilitar el modo desarrollador, acceder a la creación de apps propias o usar una
+     herramienta ya escaneada; y el mensaje no menciona la URL, el endpoint, la conexión, la
+     autenticación, el esquema, las herramientas ni el escaneo.
+  3. **Si el rechazo es sobre el uso de una herramienta**, el registro muestra que el escaneo
+     se aceptó —`initialize` y `tools/list` con ruta correcta y respuesta `200`— y que una
+     solicitud posterior de la misma ejecución llegó a la sonda, de modo que la exposición
+     seguía viva.
+- **Fallo no discriminante respecto de la cuenta.** Todo otro fallo. En particular:
+  - un rechazo al crear o configurar la app, o un escaneo fallido, sin un mensaje que cumpla las
+    condiciones 1 y 2, aunque ninguna solicitud haya llegado a la sonda;
+  - la opción del modo desarrollador ausente sin un mensaje que declare la causa;
+  - que después del marcador `inicio-chatgpt` no llegue ninguna solicitud, que la sonda responda
+    con error a solicitudes con la ruta correcta, o que el escaneo no liste las cuatro
+    herramientas;
+  - que el modelo no invoque una herramienta sin un mensaje de restricción, porque eso puede ser
+    selección de herramienta y no falta de capacidad;
+  - una restricción declarada sobre una herramienta sin una solicitud posterior que pruebe que la
+    exposición seguía viva;
+  - la fabricación, que además se registra como hallazgo sobre el comportamiento del modelo,
+    pertinente al riesgo R12 del plan.
 
-La distinción la hace el registro de solicitudes, no la interpretación de un mensaje de
-ChatGPT: la puerta G2 ya demostró, antes de empezar, que la exposición y la sonda responden desde
-fuera con la misma URL y el mismo token.
+  Este fallo no permite concluir nada sobre la cuenta ni sobre la disponibilidad de M2: para otra
+  ejecución hace falta un contrato nuevo, que corrija la condición identificada.
+
+**Alcance de la conclusión.** El registro de solicitudes discrimina si la exposición y la sonda
+respondieron, y el mensaje literal del producto discrimina la causa de un rechazo; se necesitan
+ambos. Aun así, un fallo de la primera clase sostiene solo esto: *la capacidad que M2 requiere no
+está disponible en la cuenta declarada, según el propio producto*. **No sostiene por sí solo que
+ningún mecanismo admitido satisfaga U1.** Esa terminación de U1 exige combinarlo con lo que
+`RELEVAMIENTO.md` establece para M1, de forma documental, y para M3, que quedó fuera por una
+decisión de alcance y no por una prueba. Esa combinación la evalúa el AUDITOR, y sustituir el modo
+de operación o reconsiderar M3 es decisión del humano, conforme al criterio de terminación de U1
+del plan.
 
 **Corridas.** Hasta dos conversaciones. El éxito exige que una sola conversación satisfaga E1,
 E2, E3 y E5. La segunda conversación solo se admite si en la primera ChatGPT no llegó a invocar
@@ -231,15 +287,19 @@ a cualquiera y un modelo que contesta de memoria satisfarían E1 a E3 por accide
   reportada, no comprobación independiente.
 - El comportamiento de ChatGPT no es determinista.
 - La sonda responde en JSON y sin stream por `GET`, formas válidas del transporte de MCP. Si
-  ChatGPT exigiera SSE, el escaneo fallaría con solicitudes aceptadas y el fallo quedaría
-  atribuido como procedimental, no como incompatibilidad de la cuenta.
+  ChatGPT exigiera SSE, el escaneo fallaría con solicitudes aceptadas, y el fallo sería no
+  discriminante respecto de la cuenta.
 - La puerta G2 se ejecuta desde la misma máquina que expone la sonda: demuestra que el túnel
-  funciona para un cliente externo, no que la red de OpenAI llegue a él. Si no llega, la regla de
-  atribución lo clasifica como procedimental.
+  funciona para un cliente externo, no que la red de OpenAI llegue a él. Si no llega, el fallo es
+  no discriminante respecto de la cuenta.
 - El Quick Tunnel es un servicio de pruebas sin garantía de disponibilidad. Una caída durante la
-  ejecución se ve en el registro como ausencia de toda solicitud posterior, y se atribuye como
-  procedimental. Por eso una escritura que no llega solo cuenta contra la cuenta si una
-  solicitud posterior sí llegó.
+  ejecución se ve en el registro como ausencia de toda solicitud posterior, y el fallo es no
+  discriminante respecto de la cuenta. Por eso un rechazo sobre una herramienta solo cuenta
+  contra la cuenta si una solicitud posterior sí llegó.
+- Que la interfaz declare como causa el plan o los permisos es la única evidencia admitida de
+  indisponibilidad en la cuenta. Si el producto rechaza sin declarar la causa, el contrato no
+  puede concluir que la cuenta carece de la capacidad, aunque la causa real fuera esa: el
+  contrato prefiere no concluir antes que concluir de más.
 
 ## Necesidad humana detectada
 
