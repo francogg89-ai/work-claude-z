@@ -2,17 +2,47 @@
 
 ## Qué recibió
 
-Cabecera canónica completa con `INCOMING_TURN_ID=6`, e instrucción de iniciar U1 conforme al
-PLAN aprobado. La situación se rederivó desde Git sobre el corte recibido: la última entrega de
-work es `8f75c827bbd1924555600e46fb04cf5ecee41559`, su auditoría aplicable existe con veredicto
-`APTO_PARA_DECISION_HUMANA_SOBRE_PLAN`, y la intervención auditora del corte preserva la
-decisión humana `APROBADO` sobre `PLAN.md` con `PLAN_BLOB_SHA=6da2d46ba5a41f4a1d33688ac1ee15709e9dce74`,
-que coincide con el blob de `PLAN.md` en esa entrega. `PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`
-y `MODIFICA_PERIMETRO=NO`: el perímetro vigente es el de `BOOTSTRAP.md`.
+Cabecera canónica completa con `INCOMING_TURN_ID=8`, e instrucción de cerrar D-01 y D-02 de la
+auditoría de la entrega anterior de U1 sin ejecutar la conexión real. La situación se rederivó
+desde Git sobre el corte recibido: la última entrega de work es
+`d3f6d4393567d8bf8d76e97b2de760905d9319a7`; su auditoría aplicable existe con
+`VEREDICTO=CORRECCION_REQUERIDA` y `CONTRATO_PREVIO_CONGELADO=NO`;
+`PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`, sin deltas. El plan aprobado sigue siendo el de
+`PLAN_BLOB_SHA=6da2d46ba5a41f4a1d33688ac1ee15709e9dce74`.
+
+## Corrección de D-01 y D-02
+
+Los dos defectos se sostienen, y al corregirlos apareció un tercer caso de la misma clase que
+el AUDITOR no había señalado.
+
+- **D-01 — mecanismo inequívoco por alternativa.** Se ofrece una sola alternativa de exposición:
+  endpoint HTTPS público mediante un Quick Tunnel de Cloudflare. Secure MCP Tunnel deja de
+  ofrecerse, con la razón en `RELEVAMIENTO.md`. Para que un fallo procedimental no pueda leerse
+  como incompatibilidad de la cuenta, la corrección no se limitó a separar ramas:
+  - **Puertas previas G-1 a G2.** Candidato exacto, entorno, sonda en marcha y exposición
+    certificada desde fuera, a través del túnel, antes de tocar ChatGPT. Si una puerta no se
+    cumple, la ejecución del contrato no empezó.
+  - **Registro de solicitudes HTTP en la sonda**, con marcadores de tiempo. Distingue una
+    solicitud que nunca llegó, una que la sonda rechazó y una que la sonda aceptó. De esa
+    distinción depende la regla de atribución que se agregó al contrato.
+  - **E4 exige un rechazo registrado.** Antes, "ChatGPT no obtiene datos" podía cumplirse porque
+    nada llegara a la sonda; ese control negativo no podía fallar.
+- **Caso adicional de la misma clase.** F9 declara que los Quick Tunnels no soportan SSE, y el
+  SDK responde por SSE por omisión; además, con la protección de `Host` y `Origin` activa, la
+  sonda habría rechazado encabezados puestos por el túnel o por ChatGPT. Cualquiera de las dos
+  cosas habría producido un fallo de la sonda con apariencia de incompatibilidad de la cuenta.
+  La sonda pasa a usar HTTP sin estado, respuestas JSON y `405` para el stream por `GET`, y en
+  modo público desactiva esa protección: el token de la URL sigue siendo la única llave.
+- **D-02 — arranque ejecutable en Windows.** El checkpoint declara Windows PowerShell y usa solo
+  comandos literales, sin variables de entorno ni asignaciones en línea. El token lo genera la
+  propia sonda (`probe.launch --fresh`) en un archivo local ignorado por Git, y la puerta G2
+  escribe las dos URLs para ChatGPT solo si la exposición quedó certificada. Así nadie tiene que
+  copiar el token por la terminal ni reparar sintaxis. Como en Windows PowerShell 5.1 `>` escribe
+  en UTF-16, la exportación escribe su archivo directamente en UTF-8.
 
 ## Qué hizo y por qué
 
-Esta intervención cubre los pasos 1 a 4 de U1 del plan. El paso 5, la conexión real, no se
+La entrega anterior de esta unidad cubrió los pasos 1 a 4 de U1 del plan. El paso 5, la conexión real, no se
 ejecuta: depende de una cuenta, un plan y una exposición de red que no pertenecen al perímetro
 delegado, y su contrato previo debe congelarlo el AUDITOR antes de cualquier ejecución.
 
@@ -38,9 +68,15 @@ mínimo y descartable sobre datos sintéticos identificados como tales, con cuat
 propuestas en alcance y 3 fuera de alcance. Decisiones de la sonda, ninguna de las cuales
 compromete a U2:
 
-- El control de acceso es una URL con capacidad: el endpoint solo existe en `/mcp/<token>`, el
-  token se toma del entorno, el servidor se niega a arrancar sin uno de al menos 32 caracteres y
-  el registro de acceso está apagado para que el token no aparezca en la consola.
+- El control de acceso es una URL con capacidad: el endpoint solo existe en `/mcp/<token>`. El
+  token lo genera `probe.launch` en `.data/token`, excluido de Git; ninguna aplicación se
+  construye con un token de menos de 32 caracteres, y el registro de acceso de uvicorn está
+  apagado para que el token no aparezca en la consola.
+- Transporte sin SSE: HTTP sin estado, respuestas JSON y `405` para el stream por `GET`. En modo
+  público se desactiva la protección de `Host` y `Origin`; en modo local se mantiene.
+- Registro de cada solicitud HTTP —método, si la ruta coincidió con la del token, código de
+  respuesta, método JSON-RPC, `Host`, `Origin` y `User-Agent`— sin guardar nunca la ruta, más
+  marcadores de tiempo escritos con `probe.mark` y por la puerta G2.
 - Los datos de contacto viven en su propia tabla y ningún método público los lee; existen para
   que las pruebas demuestren que no se filtran.
 - El servidor registra cada llamada recibida. Ese registro es lo que permite distinguir una
@@ -56,24 +92,40 @@ No es la verificación discriminante de U1. Comprueba la sonda, no la integraci�
 íntegramente dentro del perímetro. Entorno: Windows local del CONSTRUCTOR, Python 3.12.4, entorno
 virtual propio de la sonda con `mcp==2.2.0`, `httpx==0.28.1`, `pytest==9.1.1`.
 
+Suite de pruebas, desde Git Bash, con timeout acotado:
+
 | Comando | Resultado |
 |---|---|
-| `python -m pytest -q` | `24 passed`, rc=0 |
-| `python -m probe.server` sin `SONDA_TOKEN`, acotado con `timeout 10` | rc=1 antes del corte, con `ValueError: SONDA_TOKEN must be at least 32 URL-safe characters`; el proceso no queda esperando conexiones |
-| Cliente MCP contra `/mcp/<token>` sobre el servidor real, acotado con `timeout 15` | lista las cuatro herramientas; `list_proposals` y `save_evaluation` sin error; `get_proposal` de una propuesta fuera de alcance devuelve error |
-| `POST /mcp` y `POST /mcp/<token inválido>` | 404 en ambos casos |
-| Recuento del token en el log del servidor | 0 apariciones |
-| `python -m probe.export` | llamadas registradas `[list_proposals ok, save_evaluation ok, get_proposal error]`; la evaluación guardada se recupera; el volcado no contiene ninguna dirección de correo |
+| `python -m pytest -q` | `43 passed`, rc=0 |
 
-Las pruebas cubren: determinismo y marcado sintético del conjunto de datos, separación de
-contactos, idempotencia de la siembra, paginación completa de las 100 propuestas sin duplicados,
-ausencia de contacto en el detalle, rechazo de identificadores fuera de alcance, persistencia de
-la evaluación tras reabrir la base, anotaciones de lectura y escritura de cada herramienta,
-registro de todas las llamadas, rechazo de un token débil, 404 sin token válido y rechazo de una
-cabecera `Host` ajena.
+Las pruebas cubren, además de lo anterior —determinismo y marcado sintético de los datos,
+separación de contactos, paginación completa de las 100 propuestas, rechazo de fuera de
+alcance, persistencia, anotaciones de lectura y escritura, registro de llamadas—, lo siguiente
+sobre el servidor real en ambos modos: `404` sin token o con token inválido, respuestas
+`application/json` y nunca SSE, `405` al `GET`, rechazo de un `Host` ajeno en modo local,
+aceptación en modo público de `Host` y `Origin` puestos por terceros sin dejar de exigir el
+token, ida y vuelta de escritura y lectura, registro de solicitudes sin el token, marcadores
+intercalados en orden, la puerta G2 aprobando una sonda bien expuesta y fallando sin escribir
+URLs cuando nada escucha, generación de un token nuevo en cada `--fresh` y exportación en UTF-8.
 
-Limitación: todo esto ocurrió en `127.0.0.1`. No demuestra nada sobre el comportamiento detrás de
-una exposición pública ni sobre ChatGPT.
+Comandos literales del checkpoint, ejecutados en **Windows PowerShell 5.1.26100** sobre una copia
+limpia de la sonda, cada proceso de larga duración acotado:
+
+| Comando del checkpoint | Resultado |
+|---|---|
+| `python --version`, `python -m venv .venv`, `pip install -r requirements.txt`, `pytest -q` (G0) | Python 3.12.4; rc=0 en los tres; `43 passed` |
+| `.\.venv\Scripts\python.exe -m probe.launch --fresh` (G1) | escucha en `127.0.0.1:8000` y crea `.data\token`; detenido con `Stop-Process` |
+| `.\.venv\Scripts\python.exe -m probe.check http://127.0.0.1:8000` | rc=1: la puerta G2 solo acepta una URL `https://` |
+| `.\.venv\Scripts\python.exe -m probe.mark inicio-chatgpt`, y con una etiqueta inválida | rc=0, y rc=1 respectivamente |
+| `.\.venv\Scripts\python.exe -m probe.export .data\evidencia-servidor.json` | rc=0; el primer byte es `{`, sin BOM UTF-16; contiene el marcador y no contiene el token |
+| `curl.exe -sSL -o .data\cloudflared.exe <URL de F10>` y `.\.data\cloudflared.exe --version` | rc=0; `cloudflared version 2026.9.0`; **no se abrió ningún túnel** |
+| `git diff --quiet <SHA> -- .` y `$LASTEXITCODE` (G-1), sobre el clon real | la sintaxis funciona y discrimina: contra la entrega anterior imprime `1`, porque la sonda cambió |
+
+Al terminar, el puerto 8000 quedó libre y no quedó ningún proceso de la sonda vivo.
+
+Limitaciones: todo ocurrió en `127.0.0.1`. La puerta G2 con una URL `https://` real, el túnel y
+ChatGPT no se ejercitaron, porque exponer la sonda está fuera del perímetro. La lógica de G2 se
+probó contra el servidor real en modo público, pero sin túnel de por medio.
 
 ## Contrato previo de verificación — conexión real (C1.1 a C1.5)
 
@@ -92,13 +144,21 @@ capacidad válida y los recursos fuera del alcance declarado se rechazan.
 
 **Entorno y fuente relevantes.** ChatGPT web, cuenta del creador de referencia, cuyo plan declara
 el humano y no se infiere; modo desarrollador habilitado en esa cuenta; app MCP propia (mecanismo
-M2 del relevamiento); sonda ejecutándose en el Windows local; exposición HTTPS elegida por el
-humano entre las opciones del relevamiento.
+M2 del relevamiento) configurada con la URL pública del servidor, no con la opción Tunnel; sonda
+ejecutándose en el Windows local en modo público; exposición única por Quick Tunnel de
+Cloudflare. Ninguna otra exposición forma parte de este contrato.
 
-**Mecanismo.** El del `CHECKPOINT_HUMANO.md` de esta unidad: arranque de la sonda con token nuevo
-y base vacía, configuración de la app, una conversación con cuatro peticiones literales fijadas
-allí, un intento con capacidad inválida, exportación de la evidencia del lado del servidor y
-devolución de la evidencia solicitada.
+**Mecanismo.** El de `CHECKPOINT_HUMANO.md`, en Windows PowerShell y en dos tramos:
+
+- **Puertas previas G-1 a G2**: candidato exacto, entorno con la suite en verde, sonda en marcha
+  con token nuevo y base vacía, y exposición certificada desde fuera, a través del túnel, con
+  las cuatro herramientas listadas con el token y `404` sin token y con token inválido. Mientras
+  alguna no se cumpla, **la ejecución no empezó** y no existe resultado del contrato: lo ocurrido
+  vuelve al loop como evidencia de precondición no satisfecha.
+- **Ejecución**, que empieza con el marcador `inicio-chatgpt`: habilitar el modo desarrollador,
+  crear la app con la URL escrita por G2, cuatro peticiones literales en una conversación,
+  marcador `inicio-intento-capacidad-invalida`, segunda app con la URL inválida escrita por G2,
+  marcador `fin`, cierre y exportación de la evidencia del servidor.
 
 **Criterio discriminante de éxito.** Se cumplen los cinco:
 
@@ -110,9 +170,11 @@ devolución de la evidencia solicitada.
 - E3 (C1.3) La exportación registra `save_evaluation` correcta sobre `P-042` y una
   `get_evaluations` posterior también correcta, y la evaluación aparece almacenada en la
   exportación.
-- E4 (C1.4) Con la capacidad inválida, ChatGPT no obtiene herramientas ni datos, y la exportación
-  no registra ninguna llamada originada en ese intento; además, una petición HTTP sin token
-  contra la URL pública se rechaza.
+- E4 (C1.4) Entre los marcadores `inicio-intento-capacidad-invalida` y `fin`, la exportación
+  registra al menos una solicitud llegada con ruta no coincidente y respuesta `404`, ninguna
+  solicitud aceptada y ninguna llamada a herramientas; y ChatGPT no obtiene herramientas ni
+  datos con esa app. Si en ese intervalo no llega ninguna solicitud, E4 no se cumple: el control
+  no se ejercitó.
 - E5 (C1.5) La exportación registra `get_proposal` de `X-001` con error, y ChatGPT informa que no
   está disponible sin mostrar su contenido.
 
@@ -126,9 +188,28 @@ devolución de la evidencia solicitada.
 - Con la capacidad inválida se obtiene cualquier dato.
 - Se devuelve contenido de `X-001` o cualquier dato de contacto.
 
-No existe una tercera categoría: si la ejecución no puede completarse por el plan de la cuenta,
-eso es fallo del mecanismo en esa cuenta y termina U1 como incompatibilidad documentada, con la
-condición faltante identificada.
+- No se cumple alguno de E1 a E5 por cualquier otro motivo.
+
+No existe una tercera categoría: toda ejecución iniciada termina en éxito o en fallo.
+
+**Atribución del fallo.** Todo fallo se atribuye, con la exportación, a una de dos causas
+excluyentes. Solo la primera sostiene que U1 termine en incompatibilidad documentada.
+
+- **Fallo de cuenta o mecanismo.** (a) La interfaz de ChatGPT niega el modo desarrollador o la
+  creación de la app antes de que llegue ninguna solicitud a la sonda. (b) Después de un escaneo
+  que listó las cuatro herramientas, con solicitudes aceptadas por la sonda, ChatGPT no ejecuta la
+  escritura o una lectura, y el registro muestra que la exposición seguía viva: una solicitud
+  posterior de la misma ejecución —la lectura de `X-001` de la cuarta petición o el escaneo de la
+  segunda app— sí llegó a la sonda. (c) Hay fabricación.
+- **Fallo procedimental, de exposición o de sonda.** Cualquier otro fallo; en particular, que
+  después del marcador `inicio-chatgpt` no llegue ninguna solicitud de ChatGPT a la sonda, que la
+  sonda responda con error a solicitudes con la ruta correcta, o que el escaneo no liste las
+  cuatro herramientas. Este fallo no permite concluir nada sobre la cuenta: U1 necesita un
+  contrato nuevo.
+
+La distinción la hace el registro de solicitudes, no la interpretación de un mensaje de
+ChatGPT: la puerta G2 ya demostró, antes de empezar, que la exposición y la sonda responden desde
+fuera con la misma URL y el mismo token.
 
 **Corridas.** Hasta dos conversaciones. El éxito exige que una sola conversación satisfaga E1,
 E2, E3 y E5. La segunda conversación solo se admite si en la primera ChatGPT no llegó a invocar
@@ -149,6 +230,16 @@ a cualquiera y un modelo que contesta de memoria satisfarían E1 a E3 por accide
 - La exportación y las transcripciones las produce quien ejecuta, no el AUDITOR: es evidencia
   reportada, no comprobación independiente.
 - El comportamiento de ChatGPT no es determinista.
+- La sonda responde en JSON y sin stream por `GET`, formas válidas del transporte de MCP. Si
+  ChatGPT exigiera SSE, el escaneo fallaría con solicitudes aceptadas y el fallo quedaría
+  atribuido como procedimental, no como incompatibilidad de la cuenta.
+- La puerta G2 se ejecuta desde la misma máquina que expone la sonda: demuestra que el túnel
+  funciona para un cliente externo, no que la red de OpenAI llegue a él. Si no llega, la regla de
+  atribución lo clasifica como procedimental.
+- El Quick Tunnel es un servicio de pruebas sin garantía de disponibilidad. Una caída durante la
+  ejecución se ve en el registro como ausencia de toda solicitud posterior, y se atribuye como
+  procedimental. Por eso una escritura que no llega solo cuenta contra la cuenta si una
+  solicitud posterior sí llegó.
 
 ## Necesidad humana detectada
 

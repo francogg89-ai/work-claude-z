@@ -1,21 +1,18 @@
 """Minimal, disposable MCP server for the U1 feasibility probe.
 
 Access control is a capability URL: the MCP endpoint only exists at /mcp/<token>. The token
-comes from the environment and never enters Git. Access logs are disabled so the token does
-not end up in console output.
+is generated locally by probe.launch and never enters Git.
 """
 
 import json
-import os
 import re
-from pathlib import Path
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
 
-from probe.store import IN_SCOPE_CALL, NotInScopeError, Store, generate_dataset
+from probe.store import IN_SCOPE_CALL, NotInScopeError, Store
 
 INSTRUCTIONS = (
     "Synthetic probe of an audience proposal system. Every proposal is synthetic test data. "
@@ -67,28 +64,95 @@ def build_server(store: Store, call_id: str = IN_SCOPE_CALL) -> MCPServer:
     return server
 
 
-def build_app(store: Store, token: str, extra_hosts: list[str]):
+class RequestLog:
+    """ASGI wrapper that records every HTTP request reaching the probe, token path excluded.
+
+    It is what lets a failed real connection be attributed: requests that never arrived point
+    to the exposure, requests rejected by the probe point to the probe, and accepted requests
+    followed by a refusal point to the account or the mechanism.
+    """
+
+    def __init__(self, app, store: Store, token_path: str):
+        self.app, self.store, self.token_path = app, store, token_path
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        headers = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
+        path_ok = scope["path"] == self.token_path
+        rpc, inner_receive = "", receive
+        if path_ok and scope["method"] == "POST":
+            messages, more = [], True
+            while more:
+                message = await receive()
+                messages.append(message)
+                more = message.get("more_body", False)
+            rpc = _rpc_methods(b"".join(m.get("body", b"") for m in messages))
+            replay = iter(messages)
+
+            async def inner_receive():
+                return next(replay, None) or await receive()
+
+        logged = False
+
+        async def logging_send(message):
+            nonlocal logged
+            if message["type"] == "http.response.start" and not logged:
+                logged = True
+                self.store.log_request(scope["method"], path_ok, message["status"], rpc,
+                                       headers.get("host", ""), headers.get("origin", ""),
+                                       headers.get("user-agent", ""))
+            await send(message)
+
+        try:
+            await self.app(scope, inner_receive, logging_send)
+        finally:
+            if not logged:
+                self.store.log_request(scope["method"], path_ok, 500, rpc, headers.get("host", ""),
+                                       headers.get("origin", ""), headers.get("user-agent", ""))
+
+
+class NoStandaloneStream:
+    """Answer 405 to GET: the probe offers no server-initiated event stream (allowed by the
+    streamable HTTP transport), because some forwarding services do not support SSE."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["method"] == "GET":
+            await send({"type": "http.response.start", "status": 405, "headers": [(b"allow", b"POST")]})
+            await send({"type": "http.response.body", "body": b""})
+            return
+        await self.app(scope, receive, send)
+
+
+def _rpc_methods(raw: bytes) -> str:
+    try:
+        payload = json.loads(raw or b"null")
+    except ValueError:
+        return "invalid-json"
+    items = payload if isinstance(payload, list) else [payload]
+    return ",".join(i.get("method", "response") for i in items if isinstance(i, dict))
+
+
+def build_app(store: Store, token: str, public: bool):
+    """Stateless streamable HTTP with plain JSON responses: no Server-Sent Events anywhere.
+
+    public=False keeps DNS rebinding protection for local use. public=True disables it: behind
+    a forwarding service the Host and Origin headers are set by third parties, and rejecting
+    them would make a probe-side refusal look like an account incompatibility. The capability
+    token still gates every MCP request.
+    """
     if not _TOKEN_PATTERN.match(token or ""):
-        raise ValueError("SONDA_TOKEN must be at least 32 URL-safe characters")
-    hosts = ["127.0.0.1:*", "localhost:*", "[::1]:*", *extra_hosts]
-    security = TransportSecuritySettings(enable_dns_rebinding_protection=True, allowed_hosts=hosts,
-                                         allowed_origins=[])
-    return build_server(store).streamable_http_app(streamable_http_path=f"/mcp/{token}",
-                                                   transport_security=security)
-
-
-def main() -> None:
-    import uvicorn
-
-    token = os.environ.get("SONDA_TOKEN", "")
-    extra_hosts = [h.strip() for h in os.environ.get("SONDA_ALLOWED_HOSTS", "").split(",") if h.strip()]
-    store = Store(Path(os.environ.get("SONDA_DB", ".data/probe.sqlite")))
-    store.seed(generate_dataset())
-    app = build_app(store, token, extra_hosts)
-    port = int(os.environ.get("SONDA_PORT", "8000"))
-    print(json.dumps({"listening": f"http://127.0.0.1:{port}/mcp/<SONDA_TOKEN>", "allowed_hosts": extra_hosts}))
-    uvicorn.run(app, host="127.0.0.1", port=port, access_log=False, log_level="warning")
-
-
-if __name__ == "__main__":
-    main()
+        raise ValueError("the token must be at least 32 URL-safe characters")
+    security = TransportSecuritySettings(
+        enable_dns_rebinding_protection=not public,
+        allowed_hosts=["127.0.0.1:*", "localhost:*", "[::1]:*"],
+        allowed_origins=[],
+    )
+    token_path = f"/mcp/{token}"
+    app = build_server(store).streamable_http_app(streamable_http_path=token_path, json_response=True,
+                                                  stateless_http=True, transport_security=security)
+    return RequestLog(NoStandaloneStream(app), store, token_path)

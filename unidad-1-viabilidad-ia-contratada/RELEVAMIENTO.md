@@ -20,6 +20,8 @@ funcione en una cuenta concreta: eso lo resuelve la conexión real de U1.
 | F6 | Developers — Secure MCP Tunnel: https://developers.openai.com/api/docs/guides/secure-mcp-tunnels | sin fecha visible |
 | F7 | Developers — GPT Actions, production notes: https://developers.openai.com/api/docs/actions/production | sin fecha visible |
 | F8 | Developers — GPT Actions, introduction: https://developers.openai.com/api/docs/actions/introduction | sin fecha visible |
+| F9 | Cloudflare — Quick Tunnels (TryCloudflare): https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/ | sin fecha visible |
+| F10 | Cloudflare — descargas de `cloudflared`: https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/ | sin fecha visible |
 
 ## Mecanismos
 
@@ -81,6 +83,32 @@ aproxima a una plataforma centralizada, mientras que el kit es replicable por ca
 |---|---|---|
 | Túnel de desarrollo o servicio de reenvío HTTPS | admitido para pruebas locales (F5) | Expone el servidor local a internet; elegir y operar el servicio es una acción reservada al humano |
 | Secure MCP Tunnel | `tunnel-client` con salida HTTPS a `api.openai.com:443`; organización de la Plataforma de OpenAI con permisos de túnel; asociación del túnel con el espacio de ChatGPT (F6) | Para cuentas personales, F6 indica usar la organización personal de la Plataforma; no verifica que la asociación funcione con una cuenta personal de ChatGPT |
+
+Las dos opciones se configuran en ChatGPT de forma distinta: la primera con la URL pública del
+servidor, la segunda eligiendo `Tunnel` y un `tunnel_id` (F5). Mezclarlas en un mismo
+procedimiento haría indistinguible un error de configuración de una incompatibilidad de la
+cuenta.
+
+### Exposición ofrecida en la conexión real
+
+Se ofrece **una sola**: un Quick Tunnel de Cloudflare, dentro de la primera opción.
+
+- Se inicia con `cloudflared tunnel --url http://localhost:8080`, ajustando el puerto; no
+  requiere cuenta de Cloudflare; imprime en la terminal un subdominio aleatorio (F9).
+- "Quick Tunnels are intended for testing and development only"; límite de 200 solicitudes en
+  curso; sin garantía de disponibilidad (F9).
+- **"Quick Tunnels do not support Server-Sent Events (SSE)"** (F9). El SDK de MCP usado responde
+  por SSE por omisión, así que la sonda se configuró para no usar SSE en ningún punto: HTTP sin
+  estado, respuestas JSON y `405` ante el `GET` que abriría un stream iniciado por el servidor.
+  Ambas formas son válidas en el transporte HTTP con streaming de MCP.
+- En Windows, F10 ofrece descarga directa del ejecutable desde GitHub; la URL de la última
+  versión para 64 bits se verificó el 2026-09-10.
+
+Secure MCP Tunnel **no se ofrece** en esta prueba: agrega requisitos propios —organización de la
+Plataforma, permisos de túnel y asociación con el espacio de ChatGPT— cuya falla no tiene
+relación con la propiedad que se quiere demostrar, y que F6 no confirma para cuentas personales.
+Queda disponible como alternativa para un contrato posterior, si la exposición elegida no
+alcanzara.
 
 ## Costos y datos
 

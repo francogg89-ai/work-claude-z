@@ -44,6 +44,11 @@ CREATE TABLE IF NOT EXISTS evaluations (
 CREATE TABLE IF NOT EXISTS calls (
     id INTEGER PRIMARY KEY AUTOINCREMENT, tool TEXT NOT NULL, arguments TEXT NOT NULL,
     ok INTEGER NOT NULL, at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, kind TEXT NOT NULL,
+    method TEXT NOT NULL DEFAULT '', path_ok INTEGER NOT NULL DEFAULT 0,
+    status INTEGER NOT NULL DEFAULT 0, rpc TEXT NOT NULL DEFAULT '', host TEXT NOT NULL DEFAULT '',
+    origin TEXT NOT NULL DEFAULT '', user_agent TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '');
 """
 
 _PUBLIC_COLUMNS = "id, call_id, what, why, example, received_at, synthetic"
@@ -159,3 +164,22 @@ class Store:
     def all_calls(self) -> list[dict]:
         rows = self._db.execute("SELECT id, tool, arguments, ok, at FROM calls ORDER BY id").fetchall()
         return [{**dict(r), "arguments": json.loads(r["arguments"]), "ok": bool(r["ok"])} for r in rows]
+
+    def log_request(self, method: str, path_ok: bool, status: int, rpc: str,
+                    host: str, origin: str, user_agent: str) -> None:
+        """Record one HTTP request. The request path is never stored: it may contain the token."""
+        with self._db:
+            self._db.execute(
+                "INSERT INTO requests (at, kind, method, path_ok, status, rpc, host, origin, user_agent) "
+                "VALUES (?, 'http', ?, ?, ?, ?, ?, ?, ?)",
+                (datetime.now(timezone.utc).isoformat(), method, int(path_ok), status, rpc, host, origin, user_agent),
+            )
+
+    def log_marker(self, note: str) -> None:
+        with self._db:
+            self._db.execute("INSERT INTO requests (at, kind, note) VALUES (?, 'marker', ?)",
+                             (datetime.now(timezone.utc).isoformat(), note))
+
+    def all_requests(self) -> list[dict]:
+        rows = self._db.execute("SELECT * FROM requests ORDER BY id").fetchall()
+        return [{**dict(r), "path_ok": bool(r["path_ok"])} for r in rows]
