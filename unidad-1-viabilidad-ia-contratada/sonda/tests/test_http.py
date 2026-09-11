@@ -44,6 +44,12 @@ def test_no_standalone_event_stream_is_offered(serve, public):
     assert r.status_code == 405
 
 
+@pytest.mark.parametrize("path", ["/mcp", "/mcp/" + "x" * 43, "/"])
+def test_get_without_the_valid_token_is_404_not_405(serve, path):
+    r = httpx.get(serve(True) + path, headers={"Accept": "text/event-stream"})
+    assert r.status_code == 404
+
+
 def test_local_mode_rejects_a_foreign_host_header(serve):
     r = httpx.post(f"{serve(False)}/mcp/{TOKEN}", json=INIT, headers={**HEADERS, "Host": "attacker.example"})
     assert r.status_code == 421

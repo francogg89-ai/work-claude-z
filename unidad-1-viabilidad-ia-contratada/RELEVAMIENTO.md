@@ -22,6 +22,8 @@ funcione en una cuenta concreta: eso lo resuelve la conexión real de U1.
 | F8 | Developers — GPT Actions, introduction: https://developers.openai.com/api/docs/actions/introduction | sin fecha visible |
 | F9 | Cloudflare — Quick Tunnels (TryCloudflare): https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/do-more-with-tunnels/trycloudflare/ | sin fecha visible |
 | F10 | Cloudflare — descargas de `cloudflared`: https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/ | sin fecha visible |
+| F11 | Developers — Add UI to your MCP server: https://developers.openai.com/plugins/build/chatgpt-ui | consultada el 2026-09-11 |
+| F12 | MCP Apps, especificación 2026-01-26: https://github.com/modelcontextprotocol/ext-apps/blob/main/specification/2026-01-26/apps.mdx | consultada el 2026-09-11 |
 
 ## Mecanismos
 
@@ -109,6 +111,44 @@ Plataforma, permisos de túnel y asociación con el espacio de ChatGPT— cuya f
 relación con la propiedad que se quiere demostrar, y que F6 no confirma para cuentas personales.
 Queda disponible como alternativa para un contrato posterior, si la exposición elegida no
 alcanzara.
+
+## Resultado empírico de la primera conexión real
+
+La conexión real ejecutada contra el contrato congelado en `f181d3728b7e8fa09045a1f0ac6acd11f9e407e5`
+está interpretada en `francogg89-ai/audit-chatgpt-z @ 856df0c3f7b50b9255ea4acabd51685222a149fe`,
+`resoluciones/H-U1-CONEXION-REAL-b5115ff0a28f06262e42968580711e6d64907960.md`. Para M2, en la cuenta
+**ChatGPT Plus personal** usada, sin administrador:
+
+- El modo desarrollador existió y pudo activarse; la app se creó por URL pública con
+  "No Authentication", y el escaneo encontró las herramientas.
+- Se ejecutaron lecturas y **una escritura real**, que después se recuperó. Esto resuelve, para
+  esa cuenta, la contradicción entre F2 y F4 a favor de F4. No se extiende a otras cuentas ni a
+  otros planes.
+- ChatGPT **no pidió confirmación** antes de la escritura, aunque F4 dice que las acciones de
+  escritura la requieren por omisión. El producto no puede apoyarse en esa confirmación para
+  proteger acciones que exigen autorización del creador.
+- El cliente se identifica como `openai-mcp/1.0.0`, y como `openai-mcp/1.0.0 (Codex)` en las
+  llamadas a herramientas. Descubre el servidor con `server/discover`, no con `initialize`.
+- Al mostrar un original, **el texto del modelo no fue literal**: cambió `SINTETICO` por
+  `SINTÉTICO`. El servidor había devuelto el original exacto.
+
+## Presentación fiel de contenido
+
+El texto que el modelo escribe es una regeneración, no una copia. Para mostrar un original sin
+alteraciones hace falta un canal que no pase por el modelo.
+
+- Una herramienta puede declarar un recurso de interfaz con `_meta.ui.resourceUri`, que apunta a
+  un recurso `ui://` servido como `text/html;profile=mcp-app`. ChatGPT lo renderiza en un iframe,
+  y el anfitrión le entrega el resultado de la herramienta por `ui/notifications/tool-result`
+  (F11, F12).
+- La vista debe iniciar el saludo con `ui/initialize` y avisar `ui/notifications/initialized`;
+  el anfitrión le envía el resultado después de ese saludo (F12).
+- La vista recibe el `structuredContent` de la herramienta. El modelo solo elige la herramienta y
+  su argumento: no transcribe el contenido.
+- F11 recomienda mantener las herramientas útiles sin interfaz, para clientes que no la
+  renderizan.
+- Ninguna fuente consultada declara expresamente la disponibilidad de estas vistas para apps de
+  modo desarrollador en Plus. Eso queda para verificar empíricamente.
 
 ## Costos y datos
 

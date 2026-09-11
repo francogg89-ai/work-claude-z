@@ -14,6 +14,19 @@ SYNTHETIC_MARK = "SINTETICO"
 IN_SCOPE_CALL = "convocatoria-sonda"
 OUT_OF_SCOPE_CALL = "convocatoria-fuera-de-alcance"
 RESULTS = ("preseleccionada", "no_preseleccionada", "duda")
+EXPECTED_P042_FINGERPRINT = "bac7f90c"
+
+
+def fingerprint(text: str) -> str:
+    """FNV-1a 32-bit over UTF-8, as 8 hex digits. Detects alterations; it is not a security hash."""
+    h = 0x811C9DC5
+    for byte in text.encode("utf-8"):
+        h = ((h ^ byte) * 0x01000193) & 0xFFFFFFFF
+    return f"{h:08x}"
+
+
+def proposal_fingerprint(proposal: dict) -> str:
+    return fingerprint("\n".join([proposal["what"], proposal["why"], proposal["example"]]))
 
 _TOPICS = [
     "un episodio sobre historia de la ciencia", "una serie de entrevistas a oyentes",
@@ -43,7 +56,7 @@ CREATE TABLE IF NOT EXISTS evaluations (
     result TEXT NOT NULL, reasons TEXT NOT NULL, doubts TEXT NOT NULL, saved_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS calls (
     id INTEGER PRIMARY KEY AUTOINCREMENT, tool TEXT NOT NULL, arguments TEXT NOT NULL,
-    ok INTEGER NOT NULL, at TEXT NOT NULL);
+    ok INTEGER NOT NULL, at TEXT NOT NULL, original_fp TEXT NOT NULL DEFAULT '');
 CREATE TABLE IF NOT EXISTS requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, kind TEXT NOT NULL,
     method TEXT NOT NULL DEFAULT '', path_ok INTEGER NOT NULL DEFAULT 0,
@@ -153,16 +166,17 @@ class Store:
         ).fetchall()
         return [dict(r) for r in rows]
 
-    def log_call(self, tool: str, arguments: dict, ok: bool) -> None:
+    def log_call(self, tool: str, arguments: dict, ok: bool, original_fp: str = "") -> None:
+        """original_fp is the fingerprint of the original proposal the call returned, if any."""
         with self._db:
             self._db.execute(
-                "INSERT INTO calls (tool, arguments, ok, at) VALUES (?, ?, ?, ?)",
+                "INSERT INTO calls (tool, arguments, ok, at, original_fp) VALUES (?, ?, ?, ?, ?)",
                 (tool, json.dumps(arguments, ensure_ascii=False, sort_keys=True), int(ok),
-                 datetime.now(timezone.utc).isoformat()),
+                 datetime.now(timezone.utc).isoformat(), original_fp),
             )
 
     def all_calls(self) -> list[dict]:
-        rows = self._db.execute("SELECT id, tool, arguments, ok, at FROM calls ORDER BY id").fetchall()
+        rows = self._db.execute("SELECT id, tool, arguments, ok, at, original_fp FROM calls ORDER BY id").fetchall()
         return [{**dict(r), "arguments": json.loads(r["arguments"]), "ok": bool(r["ok"])} for r in rows]
 
     def log_request(self, method: str, path_ok: bool, status: int, rpc: str,

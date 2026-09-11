@@ -23,7 +23,7 @@ _INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
                     "clientInfo": {"name": "sonda-check", "version": "1"}}}
 _HEADERS = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json",
             "User-Agent": "sonda-check"}
-EXPECTED_TOOLS = ["get_evaluations", "get_proposal", "list_proposals", "save_evaluation"]
+EXPECTED_TOOLS = ["get_evaluations", "get_proposal", "list_proposals", "save_evaluation", "show_proposal"]
 
 
 def invalid_variant(token: str) -> str:

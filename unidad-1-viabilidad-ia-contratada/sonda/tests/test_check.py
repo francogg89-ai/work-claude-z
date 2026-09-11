@@ -10,7 +10,7 @@ def test_invalid_variant_differs_and_keeps_length():
 def test_check_passes_against_a_correctly_exposed_probe_and_writes_url_files(serve, store, tmp_path):
     report = check_public(serve(True), TOKEN, store, tmp_path)
     assert report["ok"] is True
-    assert report["tools"] == ["get_evaluations", "get_proposal", "list_proposals", "save_evaluation"]
+    assert report["tools"] == ["get_evaluations", "get_proposal", "list_proposals", "save_evaluation", "show_proposal"]
     assert report["without_token"] == 404 and report["invalid_token"] == 404
     assert (tmp_path / "chatgpt-url.txt").read_text().endswith(f"/mcp/{TOKEN}")
     assert (tmp_path / "chatgpt-url-invalida.txt").read_text().endswith(f"/mcp/{invalid_variant(TOKEN)}")

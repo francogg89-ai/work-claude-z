@@ -2,322 +2,348 @@
 
 ## Qué recibió
 
-Cabecera canónica completa con `INCOMING_TURN_ID=10`, e instrucción de cerrar únicamente D-03
-de la auditoría de la entrega anterior de U1, sin ejecutar la conexión real. La situación se
-rederivó desde Git sobre el corte recibido: la última entrega de work es
-`d0d965f46d056853f9fd205554d463cb6c79491f`; su auditoría aplicable existe con
-`VEREDICTO=CORRECCION_REQUERIDA`, `CONTRATO_PREVIO_CONGELADO=NO`, y D-01 y D-02 cerrados;
-`PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`, sin deltas. El plan aprobado sigue siendo el de
-`PLAN_BLOB_SHA=6da2d46ba5a41f4a1d33688ac1ee15709e9dce74`.
+Cabecera canónica completa con `INCOMING_TURN_ID=13`. La instrucción fue: rederivar, tratar el
+contrato congelado como agotado con fallo no discriminante respecto de la cuenta, preservar la
+evidencia positiva parcial, analizar el defecto de fidelidad, decidir el siguiente paso dentro de
+U1 y considerar la incidencia de exposición del token.
 
-## Corrección de D-03
+La situación se rederivó desde Git sobre el corte recibido:
 
-D-03 se sostiene: un rechazo al crear la app antes de que llegue ninguna solicitud puede deberse
-a la configuración concreta —URL, autenticación, dominio de exposición, metadatos— y no a la
-capacidad de la cuenta; la guía de OpenAI para conectar un MCP manda resolver justamente esos
-errores antes de continuar.
+- La última entrega de work es `f181d3728b7e8fa09045a1f0ac6acd11f9e407e5`.
+- Su auditoría aplicable congeló el contrato en `unidad-1-viabilidad-ia-contratada/EVENTO.md`,
+  blob `e25937e38bcbafc259d06e1d2ebab54b4cd636fd`, y activó la necesidad humana material.
+- La intervención auditora del corte es
+  `resoluciones/H-U1-CONEXION-REAL-b5115ff0a28f06262e42968580711e6d64907960.md`, con
+  `VEREDICTO=CONTRATO_EJECUTADO_FALLO_NO_DISCRIMINANTE_RESPECTO_DE_LA_CUENTA`,
+  `CONTRATO_AGOTADO=SI` y `U1_CERRADA=NO`.
+- `PERIMETRO_ULTIMA_MODIFICACION=CONSTITUCION`, sin deltas.
 
-Revisada con ese criterio, la regla de atribución tenía otras dos cláusulas con el mismo
-defecto, que se corrigen juntas:
+La evidencia humana se leyó en su identidad exacta, `francogg89-ai/error111 @ b5115ff0a28f06262e42968580711e6d64907960`,
+en un clon temporal de solo lectura. El SHA-256 de `evidencia Z/evidencia-servidor.json`
+coincide con el declarado:
+`e0097aa99d79c0bc9d18c9dd29119c0c404da6430b19c16b5f08360703c13502`.
 
-- La cláusula (b) contaba contra la cuenta que la escritura "no se ejecute" con la exposición
-  viva. Pero que el modelo no invoque una herramienta también puede ser selección de
-  herramienta, no falta de capacidad.
-- La cláusula (c) contaba la fabricación como fallo de cuenta o mecanismo. La fabricación es un
-  fallo del comportamiento del modelo y no dice nada sobre la capacidad de la cuenta.
+## Resultado del contrato agotado
 
-El criterio corregido es uno solo: **el fallo solo cuenta contra la cuenta cuando el propio
-producto declara como causa el plan, el tipo de cuenta, una política, el rol o los permisos,
-sobre la capacidad y no sobre esta configuración**, y, si el rechazo es sobre el uso de una
-herramienta, con la exposición demostradamente viva. Todo otro fallo es no discriminante
-respecto de la cuenta.
+Se toma tal como lo interpretó el AUDITOR y no se reabre: E1, E3, E4 y E5 satisfechos; E2 no
+satisfecho; **fallo**, no discriminante respecto de la cuenta.
 
-Además, se acota lo que ese fallo sostiene. Establece que la capacidad de M2 no está disponible
-en la cuenta declarada; no establece por sí solo que ningún mecanismo admitido satisfaga U1,
-porque para eso hace falta combinarlo con lo que el relevamiento dice de M1 y de M3.
+Se preserva como **evidencia positiva parcial**, sin convertirla en éxito del contrato ni en cierre
+de U1: en la cuenta ChatGPT Plus personal usada, M2 ejecutó lecturas y una escritura real que
+después se recuperó. El detalle está en `RELEVAMIENTO.md`, sección "Resultado empírico".
 
-Se conservan la regla binaria de éxito o fallo, los criterios E1 a E5, las puertas previas, la
-única exposición y el procedimiento. En los criterios de fallo se reemplazó el lenguaje causal
-—"no disponible en la cuenta", "bloqueada por el plan"— por observaciones, para que la causa la
-asigne solo la regla de atribución. En `CHECKPOINT_HUMANO.md`, por coherencia literal, se pide
-capturar y transcribir cada mensaje de rechazo o restricción y registrar en qué momento
-apareció, porque la nueva regla depende de esa evidencia.
+## Análisis técnico del defecto de fidelidad
 
-## Corrección anterior de D-01 y D-02
+**Qué pasó.** El original almacenado de `P-042` es
+`[SINTETICO] Propongo un especial sobre música independiente.` ChatGPT mostró `[SINTÉTICO] …`.
+Comparado carácter por carácter contra el candidato congelado, la única diferencia es la
+posición 5: `E` en el original, `É` en lo mostrado.
 
-Los dos defectos se sostienen, y al corregirlos apareció un tercer caso de la misma clase que
-el AUDITOR no había señalado.
+**Dónde ocurrió.** No en la integración. La exportación registra `get_proposal` de `P-042`
+correcta, y la sonda devuelve el registro almacenado sin transformarlo. La alteración ocurrió en
+la presentación: el modelo regeneró el texto al escribir su respuesta y lo "corrigió".
 
-- **D-01 — mecanismo inequívoco por alternativa.** Se ofrece una sola alternativa de exposición:
-  endpoint HTTPS público mediante un Quick Tunnel de Cloudflare. Secure MCP Tunnel deja de
-  ofrecerse, con la razón en `RELEVAMIENTO.md`. Para que un fallo procedimental no pueda leerse
-  como incompatibilidad de la cuenta, la corrección no se limitó a separar ramas:
-  - **Puertas previas G-1 a G2.** Candidato exacto, entorno, sonda en marcha y exposición
-    certificada desde fuera, a través del túnel, antes de tocar ChatGPT. Si una puerta no se
-    cumple, la ejecución del contrato no empezó.
-  - **Registro de solicitudes HTTP en la sonda**, con marcadores de tiempo. Distingue una
-    solicitud que nunca llegó, una que la sonda rechazó y una que la sonda aceptó. De esa
-    distinción depende la regla de atribución que se agregó al contrato.
-  - **E4 exige un rechazo registrado.** Antes, "ChatGPT no obtiene datos" podía cumplirse porque
-    nada llegara a la sonda; ese control negativo no podía fallar.
-- **Caso adicional de la misma clase.** F9 declara que los Quick Tunnels no soportan SSE, y el
-  SDK responde por SSE por omisión; además, con la protección de `Host` y `Origin` activa, la
-  sonda habría rechazado encabezados puestos por el túnel o por ChatGPT. Cualquiera de las dos
-  cosas habría producido un fallo de la sonda con apariencia de incompatibilidad de la cuenta.
-  La sonda pasa a usar HTTP sin estado, respuestas JSON y `405` para el stream por `GET`, y en
-  modo público desactiva esa protección: el token de la URL sigue siendo la única llave.
-- **D-02 — arranque ejecutable en Windows.** El checkpoint declara Windows PowerShell y usa solo
-  comandos literales, sin variables de entorno ni asignaciones en línea. El token lo genera la
-  propia sonda (`probe.launch --fresh`) en un archivo local ignorado por Git, y la puerta G2
-  escribe las dos URLs para ChatGPT solo si la exposición quedó certificada. Así nadie tiene que
-  copiar el token por la terminal ni reparar sintaxis. Como en Windows PowerShell 5.1 `>` escribe
-  en UTF-16, la exportación escribe su archivo directamente en UTF-8.
+**Por qué es estructural y no un accidente.** Un modelo de lenguaje no copia: vuelve a generar,
+y tiende a normalizar lo que parece un error. El marcador `SINTETICO`, sin tilde, era un imán
+para esa corrección. Las propuestas reales van a traer errores de tipeo, tildes faltantes y
+ortografía informal. Además, en la corrida el modelo presentó su texto como "texto original
+completo". Instruirlo para que transcriba literalmente puede bajar la frecuencia del problema,
+pero no lo elimina: el producto quedaría librado a la suerte.
 
-## Qué hizo y por qué
+**Consecuencia de diseño.** El texto libre del modelo **no es un canal para originales**. La
+preservación de originales que exige el manifiesto ya se cumple en el almacenamiento. Lo que
+falta es que el creador pueda ver el original por un canal que no pase por el modelo. Esto
+condiciona la arquitectura de U2 y por eso se resuelve en U1: si ChatGPT ofrece ese canal en la
+cuenta de referencia, U2 puede usarlo; si no, U2 necesita otro, por ejemplo una vista del propio
+sistema.
 
-La entrega anterior de esta unidad cubrió los pasos 1 a 4 de U1 del plan. El paso 5, la conexión real, no se
-ejecuta: depende de una cuenta, un plan y una exposición de red que no pertenecen al perímetro
-delegado, y su contrato previo debe congelarlo el AUDITOR antes de cualquier ejecución.
+**El canal candidato.** Las vistas de MCP Apps (`RELEVAMIENTO.md`, "Presentación fiel de
+contenido"). La herramienta devuelve el original como `structuredContent`, el anfitrión se lo
+entrega a la vista, y la vista lo inserta con `textContent`. El modelo solo elige la herramienta
+y su argumento.
 
-**Paso 1 — relevamiento.** En `RELEVAMIENTO.md`, contra documentación pública de OpenAI
-consultada el 2026-09-10, con URL y fecha de actualización mostrada por cada página. Resultados
-que condicionan el resto de la unidad:
+## Otros hallazgos de la evidencia
 
-- La creación de GPTs nuevos ya no está disponible en cuentas personales, de modo que GPT
-  Actions solo aplica a espacios Business, Enterprise o Edu.
-- La app MCP propia en modo desarrollador es el único mecanismo que al menos una fuente oficial
-  declara disponible para cuentas personales.
-- Las dos fuentes oficiales **se contradicen** sobre si una cuenta personal puede ejecutar
-  acciones de escritura por ese mecanismo. La guía para desarrolladores declara elegibles a Plus
-  y Pro con lectura y escritura; el centro de ayuda declara el MCP completo con escritura solo
-  para Business, Enterprise y Edu, y atribuye a Pro únicamente lectura.
+- ChatGPT descubre el servidor con `server/discover`, no con `initialize`. La condición de
+  atribución que nombraba `initialize` se generaliza a "el método de descubrimiento".
+- En el intervalo de capacidad inválida, los `GET` recibieron `405` en lugar de `404`, porque el
+  guardia del stream respondía antes de mirar la ruta. No expuso datos, pero dejaba ver un
+  comportamiento distinto sin token válido. Corregido: ahora el `405` es solo para la ruta del
+  token.
+- La escritura se ejecutó **sin confirmación** del usuario, contra lo que dice la documentación.
+  Riesgo para U2: las acciones que exigen autorización del creador —publicar, invitar— no pueden
+  depender de la confirmación de ChatGPT.
+- El cliente se identifica como `openai-mcp/1.0.0`. Eso permite el control de integridad E6.
 
-Esa contradicción no se resuelve leyendo más documentación: es exactamente lo que la conexión
-real debe discriminar, y es la razón por la que el contrato de abajo se centra en la escritura.
+## Incidencia de exposición del token y respuesta
 
-**Pasos 2 y 3 — sonda mínima y comprobación local.** En `sonda/`, un servidor MCP deliberadamente
-mínimo y descartable sobre datos sintéticos identificados como tales, con cuatro herramientas
-—`list_proposals`, `get_proposal`, `save_evaluation`, `get_evaluations`—, paginación, 100
-propuestas en alcance y 3 fuera de alcance. Decisiones de la sonda, ninguna de las cuales
-compromete a U2:
+La URL con el token terminó pegada en la conversación del agente auxiliar. La causa de fondo es
+que el procedimiento mostraba la URL en pantalla —con `notepad`— y dependía de copiarla a mano.
+La respuesta ataca eso sin cambiar el mecanismo de acceso:
 
-- El control de acceso es una URL con capacidad: el endpoint solo existe en `/mcp/<token>`. El
-  token lo genera `probe.launch` en `.data/token`, excluido de Git; ninguna aplicación se
-  construye con un token de menos de 32 caracteres, y el registro de acceso de uvicorn está
-  apagado para que el token no aparezca en la consola.
-- Transporte sin SSE: HTTP sin estado, respuestas JSON y `405` para el stream por `GET`. En modo
-  público se desactiva la protección de `Host` y `Origin`; en modo local se mantiene.
-- Registro de cada solicitud HTTP —método, si la ruta coincidió con la del token, código de
-  respuesta, método JSON-RPC, `Host`, `Origin` y `User-Agent`— sin guardar nunca la ruta, más
-  marcadores de tiempo escritos con `probe.mark` y por la puerta G2.
-- Los datos de contacto viven en su propia tabla y ningún método público los lee; existen para
-  que las pruebas demuestren que no se filtran.
-- El servidor registra cada llamada recibida. Ese registro es lo que permite distinguir una
-  respuesta obtenida del sistema de una fabricada por el modelo.
-- Las instrucciones del servidor prohíben presentar propuestas o evaluaciones no obtenidas de
-  las herramientas y declaran el texto de las propuestas como dato no confiable.
+1. **La URL no se muestra nunca.** `probe.url copiar` la pasa al portapapeles sin imprimirla;
+   se pega solo en ChatGPT, y `probe.url limpiar` lo vacía enseguida. El procedimiento ya no abre
+   los archivos que contienen la URL.
+2. **El agente auxiliar no participa en ese tramo.** El checkpoint lo prohíbe entre `copiar` y
+   `limpiar`; si se necesita ayuda en ese momento, primero se limpia el portapapeles.
+3. **Uso ajeno detectable.** El criterio E6 exige que toda solicitud aceptada durante la
+   conversación venga de ChatGPT. Si un token filtrado se usara durante la ejecución, E6 falla,
+   y la evidencia contaminada no puede producir un éxito.
+4. **La exposición no sobrevive a la ejecución.** Cada ejecución arranca con token nuevo
+   (`--fresh`), y el subdominio aleatorio del túnel muere al cerrarlo: una URL filtrada no sirve
+   después de la corrida.
 
-**Paso 4 — contrato previo.** Propuesto más abajo, sin ejecutar.
+Límites: el portapapeles igual puede pegarse en otro lugar durante esos segundos, y el
+`User-Agent` se puede falsificar; E6 detecta el mal uso accidental, no uno adversarial. La
+solución de fondo —autenticación sin secreto en la URL, como OAuth— cambia el mecanismo de
+acceso y queda para U2, como ya establecía la limitación de U1.
+
+## Decisión: siguiente paso dentro de U1
+
+Una nueva corrida real, con **dos contratos independientes** evaluados sobre la misma ejecución:
+
+- **C-U1-2A, integración.** Verifica lo que U1 necesita para terminar como opción demostrada:
+  lectura, recuperación exacta del original por la IA —comprobada del lado del servidor con una
+  huella—, escritura y recuperación, controles de acceso y alcance, e integridad de la evidencia.
+- **C-U1-2B, vista fiel.** Verifica si el creador puede ver un original exactamente como se
+  recibió, dentro de ChatGPT, mediante una vista de MCP Apps.
+
+**Por qué dos contratos y no uno.** El contrato agotado mezclaba dos propiedades: que la IA
+recupere el original, que es integración, y que se lo muestre literalmente al creador, que es
+presentación. La corrida mostró que se separan y que fallan por causas distintas. Un contrato
+único haría que un fallo de la vista, que es un mecanismo nuevo y no verificado en Plus,
+bloqueara la conclusión sobre la integración, o al revés. Con dos contratos, cada resultado es
+binario y sostiene solo su propiedad. Ninguno reinterpreta el resultado del contrato agotado, que
+sigue siendo un fallo.
+
+**Por qué el nuevo E2 de A no exige literalidad al modelo, y por qué eso no es mover el arco.**
+El criterio no se afloja: se mueve a la capa donde el diseño lo puede garantizar. La literalidad
+del original pasa a verificarse en B, con un mecanismo construido para eso y sobre el mismo
+caso que falló. A verifica la recuperación exacta en el servidor. Que el texto libre del modelo
+no es literal ya no es algo a comprobar: es un límite documentado, y el diseño deja de depender
+de él.
+
+**Alternativas descartadas.**
+
+- *Cerrar U1 con la evidencia parcial.* El contrato congelado falló, y el AUDITOR indicó no
+  convertirlo en cierre.
+- *Repetir el mismo contrato instruyendo al modelo a transcribir literalmente.* Probabilístico, y
+  dejaría al producto dependiendo de la suerte.
+- *Postergar la vista fiel a U2.* U2 construiría sobre un supuesto no verificado, cuando el costo
+  de verificarlo ahora es una herramienta más y una petición más en la corrida que el humano
+  tiene que hacer de todos modos.
+- *Pasar a OAuth para eliminar la URL portadora.* Cambio de mecanismo de acceso, fuera de lo que
+  U1 necesita demostrar.
+
+## Cambios en la sonda y en el procedimiento
+
+- **Herramienta nueva `show_proposal`**, de lectura, enlazada por `_meta.ui.resourceUri` al
+  recurso `ui://sonda/propuesta.html`, servido como `text/html;profile=mcp-app` con la extensión
+  Apps del SDK. Devuelve el original como `structuredContent` tipado, más su huella.
+- **La vista** completa el saludo de MCP Apps, inserta los campos con `textContent`, calcula la
+  huella FNV-1a de 32 bits sobre el texto efectivamente mostrado, y muestra tres líneas: "Huella
+  de lo mostrado", "Huella del servidor" y "Coinciden".
+- **Huella en cada llamada que devuelve una propuesta**: `original_fp` en el registro de
+  llamadas. La huella esperada de `P-042` en el candidato es `bac7f90c`; la del texto que ChatGPT
+  mostró en la corrida agotada es `b60c8421`.
+- **`405` solo en la ruta del token**; cualquier otra ruta, también por `GET`, devuelve `404`.
+- **`probe.url`** para copiar y limpiar las URLs sin mostrarlas. La puerta G2 espera ahora cinco
+  herramientas.
+- **Instrucciones del servidor**: avisan al modelo que su transcripción no es literal y que, para
+  mostrar un original, use `show_proposal`.
 
 ## Verificación local realizada
 
-No es la verificación discriminante de U1. Comprueba la sonda, no la integración, y se ejecuta
-íntegramente dentro del perímetro. Entorno: Windows local del CONSTRUCTOR, Python 3.12.4, entorno
-virtual propio de la sonda con `mcp==2.2.0`, `httpx==0.28.1`, `pytest==9.1.1`.
-
-Suite de pruebas, desde Git Bash, con timeout acotado:
+No es la verificación discriminante de U1. Se ejecutó en el Windows local del CONSTRUCTOR, con
+timeouts acotados. No se abrió ningún túnel ni se usó ChatGPT.
 
 | Comando | Resultado |
 |---|---|
-| `python -m pytest -q` | `43 passed`, rc=0 |
+| `python -m pytest -q`, suite completa antes de agregar `tests/test_widget.py` | `57 passed`, rc=0 |
+| `python -m pytest -q -rs tests/test_fingerprint.py` | `4 passed`, sin omitidas: la paridad de huella entre JavaScript y Python corrió en Node |
+| `python -m pytest -q -rs tests/test_widget.py`, que ejecuta el script real de la vista en Node con un DOM mínimo y un anfitrión simulado | `3 passed`: saludo en orden; original de `P-042` con huella `bac7f90c` y "SI"; la alteración observada da `b60c8421` y "NO"; un `<img onerror>` se muestra como texto |
+| Portapapeles real de Windows con un valor ficticio | copia exacta, verificada con `Get-Clipboard -Raw`, sin caracteres agregados; queda vacío tras `limpiar` |
+| Comandos nuevos del checkpoint en Windows PowerShell 5.1, sobre copia limpia | G0 con `57 passed`; G1 escucha; `probe.url copiar` antes de G2, rc=1; G2 local con cinco herramientas; `show_proposal` por HTTP real devuelve huella `bac7f90c` y la plantilla con el tipo correcto; el portapapeles queda igual a la URL certificada y vacío tras `limpiar`; la exportación registra `resources/read`, `server/discover`, `tools/list` y `tools/call`, la huella de `show_proposal` y ningún rastro del token |
 
-Las pruebas cubren, además de lo anterior —determinismo y marcado sintético de los datos,
-separación de contactos, paginación completa de las 100 propuestas, rechazo de fuera de
-alcance, persistencia, anotaciones de lectura y escritura, registro de llamadas—, lo siguiente
-sobre el servidor real en ambos modos: `404` sin token o con token inválido, respuestas
-`application/json` y nunca SSE, `405` al `GET`, rechazo de un `Host` ajeno en modo local,
-aceptación en modo público de `Host` y `Origin` puestos por terceros sin dejar de exigir el
-token, ida y vuelta de escritura y lectura, registro de solicitudes sin el token, marcadores
-intercalados en orden, la puerta G2 aprobando una sonda bien expuesta y fallando sin escribir
-URLs cuando nada escucha, generación de un token nuevo en cada `--fresh` y exportación en UTF-8.
+**Verificación interrumpida.** Una verificación local posterior quedó interrumpida por el humano
+y, por su instrucción, no se repitió. En consecuencia, **la suite completa con
+`tests/test_widget.py` incluido nunca se ejecutó como una sola corrida**: las 57 pruebas previas
+y las 3 de la vista pasaron por separado. La puerta G0 del contrato nuevo ejecuta la suite
+completa en la máquina del humano antes de empezar; si allí falla, la ejecución no empieza. Al
+cerrar esta intervención no quedó ningún proceso de la sonda vivo y el puerto 8000 estaba libre.
 
-Comandos literales del checkpoint, ejecutados en **Windows PowerShell 5.1.26100** sobre una copia
-limpia de la sonda, cada proceso de larga duración acotado:
+Limitaciones: la vista se probó con un anfitrión simulado, no con ChatGPT. La lógica de G2 se
+probó sin túnel de por medio.
 
-| Comando del checkpoint | Resultado |
-|---|---|
-| `python --version`, `python -m venv .venv`, `pip install -r requirements.txt`, `pytest -q` (G0) | Python 3.12.4; rc=0 en los tres; `43 passed` |
-| `.\.venv\Scripts\python.exe -m probe.launch --fresh` (G1) | escucha en `127.0.0.1:8000` y crea `.data\token`; detenido con `Stop-Process` |
-| `.\.venv\Scripts\python.exe -m probe.check http://127.0.0.1:8000` | rc=1: la puerta G2 solo acepta una URL `https://` |
-| `.\.venv\Scripts\python.exe -m probe.mark inicio-chatgpt`, y con una etiqueta inválida | rc=0, y rc=1 respectivamente |
-| `.\.venv\Scripts\python.exe -m probe.export .data\evidencia-servidor.json` | rc=0; el primer byte es `{`, sin BOM UTF-16; contiene el marcador y no contiene el token |
-| `curl.exe -sSL -o .data\cloudflared.exe <URL de F10>` y `.\.data\cloudflared.exe --version` | rc=0; `cloudflared version 2026.9.0`; **no se abrió ningún túnel** |
-| `git diff --quiet <SHA> -- .` y `$LASTEXITCODE` (G-1), sobre el clon real | la sintaxis funciona y discrimina: contra la entrega anterior imprime `1`, porque la sonda cambió |
+## Mecanismo común a los dos contratos
 
-Al terminar, el puerto 8000 quedó libre y no quedó ningún proceso de la sonda vivo.
+El de `CHECKPOINT_HUMANO.md`, en Windows PowerShell:
 
-Limitaciones: todo ocurrió en `127.0.0.1`. La puerta G2 con una URL `https://` real, el túnel y
-ChatGPT no se ejercitaron, porque exponer la sonda está fuera del perímetro. La lógica de G2 se
-probó contra el servidor real en modo público, pero sin túnel de por medio.
+- **Puertas previas G-1 a G2.** Candidato exacto, suite en verde, sonda en marcha con token nuevo
+  y base vacía, y exposición certificada desde fuera, a través del túnel: las cinco herramientas
+  con el token, y `404` sin token y con token inválido. Mientras alguna no se cumpla, la
+  ejecución no empezó y no existe resultado de ningún contrato.
+- **Ejecución**, que empieza con el marcador `inicio-chatgpt`:
+  1. borrar las apps de la sonda de corridas anteriores;
+  2. crear la app nueva pegando la URL con `probe.url copiar`, y limpiar enseguida;
+  3. una conversación con cinco peticiones literales;
+  4. marcador `inicio-intento-capacidad-invalida`, y segunda app con la URL inválida, con el
+     mismo copiar y limpiar;
+  5. marcador `fin`, cierre y exportación.
 
-## Contrato previo de verificación — conexión real (C1.1 a C1.5)
+**Entorno.** ChatGPT web, en la cuenta que declare el humano; modo desarrollador; app MCP propia
+por URL pública, sin la opción Tunnel; sonda en modo público en el Windows local; exposición
+única por Quick Tunnel de Cloudflare.
 
-Propuesto para congelamiento del AUDITOR. **No ejecutar ninguna de sus mitades antes de que el
+**Corridas.** Hasta dos conversaciones dentro de la misma ejecución, antes del marcador
+`inicio-intento-capacidad-invalida`. La segunda solo se admite si en la primera ChatGPT respondió
+alguna petición sin invocar la app; no se admite para reintentar un resultado observado. Cada
+contrato debe satisfacerse dentro de una sola conversación. Cualquier corrida con fabricación
+hace fallar el contrato A.
+
+**Regla de atribución, común a los dos contratos.** Todo fallo pertenece a una y solo una de estas
+clases:
+
+- **Indisponibilidad declarada de la capacidad en la cuenta.** Exige las tres condiciones:
+  1. un mensaje de la interfaz de ChatGPT, capturado y transcrito literalmente, atribuye la
+     imposibilidad al plan, al tipo de cuenta, a una política del espacio de trabajo, al rol o
+     a los permisos;
+  2. la capacidad rechazada es habilitar el modo desarrollador, acceder a la creación de apps
+     propias, usar una herramienta ya escaneada o mostrar su vista, y el mensaje no menciona la
+     URL, el endpoint, la conexión, la autenticación, el esquema, las herramientas ni el escaneo;
+  3. si el rechazo es sobre el uso de una herramienta o de su vista, el registro muestra el
+     descubrimiento —`server/discover` o `initialize`— y `tools/list` aceptados, y una solicitud
+     posterior de la misma ejecución que llegó a la sonda.
+- **No discriminante respecto de la cuenta.** Todo otro fallo, incluidos: un rechazo de creación
+  o de escaneo sin un mensaje que cumpla 1 y 2; la ausencia de solicitudes; errores de la sonda;
+  la no invocación de una herramienta sin un mensaje de restricción; la fabricación; y el fallo
+  de E6.
+
+Un fallo de la primera clase sostiene solo que la capacidad concreta no está disponible en la
+cuenta declarada, según el propio producto. No sostiene por sí solo que ningún mecanismo admitido
+satisfaga U1: esa conclusión exige combinarlo con `RELEVAMIENTO.md`, la evalúa el AUDITOR, y
+sustituir el modo de operación es decisión del humano.
+
+## Contrato previo C-U1-2A — integración
+
+Propuesto para congelamiento del AUDITOR. **No ejecutar ninguna de sus partes antes de que el
 AUDITOR lo congele.**
 
-**Candidato exacto.** La sonda tal como queda en el directorio `unidad-1-viabilidad-ia-contratada/sonda`
-en el `WORK_SHA` de esta entrega, con el conjunto de datos de `generate_dataset()` con su semilla
-por omisión, sembrado en una base vacía.
+**Candidato exacto.** La sonda en `unidad-1-viabilidad-ia-contratada/sonda` en el `WORK_SHA` de
+esta entrega, con los datos de `generate_dataset()` con su semilla por omisión, sembrados en una
+base vacía.
 
-**Propiedad que debe demostrarse.** Que desde la cuenta de ChatGPT del creador de referencia, por
-una integración admitida por esa cuenta, una petición breve del creador permite obtener las
-propuestas, obtener el original de una propuesta sin datos de contacto y guardar un resultado de
-evaluación que después se recupera, sin transferencia manual de archivos; y que el acceso sin
-capacidad válida y los recursos fuera del alcance declarado se rechazan.
+**Propiedad.** Desde la cuenta de ChatGPT declarada, por M2, una petición breve del creador permite
+obtener las propuestas, hacer que la IA recupere el original exacto de una propuesta sin datos de
+contacto, y guardar una evaluación que después se recupera, sin transferencia manual de archivos;
+y se rechazan el acceso sin capacidad válida y los recursos fuera del alcance declarado. Todo
+esto con evidencia atribuible solo a ChatGPT.
 
-**Entorno y fuente relevantes.** ChatGPT web, cuenta del creador de referencia, cuyo plan declara
-el humano y no se infiere; modo desarrollador habilitado en esa cuenta; app MCP propia (mecanismo
-M2 del relevamiento) configurada con la URL pública del servidor, no con la opción Tunnel; sonda
-ejecutándose en el Windows local en modo público; exposición única por Quick Tunnel de
-Cloudflare. Ninguna otra exposición forma parte de este contrato.
-
-**Mecanismo.** El de `CHECKPOINT_HUMANO.md`, en Windows PowerShell y en dos tramos:
-
-- **Puertas previas G-1 a G2**: candidato exacto, entorno con la suite en verde, sonda en marcha
-  con token nuevo y base vacía, y exposición certificada desde fuera, a través del túnel, con
-  las cuatro herramientas listadas con el token y `404` sin token y con token inválido. Mientras
-  alguna no se cumpla, **la ejecución no empezó** y no existe resultado del contrato: lo ocurrido
-  vuelve al loop como evidencia de precondición no satisfecha.
-- **Ejecución**, que empieza con el marcador `inicio-chatgpt`: habilitar el modo desarrollador,
-  crear la app con la URL escrita por G2, cuatro peticiones literales en una conversación,
-  marcador `inicio-intento-capacidad-invalida`, segunda app con la URL inválida escrita por G2,
-  marcador `fin`, cierre y exportación de la evidencia del servidor.
-
-**Criterio discriminante de éxito.** Se cumplen los cinco:
+**Criterio de éxito.** Se cumplen los seis, dentro de una misma conversación salvo E4:
 
 - E1 (C1.1) La exportación registra llamadas `list_proposals` correctas cuyas páginas cubren las
-  100 propuestas en alcance, y la respuesta de ChatGPT informa 100 propuestas con primera `P-001`
-  y última `P-100`.
-- E2 (C1.2) La exportación registra `get_proposal` correcta de `P-042`; el texto que ChatGPT
-  muestra coincide con el original almacenado y la respuesta no contiene ningún dato de contacto.
-- E3 (C1.3) La exportación registra `save_evaluation` correcta sobre `P-042` y una
-  `get_evaluations` posterior también correcta, y la evaluación aparece almacenada en la
+  100 propuestas en alcance, y ChatGPT informa 100 propuestas, con primera `P-001` y última
+  `P-100`.
+- E2 (C1.2) La exportación registra una llamada correcta, `get_proposal` o `show_proposal`, que
+  devuelve `P-042` con `original_fp` igual a `bac7f90c`; y la respuesta de ChatGPT no contiene
+  ningún dato de contacto. La literalidad del texto libre del modelo no es criterio: está
+  documentada como límite y se verifica por otro canal en C-U1-2B.
+- E3 (C1.3) La exportación registra `save_evaluation` correcta sobre `P-042` con los valores
+  pedidos, seguida de una `get_evaluations` correcta, y la evaluación aparece almacenada en la
   exportación.
 - E4 (C1.4) Entre los marcadores `inicio-intento-capacidad-invalida` y `fin`, la exportación
-  registra al menos una solicitud llegada con ruta no coincidente y respuesta `404`, ninguna
-  solicitud aceptada y ninguna llamada a herramientas; y ChatGPT no obtiene herramientas ni
-  datos con esa app. Si en ese intervalo no llega ninguna solicitud, E4 no se cumple: el control
-  no se ejercitó.
-- E5 (C1.5) La exportación registra `get_proposal` de `X-001` con error, y ChatGPT informa que no
+  registra al menos una solicitud con ruta no coincidente y respuesta `404`, ninguna solicitud
+  aceptada y ninguna llamada a herramientas; y ChatGPT no obtiene herramientas ni datos con esa
+  app. Si en ese intervalo no llega ninguna solicitud, E4 no se cumple.
+- E5 (C1.5) La exportación registra una llamada de `X-001` con error, y ChatGPT informa que no
   está disponible sin mostrar su contenido.
+- E6 (integridad de la evidencia) Toda solicitud con ruta correcta y respuesta `2xx` entre los
+  marcadores `inicio-chatgpt` e `inicio-intento-capacidad-invalida` tiene un `User-Agent` que
+  empieza con `openai-mcp/`.
 
-**Criterio discriminante de fallo.** Cualquiera de estos:
+**Criterio de fallo.** No se cumple alguno de E1 a E6; o ChatGPT presenta propuestas, textos o
+evaluaciones sin la llamada correspondiente en la exportación; o se obtiene cualquier dato con
+la capacidad inválida; o se devuelve contenido de `X-001` o algún dato de contacto. Toda ejecución
+iniciada termina en éxito o en fallo.
 
-- El modo desarrollador no puede habilitarse, o la app no puede crearse o no completa el escaneo.
-- La herramienta de escritura o alguna lectura no llega a ejecutarse.
-- ChatGPT presenta propuestas, textos o evaluaciones sin la llamada correspondiente en la
-  exportación. Esto hace fallar el contrato en cualquier corrida, sin promediar.
-- Con la capacidad inválida se obtiene cualquier dato.
-- Se devuelve contenido de `X-001` o cualquier dato de contacto.
-- No se cumple alguno de E1 a E5 por cualquier otro motivo.
+**Control negativo.** E4, E5, E6 y el control de fabricación. Sin ellos, un servidor que responde
+a cualquiera, un modelo que contesta de memoria o un cliente ajeno con un token filtrado
+satisfarían E1 a E3 por accidente.
 
-Estos criterios describen observaciones, no causas. No existe una tercera categoría: toda
-ejecución iniciada termina en éxito o en fallo. La atribución siguiente clasifica el fallo por su
-causa, sin crear otra salida.
+**Alcance del éxito.** Sostiene que M2 permite, en la cuenta declarada, el viaje completo de
+lectura y escritura que U1 exige, con los límites documentados. Es la evidencia sobre la que el
+AUDITOR evalúa si U1 termina como opción demostrada; no es por sí mismo el cierre de U1, que es
+decisión humana.
 
-**Atribución del fallo.** Todo fallo pertenece a una y solo una de estas dos clases.
+## Contrato previo C-U1-2B — vista fiel del original
 
-- **Fallo por indisponibilidad declarada de la capacidad en la cuenta.** Exige las tres
-  condiciones:
-  1. **El producto declara la causa.** Un mensaje de la interfaz de ChatGPT, capturado y
-     transcrito literalmente, atribuye la imposibilidad al plan, al tipo de cuenta, a una
-     política del espacio de trabajo, al rol o a los permisos.
-  2. **La causa declarada es la capacidad, no esta configuración.** La capacidad rechazada es
-     habilitar el modo desarrollador, acceder a la creación de apps propias o usar una
-     herramienta ya escaneada; y el mensaje no menciona la URL, el endpoint, la conexión, la
-     autenticación, el esquema, las herramientas ni el escaneo.
-  3. **Si el rechazo es sobre el uso de una herramienta**, el registro muestra que el escaneo
-     se aceptó —`initialize` y `tools/list` con ruta correcta y respuesta `200`— y que una
-     solicitud posterior de la misma ejecución llegó a la sonda, de modo que la exposición
-     seguía viva.
-- **Fallo no discriminante respecto de la cuenta.** Todo otro fallo. En particular:
-  - un rechazo al crear o configurar la app, o un escaneo fallido, sin un mensaje que cumpla las
-    condiciones 1 y 2, aunque ninguna solicitud haya llegado a la sonda;
-  - la opción del modo desarrollador ausente sin un mensaje que declare la causa;
-  - que después del marcador `inicio-chatgpt` no llegue ninguna solicitud, que la sonda responda
-    con error a solicitudes con la ruta correcta, o que el escaneo no liste las cuatro
-    herramientas;
-  - que el modelo no invoque una herramienta sin un mensaje de restricción, porque eso puede ser
-    selección de herramienta y no falta de capacidad;
-  - una restricción declarada sobre una herramienta sin una solicitud posterior que pruebe que la
-    exposición seguía viva;
-  - la fabricación, que además se registra como hallazgo sobre el comportamiento del modelo,
-    pertinente al riesgo R12 del plan.
+Propuesto para congelamiento del AUDITOR. **No ejecutar ninguna de sus partes antes de que el
+AUDITOR lo congele.** Es independiente de C-U1-2A: su resultado no condiciona el de A, y
+viceversa.
 
-  Este fallo no permite concluir nada sobre la cuenta ni sobre la disponibilidad de M2: para otra
-  ejecución hace falta un contrato nuevo, que corrija la condición identificada.
+**Candidato exacto.** El mismo que C-U1-2A, en particular `show_proposal` y el recurso
+`ui://sonda/propuesta.html` de `probe/widget.py`.
 
-**Alcance de la conclusión.** El registro de solicitudes discrimina si la exposición y la sonda
-respondieron, y el mensaje literal del producto discrimina la causa de un rechazo; se necesitan
-ambos. Aun así, un fallo de la primera clase sostiene solo esto: *la capacidad que M2 requiere no
-está disponible en la cuenta declarada, según el propio producto*. **No sostiene por sí solo que
-ningún mecanismo admitido satisfaga U1.** Esa terminación de U1 exige combinarlo con lo que
-`RELEVAMIENTO.md` establece para M1, de forma documental, y para M3, que quedó fuera por una
-decisión de alcance y no por una prueba. Esa combinación la evalúa el AUDITOR, y sustituir el modo
-de operación o reconsiderar M3 es decisión del humano, conforme al criterio de terminación de U1
-del plan.
+**Propiedad.** Dentro de ChatGPT, en la cuenta declarada, el creador puede ver el original de una
+propuesta exactamente como se recibió, mediante la vista de MCP Apps, sin depender de la
+transcripción del modelo. Se usa `P-042`, el caso que el modelo alteró en la corrida agotada.
 
-**Corridas.** Hasta dos conversaciones. El éxito exige que una sola conversación satisfaga E1,
-E2, E3 y E5. La segunda conversación solo se admite si en la primera ChatGPT no llegó a invocar
-una herramienta; no se admite para reintentar un resultado observado como fallo. Cualquier
-corrida con fabricación hace fallar el contrato.
+**Criterio de éxito.** Se cumplen los dos, en una misma conversación:
 
-**Control negativo.** E4 y E5, más el control de fabricación: sin ellos, un servidor que responde
-a cualquiera y un modelo que contesta de memoria satisfarían E1 a E3 por accidente.
+- B1 La exportación registra `show_proposal` de `P-042` correcta con `original_fp` igual a
+  `bac7f90c`, y una solicitud `resources/read` aceptada con `User-Agent` que empieza con
+  `openai-mcp/`: el anfitrión pidió la plantilla de la vista.
+- B2 En respuesta a la tercera petición, ChatGPT renderiza la vista de la app, y **dentro de la
+  vista**, no en el texto de la respuesta del modelo, se leen las tres líneas: "Huella de lo
+  mostrado: bac7f90c", "Huella del servidor: bac7f90c" y "Coinciden: SI". La evidencia es una
+  captura en la que la vista se distingue de la respuesta del modelo, más la transcripción
+  literal de esas tres líneas.
 
-**Limitaciones conocidas.**
+**Criterio de fallo.** No se renderiza ninguna vista; o alguna de las tres líneas difiere; o
+`show_proposal` no se invoca, agotadas las corridas admitidas; o no hay `resources/read`
+aceptada; o las líneas aparecen solo en el texto del modelo.
 
-- Demuestra control de acceso por URL con capacidad, no OAuth. U1 no demuestra OAuth, y el modelo
-  de autenticación del producto queda como decisión de U2 informada por este resultado.
-- El token viaja dentro de la URL configurada en la app de ChatGPT: es un secreto portador. No
-  entra en Git ni en este documento.
-- Datos sintéticos; una sola cuenta y un solo plan; ningún resultado se extiende a otros planes,
-  a otras cuentas ni a otras IA.
-- La exportación y las transcripciones las produce quien ejecuta, no el AUDITOR: es evidencia
-  reportada, no comprobación independiente.
+**Control negativo.** La huella de la vista se calcula sobre el texto que la vista efectivamente
+mostró y se compara con dos valores fijados antes de la ejecución: el del servidor y el de este
+contrato. Si el texto mostrado difiriera en un solo carácter, por ejemplo con la alteración
+observada en la corrida agotada, la huella sería `b60c8421` y "Coinciden" diría "NO": lo
+comprueban `tests/test_fingerprint.py` y `tests/test_widget.py`. Exigir que las líneas estén
+dentro de la vista impide que el modelo las satisfaga escribiéndolas en su respuesta.
+
+**Alcance.** El éxito sostiene que la cuenta declarada ofrece un canal fiel para mostrar originales
+dentro de ChatGPT, utilizable en U2. El fallo, cualquiera sea su atribución, no afecta a C-U1-2A:
+indica que U2 necesita otro canal fiel, y no se concluye nada más.
+
+## Limitaciones conocidas de ambos contratos
+
+- El acceso es por URL con capacidad, no por OAuth. El token es un secreto portador que queda en
+  la configuración de la app de ChatGPT.
+- Datos sintéticos; una sola cuenta y un solo plan; ningún resultado se extiende a otras cuentas,
+  a otros planes ni a otras IA.
+- La exportación, las capturas y las transcripciones las produce quien ejecuta: son evidencia
+  reportada, no comprobación independiente del AUDITOR.
 - El comportamiento de ChatGPT no es determinista.
-- La sonda responde en JSON y sin stream por `GET`, formas válidas del transporte de MCP. Si
-  ChatGPT exigiera SSE, el escaneo fallaría con solicitudes aceptadas, y el fallo sería no
+- E6 se apoya en el `User-Agent`, que puede falsificarse: detecta el uso accidental de un token
+  filtrado, no uno adversarial.
+- La huella FNV-1a de 32 bits detecta alteraciones accidentales. No es una garantía criptográfica.
+- La vista solo se probó localmente, con un anfitrión simulado.
+- La puerta G2 corre desde la misma máquina que expone la sonda, y el Quick Tunnel no tiene
+  garantía de disponibilidad. Una caída se ve como ausencia de solicitudes y es un fallo no
   discriminante respecto de la cuenta.
-- La puerta G2 se ejecuta desde la misma máquina que expone la sonda: demuestra que el túnel
-  funciona para un cliente externo, no que la red de OpenAI llegue a él. Si no llega, el fallo es
-  no discriminante respecto de la cuenta.
-- El Quick Tunnel es un servicio de pruebas sin garantía de disponibilidad. Una caída durante la
-  ejecución se ve en el registro como ausencia de toda solicitud posterior, y el fallo es no
-  discriminante respecto de la cuenta. Por eso un rechazo sobre una herramienta solo cuenta
-  contra la cuenta si una solicitud posterior sí llegó.
-- Que la interfaz declare como causa el plan o los permisos es la única evidencia admitida de
-  indisponibilidad en la cuenta. Si el producto rechaza sin declarar la causa, el contrato no
-  puede concluir que la cuenta carece de la capacidad, aunque la causa real fuera esa: el
-  contrato prefiere no concluir antes que concluir de más.
 
 ## Necesidad humana detectada
 
-NECESIDAD DEL HUMANO — la conexión real exige una cuenta de ChatGPT con su plan, habilitar el
-modo desarrollador en ella, crear la app y exponer la sonda por HTTPS. Nada de eso está
-comprendido en el perímetro delegado vigente: son acciones sobre servicios y cuentas reservadas
-al humano, y la exposición de red es además un despliegue externo.
-
-Se preserva `CHECKPOINT_HUMANO.md` en esta unidad, autocontenido y sin secretos, conforme a
-REVOLUTIONS §7.4. Corresponde a H-1 y H-2 del plan.
+NECESIDAD DEL HUMANO — la nueva corrida real exige, otra vez, operar la cuenta de ChatGPT y
+exponer la sonda por HTTPS. Son acciones reservadas al humano, fuera del perímetro delegado. Se
+actualiza `CHECKPOINT_HUMANO.md` para los dos contratos, con el nuevo manejo de la URL. Corresponde
+a H-1 y H-2 del plan.
 
 El CONSTRUCTOR registra y rutea esta necesidad; no declara que sea real. Esa determinación, y el
-congelamiento previo del contrato, corresponden al AUDITOR.
+congelamiento previo de C-U1-2A y C-U1-2B, corresponden al AUDITOR.
 
 ## Limitaciones de esta entrega
 
-- La sonda no es el sistema y su stack no compromete a U2. Sirve para comprobar la interfaz.
-- El directorio `sonda/.venv` y la base de datos local quedan fuera de Git por `.gitignore`: son
-  reconstruibles con `requirements.txt` y con la siembra determinista.
+- La sonda sigue siendo descartable y no compromete la arquitectura de U2.
+- `sonda/.venv` y `sonda/.data` quedan fuera de Git.
 - El directorio `.atl/` en la raíz del árbol es material de herramientas del entorno local, ajeno
   a esta entrega.
