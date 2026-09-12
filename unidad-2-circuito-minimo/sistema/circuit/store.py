@@ -63,6 +63,16 @@ CREATE TABLE IF NOT EXISTS operations (
 CREATE TABLE IF NOT EXISTS calls (
     id INTEGER PRIMARY KEY AUTOINCREMENT, tool TEXT NOT NULL, arguments TEXT NOT NULL,
     ok INTEGER NOT NULL, at TEXT NOT NULL, original_fp TEXT NOT NULL DEFAULT '');
+CREATE TABLE IF NOT EXISTS oauth_clients (
+    client_id TEXT PRIMARY KEY, info TEXT NOT NULL, registered_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS oauth_requests (
+    id TEXT PRIMARY KEY, client_id TEXT NOT NULL, params TEXT NOT NULL, created_at TEXT NOT NULL,
+    approved_at TEXT);
+CREATE TABLE IF NOT EXISTS oauth_codes (
+    code TEXT PRIMARY KEY, client_id TEXT NOT NULL, data TEXT NOT NULL, used_at TEXT);
+CREATE TABLE IF NOT EXISTS oauth_tokens (
+    token TEXT PRIMARY KEY, kind TEXT NOT NULL, client_id TEXT NOT NULL, scopes TEXT NOT NULL,
+    expires_at INTEGER, resource TEXT, created_at TEXT NOT NULL, revoked_at TEXT);
 CREATE TABLE IF NOT EXISTS requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, kind TEXT NOT NULL,
     method TEXT NOT NULL DEFAULT '', surface TEXT NOT NULL DEFAULT '', path_ok INTEGER NOT NULL DEFAULT 0,
@@ -71,6 +81,12 @@ CREATE TABLE IF NOT EXISTS requests (
 """
 
 _PROPOSAL_COLUMNS = "id, channel_id, what, why, example, author, received_at, synthetic"
+
+
+def _now() -> str:
+    from datetime import datetime, timezone
+
+    return datetime.now(timezone.utc).isoformat()
 
 
 class NotFoundError(LookupError):
@@ -569,6 +585,95 @@ class Store:
                 "INSERT INTO operations (operation_id, kind, result, at) VALUES (?, ?, ?, ?)",
                 (operation_id, kind, json.dumps(result, ensure_ascii=False), at))
         return result
+
+    # ------------------------------------------------------- authorization of the connector
+
+    def save_oauth_client(self, client_id: str, info: dict) -> None:
+        with self._db:
+            self._db.execute(
+                "INSERT INTO oauth_clients (client_id, info, registered_at) VALUES (?, ?, ?) "
+                "ON CONFLICT(client_id) DO UPDATE SET info = excluded.info",
+                (client_id, json.dumps(info, ensure_ascii=False), _now()))
+
+    def get_oauth_client(self, client_id: str) -> dict | None:
+        row = self._db.execute(
+            "SELECT info FROM oauth_clients WHERE client_id = ?", (client_id,)).fetchone()
+        return json.loads(row["info"]) if row else None
+
+    def save_authorization_request(self, request_id: str, client_id: str, params: dict) -> None:
+        """Park what a client asked for, until the creator decides on the panel."""
+        with self._db:
+            self._db.execute(
+                "INSERT INTO oauth_requests (id, client_id, params, created_at) VALUES (?, ?, ?, ?)",
+                (request_id, client_id, json.dumps(params, ensure_ascii=False), _now()))
+
+    def get_authorization_request(self, request_id: str) -> dict:
+        row = self._db.execute(
+            "SELECT * FROM oauth_requests WHERE id = ?", (request_id,)).fetchone()
+        if row is None:
+            raise NotFoundError("Esa solicitud de conexión no existe o ya no está disponible.")
+        return {**dict(row), "params": json.loads(row["params"])}
+
+    def pending_authorization_requests(self) -> list[dict]:
+        rows = self._db.execute(
+            "SELECT * FROM oauth_requests WHERE approved_at IS NULL ORDER BY created_at").fetchall()
+        return [{**dict(r), "params": json.loads(r["params"])} for r in rows]
+
+    def take_authorization_request(self, request_id: str, at: str) -> dict:
+        """Approve a parked request, once. A second approval would mint a second code."""
+        pending = self.get_authorization_request(request_id)
+        if pending["approved_at"]:
+            raise NotAuthorizedError("Esa solicitud de conexión ya fue aprobada.")
+        with self._db:
+            self._db.execute("UPDATE oauth_requests SET approved_at = ? WHERE id = ?",
+                             (at, request_id))
+        return pending
+
+    def save_authorization_code(self, code: str, client_id: str, data: dict) -> None:
+        with self._db:
+            self._db.execute(
+                "INSERT INTO oauth_codes (code, client_id, data) VALUES (?, ?, ?)",
+                (code, client_id, json.dumps(data, ensure_ascii=False)))
+
+    def get_authorization_code(self, code: str) -> dict | None:
+        row = self._db.execute(
+            "SELECT * FROM oauth_codes WHERE code = ? AND used_at IS NULL", (code,)).fetchone()
+        return {**dict(row), "data": json.loads(row["data"])} if row else None
+
+    def spend_authorization_code(self, code: str) -> None:
+        """An authorization code is good once; spending it is what makes a replay useless."""
+        with self._db:
+            self._db.execute("UPDATE oauth_codes SET used_at = ? WHERE code = ?", (_now(), code))
+
+    def save_oauth_token(self, token: str, kind: str, client_id: str, scopes: list[str],
+                         expires_at: int | None, resource: str | None) -> None:
+        with self._db:
+            self._db.execute(
+                "INSERT INTO oauth_tokens (token, kind, client_id, scopes, expires_at, resource, "
+                "created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (token, kind, client_id, json.dumps(scopes), expires_at, resource, _now()))
+
+    def get_oauth_token(self, token: str) -> dict | None:
+        row = self._db.execute("SELECT * FROM oauth_tokens WHERE token = ?", (token,)).fetchone()
+        return {**dict(row), "scopes": json.loads(row["scopes"])} if row else None
+
+    def revoke_oauth_token(self, token: str) -> None:
+        with self._db:
+            self._db.execute("UPDATE oauth_tokens SET revoked_at = ? WHERE token = ?",
+                             (_now(), token))
+
+    def issued_tokens(self) -> list[str]:
+        """Every token issued, in clear. Same single caller as `witnesses`: the preservation step."""
+        return [r["token"] for r in self._db.execute("SELECT token FROM oauth_tokens").fetchall()]
+
+    def connections(self) -> list[dict]:
+        """What the creator authorized, for the panel and for the evidence. No secrets."""
+        rows = self._db.execute(
+            "SELECT r.id, r.client_id, r.params, r.created_at, r.approved_at FROM oauth_requests r "
+            "ORDER BY r.created_at").fetchall()
+        return [{"id": r["id"], "client_id": r["client_id"],
+                 "client_name": json.loads(r["params"]).get("client_name", ""),
+                 "created_at": r["created_at"], "approved_at": r["approved_at"]} for r in rows]
 
     # ------------------------------------------------------------------- evidence of a run
 

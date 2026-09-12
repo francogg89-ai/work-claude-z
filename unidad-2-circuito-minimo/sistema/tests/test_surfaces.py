@@ -199,25 +199,38 @@ def test_returning_the_interpretation_keeps_the_channel_shut_and_records_the_dis
     assert "Falta el peso de la audiencia." in httpx.get(base + access.panel_path(CAPABILITY)).text
 
 
-@pytest.mark.parametrize("path", ["/mcp", "/mcp/", "/mcp/" + "x" * 43])
-def test_the_mcp_endpoint_does_not_exist_without_the_capability(serve, path):
-    assert httpx.post(serve() + path, json=INIT, headers=MCP_HEADERS).status_code == 404
+def test_the_connector_refuses_a_call_without_a_token(serve):
+    response = httpx.post(serve() + access.MCP_PATH, json=INIT, headers=MCP_HEADERS)
+    assert response.status_code == 401
+    assert "Bearer" in response.headers.get("www-authenticate", "")
 
 
-def test_the_mcp_endpoint_answers_plain_json_and_offers_no_event_stream(serve):
-    base = serve()
-    posted = httpx.post(base + access.mcp_path(CAPABILITY), json=INIT, headers=MCP_HEADERS)
-    assert posted.status_code == 200
-    assert posted.headers["content-type"].startswith("application/json")
-    got = httpx.get(base + access.mcp_path(CAPABILITY), headers={"Accept": "text/event-stream"})
+def test_the_connector_refuses_an_invented_token(serve):
+    response = httpx.post(serve() + access.MCP_PATH, json=INIT,
+                          headers={**MCP_HEADERS, "Authorization": "Bearer inventado"})
+    assert response.status_code == 401
+
+
+def test_the_connector_offers_no_event_stream(serve):
+    got = httpx.get(serve() + access.MCP_PATH, headers={"Accept": "text/event-stream"})
     assert got.status_code == 405
+
+
+def test_the_server_publishes_where_to_authorize(serve):
+    base = serve()
+    resource = httpx.get(base + "/.well-known/oauth-protected-resource/mcp")
+    assert resource.status_code == 200
+    assert base in str(resource.json()["authorization_servers"][0])
+    server = httpx.get(base + "/.well-known/oauth-authorization-server")
+    assert server.status_code == 200
+    assert server.json()["authorization_endpoint"].endswith("/authorize")
 
 
 def test_every_request_is_logged_by_surface_and_never_with_its_path(circuito, serve):
     base = serve()
     httpx.get(base + "/")
     httpx.get(base + access.panel_path(CAPABILITY))
-    httpx.post(base + access.mcp_path(CAPABILITY), json=INIT, headers=MCP_HEADERS)
+    httpx.post(base + access.MCP_PATH, json=INIT, headers=MCP_HEADERS)
     surfaces = [r["surface"] for r in circuito.all_requests()]
     assert surfaces == ["publica", "panel", "mcp"]
     assert all(CAPABILITY not in str(r) for r in circuito.all_requests())
@@ -236,11 +249,6 @@ def test_the_live_view_shows_the_same_published_list_in_a_readable_layout(circui
     assert "font-size: 1.6rem" in page
     assert "no las suma en un único orden" in page
 
-
-@pytest.mark.parametrize("path", ["/mcp", "/mcp/" + "x" * 43])
-def test_a_get_without_the_capability_is_not_found_rather_than_method_not_allowed(serve, path):
-    response = httpx.get(serve() + path, headers={"Accept": "text/event-stream"})
-    assert response.status_code == 404
 
 
 def _publish_one(circuito):

@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 from mcp.server.transport_security import TransportSecuritySettings
 
-from circuit import access, creator, panel, public
+from circuit import access, auth, creator, panel, public
 from circuit.store import Store
 
 
@@ -29,11 +29,16 @@ def build_app(store: Store, capability: str, public_base: str = "", exposed: boo
 
     ``exposed`` turns off DNS rebinding protection: behind a forwarding service the Host and
     Origin headers are set by third parties, and refusing them would make a refusal of ours look
-    like an incompatibility of the account. The capability still gates both private surfaces.
+    like an incompatibility of the account. What gates the connector is the access token; what
+    gates the panel is the capability in its path.
     """
     access.check(capability)
-    server = creator.build_server(store, capability, public_base, clock)
-    routes = public.public_routes(store, clock) + panel.panel_routes(store, capability, clock)
+    authorization = auth.CreatorAuthorization(store=store, capability=capability,
+                                              public_base=public_base or "")
+    server = creator.build_server(store, capability, public_base, clock,
+                                  authorization=authorization)
+    routes = (public.public_routes(store, clock)
+              + panel.panel_routes(store, capability, clock, authorization))
     for path, methods, handler in routes:
         server.custom_route(path, methods=methods)(handler)
 
@@ -41,7 +46,7 @@ def build_app(store: Store, capability: str, public_base: str = "", exposed: boo
         enable_dns_rebinding_protection=not exposed,
         allowed_hosts=["127.0.0.1:*", "localhost:*", "[::1]:*"],
         allowed_origins=[])
-    mcp_path = access.mcp_path(capability)
+    mcp_path = access.MCP_PATH
     app = server.streamable_http_app(streamable_http_path=mcp_path, json_response=True,
                                      stateless_http=True, transport_security=security)
     return RequestLog(NoStandaloneStream(app, mcp_path), store, mcp_path, clock)

@@ -46,7 +46,8 @@ def test_the_links_command_marks_which_surfaces_carry_the_capability(local, caps
     printed = capsys.readouterr().out
     assert "http://ejemplo.invalid/entrada-creador" in printed
     assert launch.capability() in printed
-    assert "no los pegues en material público" in printed
+    assert f"http://ejemplo.invalid{access.MCP_PATH}" in printed
+    assert f"{access.MCP_PATH}/{launch.capability()}" not in printed
 
 
 def test_seeding_stores_the_generated_participations(local, capsys):
@@ -79,6 +80,7 @@ def test_the_local_evaluator_can_be_run_from_the_command_line(local, circuito, c
 def test_a_tool_can_be_called_over_http_the_way_a_remote_client_would(local, serve, capsys):
     base = serve()
     (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    assert launch.main(["--base", base, "conectar"]) == 0
     assert launch.main(["--base", base, "llamar", "estado_del_sistema"]) == 0
     printed = capsys.readouterr().out
     assert "confirmado" in printed
@@ -97,6 +99,7 @@ def test_capturing_a_surface_keeps_the_exact_bytes_it_answered(local, serve, cap
 def test_the_export_fingerprints_every_artefact_of_the_run(local, serve, capsys):
     base = serve()
     (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    launch.main(["--base", base, "conectar"])
     launch.main(["--base", base, "llamar", "estado_del_sistema"])
     launch.main(["--base", base, "capturar", "--ruta", "/"])
     destination = local / "evidencia.json"
@@ -158,6 +161,7 @@ def test_the_same_surface_can_be_captured_at_two_moments_under_different_names(l
 def test_the_preserved_call_keeps_the_answer_but_not_the_capability(local, serve, capsys):
     base = serve()
     (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    launch.main(["--base", base, "conectar"])
     launch.main(["--base", base, "llamar", "estado_del_sistema"])
     capsys.readouterr()
     logged = (local / "llamadas.jsonl").read_text(encoding="utf-8")
@@ -229,6 +233,7 @@ def test_the_preserved_call_substitutes_the_witness_by_value(local, circuito, se
     round_ = circuito.open_round(CONVOCATORIA, cut_at="2026-09-30T00:00:00+00:00")
     circuito.authorize(round_["id"], "invitar", at="2026-09-30T01:00:00+00:00")
 
+    launch.main(["--base", base, "conectar"])
     launch.main(["--base", base, "llamar", "preparar_invitacion", "--argumentos", json.dumps(
         {"round_id": round_["id"], "proposal_id": "P-001", "pregunta": "¿Con qué ejemplo?",
          "id_operacion": "inv-1"})])
@@ -237,5 +242,5 @@ def test_the_preserved_call_substitutes_the_witness_by_value(local, circuito, se
     witness = circuito.invitations_of(round_["id"])[0]["witness"]
     logged = (local / "llamadas.jsonl").read_text(encoding="utf-8")
     assert witness not in logged
-    assert "<testigo>" in logged
+    assert "/ampliar/<testigo>" in logged
     assert "INV-" in logged

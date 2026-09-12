@@ -18,7 +18,7 @@ son el resultado de una corrida real y esta arquitectura los toma como dados, si
 | 2. Las acciones consecuentes las autoriza el sistema, no una confirmación de ChatGPT | `circuit/panel.py`: publicar e invitar se autorizan en una superficie del sistema. La IA pide y lee; no otorga |
 | 3. El creador necesita un camino verificable para saber que lo que ve vino del sistema | `circuit/view.py`: la vista calcula la huella de lo que realmente mostró y la compara con la del servidor |
 | 4. El enlace de entrada debe indicar que el original se consulta por la vista, y su control negativo tiene un modo de fallo observado | `/entrada-creador` exige confirmar el acceso antes de operar y prohíbe presentar lo que no se obtuvo del sistema |
-| 5. La autenticación sin secreto en la URL queda como trabajo de U2 | Pertenece al alcance de la unidad y la ejercitan C2.6 y C2.8; el mecanismo queda decidido más abajo y se implementa con el contrato de la operación real. La frontera vive aislada en `circuit/access.py` para que el reemplazo no toque el circuito |
+| 5. La autenticación sin secreto en la URL queda como trabajo de U2 | Resuelta: `circuit/auth.py` es el servidor de autorización del sistema y el extremo del conector vive en `/mcp`, sin secreto en la ruta. Lo que abre el conector es un token que el creador aprobó |
 | 6. La paginación por cursor entra en el diseño desde el principio | `Store.list_proposals` devuelve resumen más `next_cursor`; el detalle se pide por propuesta |
 | 7. El tratamiento de datos reales frente a la opción de entrenamiento del proveedor es restricción de diseño | U2 corre solo con datos sintéticos marcados en el propio dato; la materia documental es de U4 |
 
@@ -44,7 +44,8 @@ sistema/circuit/
   panel.py       superficie privada del creador: revisión de calibración y autorizaciones
   creator.py     servidor MCP que opera la IA del creador
   view.py        vista MCP Apps del original, con comparación de huellas
-  access.py      frontera de acceso de las dos superficies privadas
+  access.py      capacidad del panel del creador
+  auth.py        servidor de autorización del conector: registro, consentimiento, código y token
   app.py         composición, registro de solicitudes y ausencia de stream iniciado por el servidor
   synthetic.py   participaciones sintéticas reproducibles
   launch.py      preparación, arranque, enlaces y exportación de evidencia
@@ -120,37 +121,41 @@ El manifiesto pide límites justificados y probados, y prohíbe exigir una elabo
 El texto del participante se guarda tal como lo envió: la única normalización es recortar los
 espacios de los extremos. Ninguna otra parte del sistema reescribe un original.
 
-## La autenticación del extremo: qué está resuelto y qué falta
+## La autenticación del extremo
 
 U1 registró que el acceso por capacidad en la URL **no es apto para el producto** y dejó la
-autenticación sin secreto en la URL como trabajo de U2. Eso ya pertenece al alcance aprobado de
-la unidad, y `PLAN.md` la ejercita: C2.6 exige operación conversacional real con acceso
-autorizado, y C2.8 ejercita expresamente una sesión sin la integración disponible **o sin
-autorización**, exigiendo que no se fabriquen resultados. No es una decisión que se traslade al
-humano: elegir y proponer el mecanismo está dentro del perímetro delegado al CONSTRUCTOR y
-sujeto a auditoría.
+autenticación sin secreto en la URL como trabajo de U2. `PLAN.md` la ejercita: C2.6 exige
+operación real con acceso autorizado y C2.8 ejercita una sesión sin la integración disponible
+**o sin autorización**. Está resuelta.
 
-**El mecanismo está decidido y no es una conjetura abierta.** El producto probado admite dos
-formas de conectar una app propia: URL sin autenticación, u OAuth. No hay una tercera. Entonces
-«autenticación sin secreto en la URL» significa exactamente el flujo de autorización de MCP: el
-servidor se comporta como recurso protegido, publica su metadata, el anfitrión registra su
-cliente y presenta un token que el servidor verifica en cada solicitud. No hace falta suponer nada sobre la
-disponibilidad de esa superficie: el servidor del SDK instalado recibe `auth`, `token_verifier` y
-`auth_server_provider` al construirse y los propaga a la misma aplicación HTTP que ya usa este
-candidato.
+**Por qué este mecanismo y no otro.** El producto probado admite exactamente dos formas de
+conectar una app propia: una URL pública sin autenticación, u OAuth. No hay una tercera. Entonces
+«autenticación sin secreto en la URL» significa el flujo de autorización de MCP y nada más. No es
+una preferencia de diseño: es lo único que queda cuando se descarta lo que U1 descartó.
 
-**Qué falta y dónde va.** El mecanismo se implementa y se ejercita en la intervención que
-prepara el contrato de la operación real, junto con C2.6 y C2.8, porque solo una corrida real
-demuestra que el anfitrión completa el flujo. La verificación local de este candidato no lo
-demuestra ni pretende hacerlo, y esa corrida real sí hará previsible una necesidad humana
-material —cuenta, permisos y exposición alcanzable— que **no está activa ahora**.
+**Cómo quedó.** El servidor es a la vez servidor de autorización y servidor de recurso, porque es
+un solo proceso que el creador instala:
 
-**Qué sostiene el candidato mientras tanto.** La capacidad se genera local, nunca entra en Git ni
-en el enlace de entrada del creador, y vive en un único módulo (`access.py`) del que dependen las
-dos superficies privadas, que es lo que permite reemplazarla sin tocar el circuito. Además, tener
-la capacidad no alcanza para publicar ni invitar: eso exige la autorización del creador en el
-panel. Nada de eso convierte a la capacidad en apta para el producto, y este documento no lo
-afirma.
+- el conector vive en `/mcp`, sin capacidad en la ruta. Una llamada sin token responde `401` con
+  `WWW-Authenticate`, y ahí es donde el anfitrión aprende a dónde ir a autorizarse;
+- el anfitrión se registra solo —registro dinámico— y pide autorización. Registrarse no es
+  autorizarse: un cliente registrado no tiene nada hasta que el creador decide;
+- la solicitud queda estacionada y el anfitrión es enviado **al panel del creador**. Consentir no
+  es una pantalla de login nueva con credenciales nuevas que guardar: es una decisión más del
+  creador, al lado de las que autorizan publicar e invitar. Quien llega al panel es el creador,
+  que es exactamente la frontera que el panel ya tenía;
+- aprobar es lo que emite el código; el código se gasta una sola vez; el intercambio con PKCE
+  entrega el token que el conector lleva desde entonces. El panel lista qué aplicaciones están
+  conectadas y cuáles esperan decisión.
+
+**Qué sigue sin demostrarse acá.** Que un anfitrión real complete este flujo. Eso solo lo muestra
+una corrida real contra el producto, y es lo que el contrato correspondiente tiene que ejercitar
+junto con C2.6 y C2.8. La verificación local demuestra que el flujo emite, valida y revoca
+tokens; no demuestra interoperabilidad.
+
+**Qué no cambió.** La capacidad sigue gobernando el panel, que es la superficie local del creador
+y no es lo que U1 señaló. Y tener un token no alcanza para publicar ni invitar: eso sigue
+exigiendo la autorización del creador por ronda, en el panel.
 
 ## Qué preserva una corrida
 
@@ -192,9 +197,8 @@ un secreto accionable es un lugar donde puede quedar copiado.
   exactamente eso y su límite.
 - **No demuestra comprensión de una persona real.** Que la guía se entienda sin ayuda solo lo
   decide el piloto, que el manifiesto deja fuera del cierre técnico.
-- **No autentica todavía el extremo.** El mecanismo está decidido, según la sección anterior, y
-  se implementa y se ejercita con el contrato de la operación real que cubre C2.6 y C2.8. Hasta
-  entonces la capacidad no se presenta como apta para el producto.
+- **No demuestra interoperabilidad de la autenticación.** El flujo está implementado y se
+  ejercita localmente; que un anfitrión real lo complete pertenece al contrato de la corrida real.
 - **No expone el sistema a la red.** La exposición pública sigue siendo H-2 y decisión humana de
   costo.
 - **No implementa la votación configurable** más allá del máximo por participante con tres por
@@ -205,8 +209,9 @@ un secreto accionable es un lugar donde puede quedar copiado.
 - **La elección de herramienta del modelo no es determinista.** Si el modelo responde con su
   propia transcripción en lugar de abrir la vista, el creador ve texto plausible no literal. Se
   mitiga con instrucciones y con el aviso dentro de cada respuesta de datos; no se elimina.
-- **La capacidad en la URL es un secreto portador.** Mitigado por generación local, ausencia de
-  Git, módulo único y autorización separada en el panel; no resuelto (arriba).
+- **La capacidad del panel sigue siendo un secreto portador en una URL.** Es la superficie local
+  del creador, no el conector, y no es lo que U1 señaló; queda declarada como tal. El conector ya
+  no depende de ella.
 - **El ejecutor determinista podría leerse como evaluación real.** Mitigado porque el nombre del
   ejecutor se guarda con cada evaluación y viaja en la evidencia exportada.
 - **El testigo de ampliación es un enlace no adivinable.** Quien lo obtenga puede responder en

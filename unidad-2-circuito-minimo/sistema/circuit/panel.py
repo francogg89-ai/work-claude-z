@@ -11,12 +11,12 @@ so a request without the capability matches no route at all.
 
 from starlette.responses import HTMLResponse, RedirectResponse
 
-from circuit import access, domain, evaluation
-from circuit.store import ClosedChannelError, NotFoundError, Store
+from circuit import access, auth as auth_module, domain, evaluation
+from circuit.store import ClosedChannelError, NotAuthorizedError, NotFoundError, Store
 from circuit.web import esc, field, notice, page
 
 
-def panel_routes(store: Store, capability: str, clock) -> list[tuple]:
+def panel_routes(store: Store, capability: str, clock, authorization=None) -> list[tuple]:
     base = access.panel_path(capability)
 
     async def _form(request) -> dict:
@@ -26,7 +26,8 @@ def panel_routes(store: Store, capability: str, clock) -> list[tuple]:
     async def panel(request):
         body = ("<h1>Panel del creador</h1>"
                 + notice("Publicar e invitar se autorizan acá, en el sistema. La IA puede "
-                         "pedirlo; darlo es tuyo."))
+                         "pedirlo; darlo es tuyo.")
+                + _connections_block(store, base))
         for channel in store.all_channels():
             body += _channel_block(store, base, channel)
             for round_ in store.rounds_of(channel["id"]):
@@ -72,13 +73,72 @@ def panel_routes(store: Store, capability: str, clock) -> list[tuple]:
                                      + notice(str(exc), "aviso error")), status_code=400)
         return RedirectResponse(base, status_code=303)
 
+    async def connect(request):
+        """The consent surface of the authorization flow.
+
+        A client that wants to operate the circuit lands here, and the creator is whoever can
+        reach this page. Approving is what issues the code the client then exchanges for a
+        token; until that happens the client holds nothing.
+        """
+        request_id = request.query_params.get("solicitud", "")
+        if request.method == "GET":
+            try:
+                pending = auth_module.pending_request_view(store, request_id)
+            except NotFoundError as exc:
+                return HTMLResponse(page("Solicitud no encontrada", "<h1>Solicitud no encontrada</h1>"
+                                         + notice(str(exc), "aviso error")), status_code=404)
+            if pending["approved_at"]:
+                return HTMLResponse(page("Ya aprobada", "<h1>Ya aprobada</h1>" + notice(
+                    "Esta solicitud de conexión ya fue aprobada.")))
+            body = (f"<h1>Conectar «{esc(pending['client_name'])}»</h1>"
+                    f"<p>Una aplicación pide operar tu circuito en tu nombre.</p>"
+                    f"<p><strong>Qué podrá hacer:</strong> leer propuestas, guardar evaluaciones y "
+                    f"pedirte autorización para invitar y publicar. Autorizar esas dos acciones "
+                    f"sigue siendo tuyo, acá en el panel.</p>"
+                    f"<p><strong>Alcance:</strong> {esc(', '.join(pending['scopes']))}</p>"
+                    f"<p><strong>Volverá a:</strong> {esc(pending['redirect_uri'])}</p>"
+                    f"<p><strong>Pedida el:</strong> {esc(pending['created_at'])}</p>"
+                    + notice("Si no reconocés esta solicitud, cerrá esta página: sin tu "
+                             "aprobación la aplicación no obtiene ningún acceso.")
+                    + f'<form method="post" action="{esc(base)}/conectar">'
+                      f'<input type="hidden" name="solicitud" value="{esc(request_id)}">'
+                      '<button type="submit">Autorizar esta conexión</button></form>')
+            return HTMLResponse(page("Conectar una aplicación", body))
+
+        form = await _form(request)
+        try:
+            destination = authorization.approve(form.get("solicitud", ""), at=clock())
+        except (NotFoundError, NotAuthorizedError) as exc:
+            return HTMLResponse(page("No se pudo autorizar", "<h1>No se pudo autorizar</h1>"
+                                     + notice(str(exc), "aviso error")), status_code=400)
+        return RedirectResponse(destination, status_code=303)
+
     return [
         (base, ["GET"], panel),
+        (f"{base}/conectar", ["GET", "POST"], connect),
         (f"{base}/calibracion/aprobar", ["POST"], approve_calibration),
         (f"{base}/calibracion/devolver", ["POST"], return_calibration),
         (f"{base}/autorizar", ["POST"], authorize),
         (f"{base}/eleccion", ["POST"], choice),
     ]
+
+
+def _connections_block(store: Store, base: str) -> str:
+    """What the creator authorized to connect, and what is still waiting for them."""
+    connections = store.connections()
+    if not connections:
+        return ""
+    body = "<h2>Aplicaciones conectadas</h2><ul>"
+    for connection in connections:
+        estado = (f"autorizada el {esc(connection['approved_at'])}" if connection["approved_at"]
+                  else "esperando tu decisión")
+        body += f"<li>{esc(connection['client_name'])}: {estado}</li>"
+    body += "</ul>"
+    pendientes = [c for c in connections if not c["approved_at"]]
+    for pendiente in pendientes:
+        body += (f'<p><a href="{esc(base)}/conectar?solicitud={esc(pendiente["id"])}">'
+                 f'Revisar la solicitud de {esc(pendiente["client_name"])}</a></p>')
+    return body
 
 
 def _channel_block(store: Store, base: str, channel: dict) -> str:

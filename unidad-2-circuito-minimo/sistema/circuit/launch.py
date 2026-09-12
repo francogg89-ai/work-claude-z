@@ -8,17 +8,19 @@ import argparse
 import hashlib
 import json
 import re
+import secrets
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from circuit import access, domain, synthetic
+from circuit import access, auth, domain, synthetic
 from circuit.app import build_app, utc_now
 from circuit.store import Store
 
 DATA = Path(__file__).resolve().parent.parent / ".data"
 DB = DATA / "circuito.sqlite"
 CAPABILITY_FILE = DATA / "capacidad"
+TOKEN_FILE = DATA / "token"
 
 
 CONVOCATORIA = "convocatoria-1"
@@ -48,23 +50,24 @@ def redact(text: str) -> str:
     the creator's surfaces and the witness of an invitation. Everything else is kept verbatim,
     and each substitution is visible as such.
 
-    The witnesses are substituted **by value**, read from the store, so the substitution does
-    not depend on recognising the shape they happen to travel in. The pattern over the link is
-    kept as a second net, for a witness that this database does not know.
+    The witnesses and the access tokens are substituted **by value**, read from the store, so the
+    substitution does not depend on recognising the shape they happen to travel in. The pattern
+    over the link is kept as a second net, for a witness that this database does not know.
     """
     if CAPABILITY_FILE.exists():
         text = text.replace(capability(), "<capacidad>")
-    for witness in _witnesses():
-        text = text.replace(witness, "<testigo>")
+    for issued in _secrets_in_store():
+        text = text.replace(issued, "<secreto>")
     return _WITNESS_IN_URL.sub("/ampliar/<testigo>", text)
 
 
-def _witnesses() -> list[str]:
+def _secrets_in_store() -> list[str]:
+    """Every actionable secret the base issued: witnesses and access tokens."""
     if not DB.exists():
         return []
     db = Store(DB)
     try:
-        return db.witnesses()
+        return db.witnesses() + db.issued_tokens()
     finally:
         db.close()
 
@@ -137,8 +140,9 @@ def cmd_enlaces(args) -> int:
     print(f"Portal de finalistas      : {base}/finalistas")
     print(f"Enlace de entrada del creador: {base}/entrada-creador")
     print(f"Panel del creador (privado)  : {base}{access.panel_path(capability())}")
-    print(f"Conector MCP (privado)       : {base}{access.mcp_path(capability())}")
-    print("El panel y el conector llevan la capacidad: no los pegues en material público.")
+    print(f"Conector MCP                 : {base}{access.MCP_PATH}")
+    print("El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el "
+          "panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.")
     return 0
 
 
@@ -169,6 +173,71 @@ def cmd_evaluar(args) -> int:
     return 0
 
 
+def cmd_conectar(args) -> int:
+    """Obtain an access token by walking the same authorization flow a remote host walks.
+
+    It registers a client, asks for authorization, approves it as the creator —which is what
+    holding the capability means— and exchanges the code. Nothing here shortcuts the flow: the
+    token that comes out is the same kind of token the product issues.
+    """
+    import base64
+    import hashlib
+    from urllib.parse import parse_qs, urlparse
+
+    import httpx
+
+    base = args.base.rstrip("/")
+    redirect = f"{base}{access.panel_path(capability())}/listo"
+    verifier = secrets.token_urlsafe(43)
+    challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(verifier.encode()).digest()).decode().rstrip("=")
+
+    with httpx.Client(timeout=30, follow_redirects=False) as client:
+        registered = client.post(f"{base}/register", json={
+            "client_name": args.nombre, "redirect_uris": [redirect],
+            "grant_types": ["authorization_code", "refresh_token"], "response_types": ["code"],
+            "token_endpoint_auth_method": "none", "scope": auth.SCOPE})
+        if registered.status_code >= 400:
+            print(f"registro: {registered.status_code} {registered.text}")
+            return 1
+        client_id = registered.json()["client_id"]
+
+        asked = client.get(f"{base}/authorize", params={
+            "response_type": "code", "client_id": client_id, "redirect_uri": redirect,
+            "code_challenge": challenge, "code_challenge_method": "S256",
+            "state": secrets.token_urlsafe(8), "scope": auth.SCOPE})
+        if asked.status_code != 302 or "solicitud=" not in asked.headers.get("location", ""):
+            print(f"autorizacion: {asked.status_code} {asked.headers.get('location', asked.text)}")
+            return 1
+        request_id = parse_qs(urlparse(asked.headers["location"]).query)["solicitud"][0]
+        print(f"El creador aprueba la solicitud {request_id} en el panel.")
+
+        approved = client.post(f"{base}{access.panel_path(capability())}/conectar",
+                               data={"solicitud": request_id})
+        code = parse_qs(urlparse(approved.headers.get("location", "")).query).get("code", [None])[0]
+        if not code:
+            print(f"aprobacion: {approved.status_code} {approved.text[:200]}")
+            return 1
+
+        issued = client.post(f"{base}/token", data={
+            "grant_type": "authorization_code", "code": code, "redirect_uri": redirect,
+            "client_id": client_id, "code_verifier": verifier})
+        if issued.status_code >= 400:
+            print(f"token: {issued.status_code} {issued.text}")
+            return 1
+
+    TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+    TOKEN_FILE.write_text(issued.json()["access_token"], encoding="utf-8")
+    print(f"Conexión autorizada. El token quedó en {TOKEN_FILE} y no entra en Git.")
+    return 0
+
+
+def token() -> str:
+    if not TOKEN_FILE.exists():
+        raise SystemExit("No hay token: corré primero `conectar`.")
+    return TOKEN_FILE.read_text(encoding="utf-8").strip()
+
+
 def cmd_llamar(args) -> int:
     """Call one MCP tool over HTTP, the same way a remote client would.
 
@@ -181,9 +250,10 @@ def cmd_llamar(args) -> int:
     arguments = json.loads(args.argumentos)
     request = {"jsonrpc": "2.0", "id": 1, "method": "tools/call",
                "params": {"name": args.herramienta, "arguments": arguments}}
-    response = httpx.post(f"{args.base.rstrip('/')}{access.mcp_path(capability())}", json=request,
+    response = httpx.post(f"{args.base.rstrip('/')}{access.MCP_PATH}", json=request,
                           headers={"Accept": "application/json, text/event-stream",
-                                   "Content-Type": "application/json"}, timeout=30)
+                                   "Content-Type": "application/json",
+                                   "Authorization": f"Bearer {token()}"}, timeout=30)
     try:
         body = response.json()
     except ValueError:
@@ -337,6 +407,10 @@ def main(argv=None) -> int:
     evaluate.add_argument("--ronda", required=True)
     evaluate.add_argument("--etapa", type=int, default=1, choices=(1, 2))
     evaluate.set_defaults(func=cmd_evaluar)
+
+    connect = sub.add_parser("conectar", help="autorizar el conector y guardar su token")
+    connect.add_argument("--nombre", default="circuito-local")
+    connect.set_defaults(func=cmd_conectar)
 
     call = sub.add_parser("llamar", help="llamar una herramienta MCP por HTTP")
     call.add_argument("herramienta")

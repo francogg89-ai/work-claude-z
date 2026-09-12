@@ -19,7 +19,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
-from circuit import access, domain, evaluation
+from circuit import access, auth, domain, evaluation
 from circuit.store import ClosedChannelError, NotAuthorizedError, NotFoundError, Store
 from circuit.view import VIEW_HTML, VIEW_URI
 
@@ -58,7 +58,8 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def build_server(store: Store, capability: str, public_base: str = "", clock=utc_now) -> MCPServer:
+def build_server(store: Store, capability: str, public_base: str = "", clock=utc_now,
+                 authorization=None) -> MCPServer:
     apps = Apps()
 
     def run(tool: str, arguments: dict, action):
@@ -92,7 +93,15 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
         return run("ver_propuesta", {"proposal_id": proposal_id}, shown)
 
     apps.add_html_resource(VIEW_URI, VIEW_HTML, title="Propuesta tal como se recibió")
-    server = MCPServer(name="circuito-propuestas", instructions=INSTRUCTIONS, extensions=[apps])
+    # With an authorization provider the endpoint stops being reachable by knowing its path: the
+    # host has to hold a token the creator approved. Without one the server still builds, which
+    # is what lets the tools be exercised in process.
+    gate = {}
+    if authorization is not None:
+        gate = {"auth_server_provider": authorization,
+                "auth": auth.auth_settings(public_base or "http://127.0.0.1:8000")}
+    server = MCPServer(name="circuito-propuestas", instructions=INSTRUCTIONS, extensions=[apps],
+                       **gate)
 
     @server.tool(annotations=_READ)
     def estado_del_sistema() -> dict:

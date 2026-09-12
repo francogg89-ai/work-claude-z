@@ -1,14 +1,13 @@
-"""The access boundary of the creator's surfaces.
+"""The access boundary of the creator's own surface.
 
 U1 demonstrated the connection with a capability in the URL and recorded, as a limit, that a
-bearer secret in a URL is not fit for the product. This module is the single place that decides
-how the creator's two private surfaces — the MCP endpoint and the authorization panel — are
-gated, so replacing it with a real authorization flow does not touch the circuit.
+bearer secret in a URL is not fit for the product. That limit is now answered where it was
+raised: the connector's endpoint is gated by the authorization flow in `circuit.auth`, not by
+its path.
 
-The capability is not the answer to that: it is what the local verification runs on. The
-mechanism that replaces it is the MCP authorization flow, and it arrives with the contract that
-covers the real conversational operation, because only a real run shows the host completing it.
-Every other module talks to this one, so that replacement does not touch the circuit.
+What stays here is the capability of the creator's panel, which is a local surface and was never
+what U1 flagged. It is also the consent surface of the authorization flow: reaching the panel is
+what identifies the creator when a client asks to connect.
 """
 
 import re
@@ -32,8 +31,9 @@ def check(capability: str) -> str:
     return capability
 
 
-def mcp_path(capability: str) -> str:
-    return f"/mcp/{check(capability)}"
+# The connector's endpoint carries no secret in its path: what gates it is the token the host
+# obtained through the authorization flow in `circuit.auth`.
+MCP_PATH = "/mcp"
 
 
 def panel_path(capability: str) -> str:
