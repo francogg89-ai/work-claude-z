@@ -74,7 +74,7 @@ Las decisiones técnicas 1 a 14 de `PLAN.md` §7 no se reinterpretan. Dónde viv
 | 13. Cada registro vinculado lleva autor y tipo de relación | `records.kind` y `records.author`; la colaboración de terceros existe como tipo y está deshabilitada por defecto |
 | 14. Campos publicables declarados en un único lugar | `domain.PUBLISHABLE_FIELDS` alimenta el aviso previo al envío y la proyección pública |
 
-### Tres formas que merecen justificación
+### Cuatro formas que merecen justificación
 
 **Aprobar la interpretación de los criterios es lo que abre el canal.** El manifiesto y
 `PLAN.md` ponen la revisión del creador **antes** de abrir la convocatoria. Si abrir y revisar
@@ -93,6 +93,17 @@ existe para impedir.
 **Los criterios sí se congelan.** Es lo contrario del caso anterior y por la misma razón: los
 criterios del canal cambian por decisión del creador, y una ronda evaluada bajo unos criterios no
 puede quedar descrita por otros. La ronda guarda la copia con la que se cortó.
+
+**La declaración de campos manda en las dos direcciones.** `domain.PUBLISHABLE_FIELDS` alimenta
+el aviso previo al envío, la proyección del almacén y el renderizado del portal y de la vista de
+vivo, recorridos en su orden declarado; un campo vacío se muestra vacío en vez de desaparecer,
+porque un campo que se esfuma cuando no tiene texto también separa lo prometido de lo expuesto.
+Y `domain.PRIVATE_FIELDS` manda en la dirección contraria: **un campo declarado privado no vuelve
+nunca a la página**. La corrida de `C-U2-1` mostró dónde importaba: al rechazar un envío, el
+formulario se rendizaba otra vez con lo que el participante había escrito, para que no tuviera
+que tipearlo de nuevo, y el contacto entraba en esa respuesta y de ahí en la evidencia. Ahora los
+campos privados se descartan antes de rendizar; los largos vuelven y el contacto se escribe de
+nuevo. La separación deja de depender de qué página se esté armando.
 
 ## Los límites del formulario, justificados
 
@@ -155,10 +166,18 @@ auditable. Por eso la corrida produce artefactos y no solamente pantalla:
 | `artefactos` dentro de la evidencia | nombre, tamaño y SHA-256 de cada archivo anterior | comprobar que lo que se lee después es lo que la corrida produjo |
 
 Dos cosas no salen nunca en la evidencia: el contacto de un participante, y los secretos que
-permitirían actuar en nombre de otro. La capacidad del creador y el testigo de una invitación se
-reemplazan por `<capacidad>` y `<testigo>` en todo lo que se preserva; la marca del votante viaja
-como huella. Cada sustitución se ve como tal, y el resto queda textual. Por eso la evidencia de
-una corrida puede publicarse en el repositorio de trabajo sin filtrar nada.
+permitirían actuar en nombre de otro. La capacidad del creador y los testigos de las invitaciones
+se reemplazan por `<capacidad>` y `<testigo>` en todo lo que se preserva; la marca del votante
+viaja como huella. Cada sustitución se ve como tal, y el resto queda textual.
+
+**Los testigos se sustituyen por valor, no por forma.** La corrida de `C-U2-1` demostró que
+reconocer un testigo por la forma en que viaja no alcanza: la sustitución cubría el enlace y no
+el campo suelto que devolvía la herramienta, y el testigo quedó en claro en la evidencia. Ahora
+la sustitución lee los testigos emitidos y reemplaza esos valores exactos, sin depender de
+adivinar dónde aparecen; el patrón sobre el enlace queda como segunda red para un testigo que esa
+base no conozca. Y el testigo dejó de viajar como campo propio en la respuesta de la herramienta:
+va solo dentro del enlace que el participante tiene que abrir, porque cada lugar por el que pasa
+un secreto accionable es un lugar donde puede quedar copiado.
 
 ## Lo que este candidato no hace
 

@@ -170,7 +170,9 @@ async def test_an_invitation_returns_a_witness_link_and_leaves_sending_to_the_cr
         invitation = payload(await client.call_tool("preparar_invitacion", {
             "round_id": round_["id"], "proposal_id": "P-001", "pregunta": "¿Con qué ejemplo?",
             "id_operacion": "inv-1"}))
-    assert invitation["enlace"].endswith(invitation["witness"])
+    assert "witness" not in invitation
+    witness = circuito.invitations_of(round_["id"])[0]["witness"]
+    assert invitation["enlace"].endswith(witness)
     assert "decisión del creador" in invitation["envio"]
 
 

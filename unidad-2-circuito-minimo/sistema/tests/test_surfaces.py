@@ -270,3 +270,18 @@ def test_an_empty_field_is_shown_as_empty_and_never_omitted(circuito, serve, pat
     page = httpx.get(base + path).text
     assert "Ejemplo o detalle:" in page
     assert "(sin dato)" in page
+
+
+def test_a_refused_submission_never_writes_the_contact_back_into_the_page(serve):
+    response = httpx.post(serve() + "/propuestas", data={**FORM, "what": "x" * 401})
+    assert response.status_code == 400
+    assert FORM["contact"] not in response.text
+    assert FORM["why"] in response.text
+    assert "se te devuelve escrito" in response.text
+
+
+def test_no_declared_private_field_is_written_back_into_a_refused_page(serve):
+    response = httpx.post(serve() + "/propuestas", data={**FORM, "why": "corto"})
+    for declared in domain.PRIVATE_FIELDS:
+        assert f'name="{declared.name}" id="{declared.name}"' in response.text
+        assert f'value="{FORM[declared.name]}"' not in response.text

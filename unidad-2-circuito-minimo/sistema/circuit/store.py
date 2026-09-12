@@ -586,6 +586,15 @@ class Store:
         return [{**{k: r[k] for k in r.keys() if k != "witness"},
                  "witness_fp": domain.fingerprint(r["witness"])} for r in rows]
 
+    def witnesses(self) -> list[str]:
+        """Every witness issued, in clear.
+
+        It exists for one caller: the step that preserves an artefact and has to substitute the
+        actionable secrets before writing. Nothing that answers a surface or a model reads it.
+        """
+        rows = self._db.execute("SELECT witness FROM invitations").fetchall()
+        return [r["witness"] for r in rows]
+
     def all_records(self) -> list[dict]:
         rows = self._db.execute(
             "SELECT id, proposal_id, kind, author, body, created_at, invitation_id FROM records "

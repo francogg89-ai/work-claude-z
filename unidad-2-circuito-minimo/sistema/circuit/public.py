@@ -75,7 +75,16 @@ def public_routes(store: Store, clock) -> list[tuple]:
                 f"{esc(evaluation.result_notice())}</p>")
 
     def form_block(channels: list[dict], values: dict | None = None, error: str = "") -> str:
-        values = values or {}
+        """Render the form, optionally with what the participant had already written.
+
+        A declared private field is never written back into the page. Refusing a submission is
+        exactly the moment when the server has the contact in hand and is about to answer with
+        a page, and re-rendering it there would put a private datum in a document that then
+        travels and gets preserved. The participant retypes the short field; the long ones come
+        back. The list comes from the same declaration that drives the notice and the portal.
+        """
+        private = {f.name for f in domain.PRIVATE_FIELDS}
+        values = {k: v for k, v in (values or {}).items() if k not in private}
         options = "".join(f'<option value="{esc(c["id"])}">{esc(c["title"])}</option>'
                           for c in channels)
         body = notice(error, "aviso error") if error else ""
@@ -93,8 +102,9 @@ def public_routes(store: Store, clock) -> list[tuple]:
                       domain.LIMITS["example"][1], required=False)
         body += field("Nombre para la autoría", "author", values.get("author", ""), "text",
                       "es el que se muestra si se publica", domain.LIMITS["author"][1])
-        body += field("Contacto", "contact", values.get("contact", ""), "email",
-                      "no se publica; solo para invitarte a ampliar", domain.LIMITS["contact"][1])
+        body += field("Contacto", "contact", "", "email",
+                      "no se publica ni se te devuelve escrito; solo para invitarte a ampliar",
+                      domain.LIMITS["contact"][1])
         return body + '<button type="submit">Enviar propuesta</button></form>'
 
     async def guide(request):

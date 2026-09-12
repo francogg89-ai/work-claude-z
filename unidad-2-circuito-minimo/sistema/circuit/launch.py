@@ -47,10 +47,26 @@ def redact(text: str) -> str:
     Two things would let a reader of the evidence act in somebody else's name: the capability of
     the creator's surfaces and the witness of an invitation. Everything else is kept verbatim,
     and each substitution is visible as such.
+
+    The witnesses are substituted **by value**, read from the store, so the substitution does
+    not depend on recognising the shape they happen to travel in. The pattern over the link is
+    kept as a second net, for a witness that this database does not know.
     """
     if CAPABILITY_FILE.exists():
         text = text.replace(capability(), "<capacidad>")
+    for witness in _witnesses():
+        text = text.replace(witness, "<testigo>")
     return _WITNESS_IN_URL.sub("/ampliar/<testigo>", text)
+
+
+def _witnesses() -> list[str]:
+    if not DB.exists():
+        return []
+    db = Store(DB)
+    try:
+        return db.witnesses()
+    finally:
+        db.close()
 
 
 def _session(name: str) -> dict:

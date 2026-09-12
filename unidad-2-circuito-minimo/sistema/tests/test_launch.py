@@ -218,3 +218,24 @@ def test_a_captured_extension_page_does_not_carry_the_witness(local, circuito, s
     assert invitation["witness"] not in saved
     assert "/ampliar/<testigo>" in saved
     assert "No tenés que copiar ningún código" in saved
+
+
+def test_the_preserved_call_substitutes_the_witness_by_value(local, circuito, serve, capsys):
+    from tests.conftest import submission
+
+    base = serve()
+    (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    circuito.receive_proposal(submission(1), at="2026-09-02T10:00:00+00:00")
+    round_ = circuito.open_round(CONVOCATORIA, cut_at="2026-09-30T00:00:00+00:00")
+    circuito.authorize(round_["id"], "invitar", at="2026-09-30T01:00:00+00:00")
+
+    launch.main(["--base", base, "llamar", "preparar_invitacion", "--argumentos", json.dumps(
+        {"round_id": round_["id"], "proposal_id": "P-001", "pregunta": "¿Con qué ejemplo?",
+         "id_operacion": "inv-1"})])
+    capsys.readouterr()
+
+    witness = circuito.invitations_of(round_["id"])[0]["witness"]
+    logged = (local / "llamadas.jsonl").read_text(encoding="utf-8")
+    assert witness not in logged
+    assert "<testigo>" in logged
+    assert "INV-" in logged

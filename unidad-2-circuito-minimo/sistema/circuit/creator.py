@@ -228,7 +228,11 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
         def invite() -> dict:
             invitation = store.prepare_invitation(round_id, proposal_id, pregunta, id_operacion,
                                                   at=clock())
-            return {**invitation, "enlace": f"{public_base}/ampliar/{invitation['witness']}",
+            # The witness travels only inside the link the participant has to open. Returning it
+            # as a field of its own would multiply the places where an actionable secret can be
+            # copied, logged or preserved, and nothing here needs it separately.
+            visible = {k: v for k, v in invitation.items() if k != "witness"}
+            return {**visible, "enlace": f"{public_base}/ampliar/{invitation['witness']}",
                     "envio": "El envío real al participante es una decisión del creador."}
 
         return run("preparar_invitacion", args, invite)
