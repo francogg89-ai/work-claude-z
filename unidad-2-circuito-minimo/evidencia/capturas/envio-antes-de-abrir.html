@@ -1,0 +1,16 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>No se pudo enviar</title><style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 44rem; padding: 1.5rem 1rem;
+         line-height: 1.5; }
+  h1, h2 { line-height: 1.2; }
+  label { display: block; margin: 0.75rem 0 0.25rem; font-weight: 600; }
+  input, textarea, select { width: 100%; box-sizing: border-box; padding: 0.4rem; font: inherit; }
+  textarea { min-height: 4.5rem; }
+  button { margin-top: 1rem; padding: 0.5rem 1rem; font: inherit; }
+  .aviso { border-left: 3px solid currentColor; padding: 0.25rem 0 0.25rem 0.75rem; margin: 1rem 0; }
+  .error { border-left-width: 5px; }
+  .propuesta { border-top: 1px solid; padding-top: 0.75rem; margin-top: 1.25rem; }
+  .senal { margin: 0.25rem 0; }
+  .original { white-space: pre-wrap; }
+  footer { margin-top: 2.5rem; font-size: 0.9em; }
+</style></head><body><h1>No se pudo enviar</h1><p class="aviso error">«Convocatoria de ejemplo» todavía no está abierta: el creador no revisó aún la interpretación de sus criterios.</p><form method="post" action="/propuestas"><label for="channel_id">Dónde la enviás</label><select name="channel_id" id="channel_id"></select><label for="what">Qué proponés <small>entre 20 y 400 caracteres</small></label><textarea name="what" id="what" required maxlength="400">[SINTETICO] Propongo un episodio sobre divulgacion responsable, realizable con pocos recursos.</textarea><label for="why">Por qué aporta <small>entre 20 y 400 caracteres</small></label><textarea name="why" id="why" required maxlength="400">Aporta porque responde dudas frecuentes del chat del canal y conecta con temas ya tratados.</textarea><label for="example">Ejemplo o detalle (opcional) <small>hasta 600 caracteres</small></label><textarea name="example" id="example" maxlength="600"></textarea><label for="author">Nombre para la autoría <small>es el que se muestra si se publica</small></label><input type="text" value="Participante sintetico 000" name="author" id="author" required maxlength="80"><label for="contact">Contacto <small>no se publica; solo para invitarte a ampliar</small></label><input type="email" value="participante000.sintetico@example.invalid" name="contact" id="contact" required maxlength="120"><button type="submit">Enviar propuesta</button></form><footer>Datos de prueba sintéticos. Este sistema es una implementación de referencia.</footer></body></html>

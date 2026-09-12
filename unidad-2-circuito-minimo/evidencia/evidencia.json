@@ -1,0 +1,1581 @@
+{
+  "exportado_en": "2026-09-12T15:53:31.525083+00:00",
+  "campos_declarados": {
+    "publicables": [
+      "id",
+      "what",
+      "why",
+      "example",
+      "author",
+      "received_at",
+      "synthetic"
+    ],
+    "privados": [
+      "contact"
+    ]
+  },
+  "canales": [
+    {
+      "id": "convocatoria-1",
+      "kind": "convocatoria",
+      "title": "Convocatoria de ejemplo",
+      "question": "¿Qué tema querés que tratemos en profundidad?",
+      "restrictions": "Una propuesta por persona. Sin contenido de terceros sin permiso.",
+      "criteria": "Se valoran propuestas conectadas con el canal, concretas y realizables con pocos recursos.",
+      "selected_count": 4,
+      "max_votes": 3,
+      "opens_at": "2026-09-12T15:49:47.325301+00:00",
+      "closes_at": "2099-01-01T00:00:00+00:00",
+      "status": "cerrada"
+    },
+    {
+      "id": "permanente",
+      "kind": "permanente",
+      "title": "Buzón permanente",
+      "question": "¿Qué te gustaría escuchar en el canal?",
+      "restrictions": "Se evalúa por cortes, no por fecha de cierre.",
+      "criteria": "Se valoran propuestas concretas y realizables.",
+      "selected_count": 2,
+      "max_votes": 3,
+      "opens_at": "2026-09-12T15:49:49.986619+00:00",
+      "closes_at": null,
+      "status": "abierta"
+    }
+  ],
+  "calibraciones": {
+    "convocatoria-1": {
+      "channel_id": "convocatoria-1",
+      "interpretation": "Corregido: priorizas propuestas conectadas con el canal, concretas y realizables con pocos recursos, y ademas pesa que la propuesta habilite participacion de la audiencia durante la emision.",
+      "examples": [
+        {
+          "propuesta": "Una seccion de preguntas de la audiencia en vivo",
+          "resultado": "preseleccionada",
+          "explicacion": "Es concreta, barata y hace participar a la audiencia."
+        },
+        {
+          "propuesta": "Una gira de entrevistas en cinco ciudades",
+          "resultado": "no_preseleccionada",
+          "explicacion": "No es realizable con pocos recursos."
+        }
+      ],
+      "reviewed_at": "2026-09-12T15:49:47.325301+00:00",
+      "correction": "Falta el peso de la audiencia."
+    },
+    "permanente": {
+      "channel_id": "permanente",
+      "interpretation": "Para el buzon permanente entiendo que priorizas propuestas concretas y realizables, sin exigir que se conecten con una convocatoria puntual.",
+      "examples": [
+        {
+          "propuesta": "Una guia de herramientas gratuitas",
+          "resultado": "preseleccionada",
+          "explicacion": "Es concreta y sirve en cualquier momento del ciclo."
+        }
+      ],
+      "reviewed_at": "2026-09-12T15:49:49.986619+00:00",
+      "correction": ""
+    }
+  },
+  "propuestas": {
+    "convocatoria-1": [
+      {
+        "id": "P-001",
+        "what": "[SINTETICO] Propongo un episodio sobre divulgacion responsable, realizable con pocos recursos.",
+        "author": "Participante sintetico 000",
+        "received_at": "2026-09-12T15:50:01.624742+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-002",
+        "what": "[SINTETICO] Propongo una serie de entrevistas a oyentes para el canal.",
+        "author": "Participante sintetico 001",
+        "received_at": "2026-09-12T15:50:03.255677+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-003",
+        "what": "[SINTETICO] Propongo un debate sobre hábitos de lectura para el canal.",
+        "author": "Participante sintetico 002",
+        "received_at": "2026-09-12T15:50:03.262525+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-004",
+        "what": "[SINTETICO] Propongo una guía de herramientas gratuitas para el canal.",
+        "author": "Participante sintetico 003",
+        "received_at": "2026-09-12T15:50:03.268058+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-005",
+        "what": "[SINTETICO] Propongo un especial sobre música independiente para el canal.",
+        "author": "Participante sintetico 004",
+        "received_at": "2026-09-12T15:50:03.272090+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-006",
+        "what": "[SINTETICO] Propongo una charla sobre divulgación responsable para el canal.",
+        "author": "Participante sintetico 005",
+        "received_at": "2026-09-12T15:50:03.278196+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-007",
+        "what": "[SINTETICO] Propongo un episodio sobre historia de la ciencia para el canal.",
+        "author": "Participante sintetico 006",
+        "received_at": "2026-09-12T15:50:03.282194+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-008",
+        "what": "[SINTETICO] Propongo un taller en vivo de edición de audio para el canal.",
+        "author": "Participante sintetico 007",
+        "received_at": "2026-09-12T15:50:03.288586+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-009",
+        "what": "[SINTETICO] Propongo una guía de herramientas gratuitas para el canal.",
+        "author": "Participante sintetico 008",
+        "received_at": "2026-09-12T15:50:03.294215+00:00",
+        "synthetic": "SINTETICO"
+      }
+    ],
+    "permanente": [
+      {
+        "id": "P-010",
+        "what": "[SINTETICO] Propongo un reto semanal de escritura para el canal.",
+        "author": "Participante sintetico 101",
+        "received_at": "2026-09-12T15:50:04.751182+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-011",
+        "what": "[SINTETICO] Propongo un reto semanal de escritura para el canal.",
+        "author": "Participante sintetico 102",
+        "received_at": "2026-09-12T15:50:04.756199+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-012",
+        "what": "[SINTETICO] Propongo una serie de entrevistas a oyentes para el canal.",
+        "author": "Participante sintetico 103",
+        "received_at": "2026-09-12T15:50:04.761207+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-013",
+        "what": "[SINTETICO] Propongo un reto semanal de escritura para el canal.",
+        "author": "Participante sintetico 104",
+        "received_at": "2026-09-12T15:50:04.766088+00:00",
+        "synthetic": "SINTETICO"
+      },
+      {
+        "id": "P-014",
+        "what": "[SINTETICO] Propongo una seccion fija de correo de oyentes al final de cada emision.",
+        "author": "Participante sintetico 014",
+        "received_at": "2026-09-12T15:53:17.387640+00:00",
+        "synthetic": "SINTETICO"
+      }
+    ]
+  },
+  "rondas": [
+    {
+      "id": "convocatoria-1:ronda-1",
+      "channel_id": "convocatoria-1",
+      "cut_at": "2026-09-12T15:50:17.146485+00:00",
+      "previous_cut_at": null,
+      "criteria": {
+        "title": "Convocatoria de ejemplo",
+        "question": "¿Qué tema querés que tratemos en profundidad?",
+        "restrictions": "Una propuesta por persona. Sin contenido de terceros sin permiso.",
+        "criteria": "Se valoran propuestas conectadas con el canal, concretas y realizables con pocos recursos.",
+        "selected_count": 4,
+        "max_votes": 3
+      },
+      "created_at": "2026-09-12T15:50:17.146485+00:00",
+      "propuestas": [
+        "P-001",
+        "P-002",
+        "P-003",
+        "P-004",
+        "P-005",
+        "P-006",
+        "P-007",
+        "P-008",
+        "P-009"
+      ],
+      "autorizaciones": {
+        "invitar": true,
+        "publicar": true
+      }
+    },
+    {
+      "id": "permanente:ronda-1",
+      "channel_id": "permanente",
+      "cut_at": "2026-09-12T15:50:15.022514+00:00",
+      "previous_cut_at": null,
+      "criteria": {
+        "title": "Buzón permanente",
+        "question": "¿Qué te gustaría escuchar en el canal?",
+        "restrictions": "Se evalúa por cortes, no por fecha de cierre.",
+        "criteria": "Se valoran propuestas concretas y realizables.",
+        "selected_count": 2,
+        "max_votes": 3
+      },
+      "created_at": "2026-09-12T15:50:15.022514+00:00",
+      "propuestas": [
+        "P-010",
+        "P-011",
+        "P-012",
+        "P-013"
+      ],
+      "autorizaciones": {
+        "invitar": false,
+        "publicar": false
+      }
+    },
+    {
+      "id": "permanente:ronda-2",
+      "channel_id": "permanente",
+      "cut_at": "2026-09-12T15:53:19.580283+00:00",
+      "previous_cut_at": "2026-09-12T15:50:15.022514+00:00",
+      "criteria": {
+        "title": "Buzón permanente",
+        "question": "¿Qué te gustaría escuchar en el canal?",
+        "restrictions": "Se evalúa por cortes, no por fecha de cierre.",
+        "criteria": "Se valoran propuestas concretas y realizables.",
+        "selected_count": 2,
+        "max_votes": 3
+      },
+      "created_at": "2026-09-12T15:53:19.580283+00:00",
+      "propuestas": [
+        "P-014"
+      ],
+      "autorizaciones": {
+        "invitar": false,
+        "publicar": false
+      }
+    }
+  ],
+  "evaluaciones": [
+    {
+      "id": 1,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-001",
+      "stage": 1,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 2,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-002",
+      "stage": 1,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 3,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-003",
+      "stage": 1,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 4,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-004",
+      "stage": 1,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 5,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-005",
+      "stage": 1,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 6,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-006",
+      "stage": 1,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 7,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-007",
+      "stage": 1,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 8,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-008",
+      "stage": 1,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 9,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-009",
+      "stage": 1,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:50:26.383621+00:00"
+    },
+    {
+      "id": 10,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-001",
+      "stage": 2,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. La ampliación no agrega términos de los criterios. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 11,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-002",
+      "stage": 2,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 12,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-003",
+      "stage": 2,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 13,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-004",
+      "stage": 2,
+      "result": "preseleccionada",
+      "reasons": "Coincide con los criterios en: canal, pocos, recursos. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 14,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-005",
+      "stage": 2,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 15,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-006",
+      "stage": 2,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 16,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-007",
+      "stage": 2,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 17,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-008",
+      "stage": 2,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "Falta un ejemplo o detalle: no se puede juzgar cómo se llevaría a cabo.",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    },
+    {
+      "id": 18,
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-009",
+      "stage": 2,
+      "result": "no_preseleccionada",
+      "reasons": "Coincide con los criterios en: canal. Esta preselección aplica los criterios de esta ronda. No es una medida objetiva ni universal del valor de las ideas.",
+      "doubts": "",
+      "evaluator": "deterministico-local",
+      "saved_at": "2026-09-12T15:52:00.979160+00:00"
+    }
+  ],
+  "invitaciones": [
+    {
+      "id": "INV-8f9fefee",
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-001",
+      "question": "Que ejemplo concreto darias del episodio y con quien lo harias?",
+      "created_at": "2026-09-12T15:51:33.335285+00:00",
+      "answered_at": "2026-09-12T15:51:48.428019+00:00",
+      "witness_fp": "dd26918d"
+    }
+  ],
+  "registros_vinculados": [
+    {
+      "id": "REG-800f2bee",
+      "proposal_id": "P-001",
+      "kind": "ampliacion_autor",
+      "author": "Participante sintetico 000",
+      "body": "Con dos invitados del propio canal y material libre.",
+      "created_at": "2026-09-12T15:51:48.428019+00:00",
+      "invitation_id": "INV-8f9fefee"
+    }
+  ],
+  "votos": [
+    {
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-001",
+      "voter_fp": "11b5f856",
+      "voted_at": "2026-09-12T15:52:45.140685+00:00"
+    },
+    {
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-002",
+      "voter_fp": "11b5f856",
+      "voted_at": "2026-09-12T15:52:47.071488+00:00"
+    },
+    {
+      "round_id": "convocatoria-1:ronda-1",
+      "proposal_id": "P-003",
+      "voter_fp": "11b5f856",
+      "voted_at": "2026-09-12T15:52:49.174515+00:00"
+    }
+  ],
+  "llamadas": [
+    {
+      "id": 1,
+      "tool": "estado_del_sistema",
+      "arguments": {},
+      "ok": true,
+      "at": "2026-09-12T15:48:53.976264+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 2,
+      "tool": "cortar_ronda",
+      "arguments": {
+        "channel_id": "convocatoria-1"
+      },
+      "ok": false,
+      "at": "2026-09-12T15:48:56.458859+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 3,
+      "tool": "proponer_calibracion",
+      "arguments": {
+        "channel_id": "convocatoria-1",
+        "ejemplos": 2
+      },
+      "ok": true,
+      "at": "2026-09-12T15:49:13.572589+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 4,
+      "tool": "estado_del_sistema",
+      "arguments": {},
+      "ok": true,
+      "at": "2026-09-12T15:49:32.632299+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 5,
+      "tool": "proponer_calibracion",
+      "arguments": {
+        "channel_id": "convocatoria-1",
+        "ejemplos": 2
+      },
+      "ok": true,
+      "at": "2026-09-12T15:49:34.657632+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 6,
+      "tool": "proponer_calibracion",
+      "arguments": {
+        "channel_id": "permanente",
+        "ejemplos": 1
+      },
+      "ok": true,
+      "at": "2026-09-12T15:49:49.067661+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 7,
+      "tool": "cortar_ronda",
+      "arguments": {
+        "channel_id": "permanente"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:50:15.030836+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 8,
+      "tool": "cortar_ronda",
+      "arguments": {
+        "channel_id": "convocatoria-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:50:17.153518+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 9,
+      "tool": "senales_de_la_ronda",
+      "arguments": {
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:50:42.761650+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 10,
+      "tool": "publicar_finalistas",
+      "arguments": {
+        "id_operacion": "pub-1",
+        "ids_propuestas": [
+          "P-001",
+          "P-002",
+          "P-003",
+          "P-004"
+        ],
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": false,
+      "at": "2026-09-12T15:50:45.023075+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 11,
+      "tool": "ver_propuesta",
+      "arguments": {
+        "proposal_id": "P-001"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:51:21.550113+00:00",
+      "original_fp": "5b97906e"
+    },
+    {
+      "id": 12,
+      "tool": "preparar_invitacion",
+      "arguments": {
+        "id_operacion": "inv-1",
+        "proposal_id": "P-001",
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:51:33.344019+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 13,
+      "tool": "preparar_invitacion",
+      "arguments": {
+        "id_operacion": "inv-1",
+        "proposal_id": "P-001",
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:51:35.127063+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 14,
+      "tool": "ver_propuesta",
+      "arguments": {
+        "proposal_id": "P-001"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:51:50.248419+00:00",
+      "original_fp": "5b97906e"
+    },
+    {
+      "id": 15,
+      "tool": "obtener_propuesta",
+      "arguments": {
+        "proposal_id": "P-001"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:51:59.454133+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 16,
+      "tool": "publicar_finalistas",
+      "arguments": {
+        "id_operacion": "pub-1",
+        "ids_propuestas": [
+          "P-001",
+          "P-002",
+          "P-003",
+          "P-004"
+        ],
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:52:23.551264+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 17,
+      "tool": "publicar_finalistas",
+      "arguments": {
+        "id_operacion": "pub-1",
+        "ids_propuestas": [
+          "P-001",
+          "P-002",
+          "P-003",
+          "P-004"
+        ],
+        "round_id": "convocatoria-1:ronda-1"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:52:25.647557+00:00",
+      "original_fp": ""
+    },
+    {
+      "id": 18,
+      "tool": "cortar_ronda",
+      "arguments": {
+        "channel_id": "permanente"
+      },
+      "ok": true,
+      "at": "2026-09-12T15:53:19.584949+00:00",
+      "original_fp": ""
+    }
+  ],
+  "solicitudes": [
+    {
+      "id": 1,
+      "at": "2026-09-12T15:47:54.118757+00:00",
+      "kind": "marker",
+      "method": "",
+      "surface": "",
+      "path_ok": false,
+      "status": 0,
+      "rpc": "",
+      "host": "",
+      "origin": "",
+      "user_agent": "",
+      "note": "inicio-c-u2-1"
+    },
+    {
+      "id": 2,
+      "at": "2026-09-12T15:48:05.967439+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 3,
+      "at": "2026-09-12T15:48:43.562384+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 4,
+      "at": "2026-09-12T15:48:45.892707+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 400,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 5,
+      "at": "2026-09-12T15:48:53.980771+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 6,
+      "at": "2026-09-12T15:48:56.464949+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 7,
+      "at": "2026-09-12T15:49:13.578168+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 8,
+      "at": "2026-09-12T15:49:22.079355+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 9,
+      "at": "2026-09-12T15:49:22.085902+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 10,
+      "at": "2026-09-12T15:49:32.637142+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 11,
+      "at": "2026-09-12T15:49:34.663710+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 12,
+      "at": "2026-09-12T15:49:47.330365+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 13,
+      "at": "2026-09-12T15:49:47.339056+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 14,
+      "at": "2026-09-12T15:49:49.074568+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 15,
+      "at": "2026-09-12T15:49:49.992463+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 16,
+      "at": "2026-09-12T15:49:49.999527+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 17,
+      "at": "2026-09-12T15:49:51.748660+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 18,
+      "at": "2026-09-12T15:50:01.629186+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 19,
+      "at": "2026-09-12T15:50:15.034950+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 20,
+      "at": "2026-09-12T15:50:17.159548+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 21,
+      "at": "2026-09-12T15:50:42.769242+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 22,
+      "at": "2026-09-12T15:50:45.028629+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 23,
+      "at": "2026-09-12T15:50:47.339478+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 24,
+      "at": "2026-09-12T15:51:21.554658+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 25,
+      "at": "2026-09-12T15:51:22.491014+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 26,
+      "at": "2026-09-12T15:51:22.501130+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 27,
+      "at": "2026-09-12T15:51:33.349018+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 28,
+      "at": "2026-09-12T15:51:35.131313+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 29,
+      "at": "2026-09-12T15:51:46.621242+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 30,
+      "at": "2026-09-12T15:51:48.432041+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 31,
+      "at": "2026-09-12T15:51:50.252932+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 32,
+      "at": "2026-09-12T15:51:59.460042+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 33,
+      "at": "2026-09-12T15:52:20.846610+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 34,
+      "at": "2026-09-12T15:52:20.855171+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 35,
+      "at": "2026-09-12T15:52:21.333960+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 36,
+      "at": "2026-09-12T15:52:21.347530+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "panel",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 37,
+      "at": "2026-09-12T15:52:23.555388+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 38,
+      "at": "2026-09-12T15:52:25.654860+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 39,
+      "at": "2026-09-12T15:52:39.627482+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 40,
+      "at": "2026-09-12T15:52:41.493384+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 41,
+      "at": "2026-09-12T15:52:43.295590+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 42,
+      "at": "2026-09-12T15:52:45.147279+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 43,
+      "at": "2026-09-12T15:52:47.077030+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 44,
+      "at": "2026-09-12T15:52:49.178788+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 303,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 45,
+      "at": "2026-09-12T15:52:51.256184+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 400,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 46,
+      "at": "2026-09-12T15:52:53.311860+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 400,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 47,
+      "at": "2026-09-12T15:52:55.367974+00:00",
+      "kind": "http",
+      "method": "GET",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 48,
+      "at": "2026-09-12T15:53:17.392035+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 200,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 49,
+      "at": "2026-09-12T15:53:19.590572+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "mcp",
+      "path_ok": true,
+      "status": 200,
+      "rpc": "tools/call",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 50,
+      "at": "2026-09-12T15:53:21.779161+00:00",
+      "kind": "http",
+      "method": "POST",
+      "surface": "publica",
+      "path_ok": false,
+      "status": 400,
+      "rpc": "",
+      "host": "127.0.0.1:8000",
+      "origin": "",
+      "user_agent": "python-httpx/0.28.1",
+      "note": ""
+    },
+    {
+      "id": 51,
+      "at": "2026-09-12T15:53:29.967709+00:00",
+      "kind": "marker",
+      "method": "",
+      "surface": "",
+      "path_ok": false,
+      "status": 0,
+      "rpc": "",
+      "host": "",
+      "origin": "",
+      "user_agent": "",
+      "note": "fin-c-u2-1"
+    }
+  ],
+  "artefactos": [
+    {
+      "archivo": "capturas\\ampliar-envio.html",
+      "bytes": 1317,
+      "sha256": "91eed2e616b2755e3600a8e7aa346e33dad046d768db7e13d6e7f4f73b9ab81c"
+    },
+    {
+      "archivo": "capturas\\ampliar-formulario.html",
+      "bytes": 2087,
+      "sha256": "5c035f78f0c111033bf15dcfea3f6c512c0ad1dcb998069c75a5ab63b23ca49c"
+    },
+    {
+      "archivo": "capturas\\envio-a-convocatoria-cortada.html",
+      "bytes": 2692,
+      "sha256": "4ea33b7c77f5f5e7ad128b14b23adfadeb775e0d0ba84d47895c8eaa90a15e50"
+    },
+    {
+      "archivo": "capturas\\envio-antes-de-abrir.html",
+      "bytes": 2561,
+      "sha256": "2e623a2173527295eced821a59e215d50c3de3bfedefdef58f80d05c034d57f1"
+    },
+    {
+      "archivo": "capturas\\finalistas-con-votos.html",
+      "bytes": 6954,
+      "sha256": "f324939abd8461f1527c1a334d2b0e341f8b5d69646e8618a571d9105416a2bd"
+    },
+    {
+      "archivo": "capturas\\finalistas-sin-autorizacion.html",
+      "bytes": 1202,
+      "sha256": "538a696fb632c9a78cf708206a60552f13f6ab249d72d5997c877bce969b5a21"
+    },
+    {
+      "archivo": "capturas\\finalistas.html",
+      "bytes": 6935,
+      "sha256": "a27a42f8699afff08350841b249c159e4514072385d40f6b09d59688b3349d8e"
+    },
+    {
+      "archivo": "capturas\\guia-abierta.html",
+      "bytes": 5334,
+      "sha256": "2c64f628e0969e74306c49ab5fa92845d737043c736736be35273eb3b47dfbaa"
+    },
+    {
+      "archivo": "capturas\\guia-antes-de-abrir.html",
+      "bytes": 1229,
+      "sha256": "0e10a9b4f09f72811743e362b250877eb34fbc76d758094c31566353de0f7c57"
+    },
+    {
+      "archivo": "capturas\\lista-votante-1.html",
+      "bytes": 6935,
+      "sha256": "a27a42f8699afff08350841b249c159e4514072385d40f6b09d59688b3349d8e"
+    },
+    {
+      "archivo": "capturas\\recepcion-p001.html",
+      "bytes": 2447,
+      "sha256": "3ebb58c3f96b890374be2ef181d3a3136cffcab39f3cfdaae9479f94cad358f2"
+    },
+    {
+      "archivo": "capturas\\recepcion-permanente-tardia.html",
+      "bytes": 2447,
+      "sha256": "e2f0db3cb8ebdfcdcc109b7f6d91c137404b7ef7a6b56c2642097caf0cefd26a"
+    },
+    {
+      "archivo": "capturas\\vivo.html",
+      "bytes": 5683,
+      "sha256": "ec7ef1f3ff115cf59fb8301560be60ef96a918eac605d6aff47120358b6d9ebe"
+    },
+    {
+      "archivo": "capturas\\voto-cuarto.html",
+      "bytes": 1229,
+      "sha256": "d99d409d8cca115b7d1c773a776952ca2987ad07933ad7bf248497a68cb0a917"
+    },
+    {
+      "archivo": "capturas\\voto-P-001.html",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archivo": "capturas\\voto-P-002.html",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archivo": "capturas\\voto-P-003.html",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archivo": "capturas\\voto-repetido.html",
+      "bytes": 1222,
+      "sha256": "c077ebbd97491e68005cf5788b2d9dea303b021172adbe0c6acc5d4f23459f46"
+    },
+    {
+      "archivo": "llamadas.jsonl",
+      "bytes": 17384,
+      "sha256": "9f241b6cf42d057f816588765f3a14950e6dc88c551735281c45d800cf41b812"
+    }
+  ],
+  "publicado": {
+    "convocatoria-1:ronda-1": {
+      "finalistas": [
+        {
+          "id": "P-001",
+          "what": "[SINTETICO] Propongo un episodio sobre divulgacion responsable, realizable con pocos recursos.",
+          "why": "Aporta porque responde dudas frecuentes del chat del canal y conecta con temas ya tratados.",
+          "example": "",
+          "author": "Participante sintetico 000",
+          "received_at": "2026-09-12T15:50:01.624742+00:00",
+          "synthetic": "SINTETICO"
+        },
+        {
+          "id": "P-002",
+          "what": "[SINTETICO] Propongo una serie de entrevistas a oyentes para el canal.",
+          "why": "Aporta porque permite participación en directo, y es abordable en una emisión.",
+          "example": "Tres preguntas enviadas por el chat antes del vivo.",
+          "author": "Participante sintetico 001",
+          "received_at": "2026-09-12T15:50:03.255677+00:00",
+          "synthetic": "SINTETICO"
+        },
+        {
+          "id": "P-003",
+          "what": "[SINTETICO] Propongo un debate sobre hábitos de lectura para el canal.",
+          "why": "Aporta porque puede producirse con pocos recursos, y es abordable en una emisión.",
+          "example": "",
+          "author": "Participante sintetico 002",
+          "received_at": "2026-09-12T15:50:03.262525+00:00",
+          "synthetic": "SINTETICO"
+        },
+        {
+          "id": "P-004",
+          "what": "[SINTETICO] Propongo una guía de herramientas gratuitas para el canal.",
+          "why": "Aporta porque puede producirse con pocos recursos, y es abordable en una emisión.",
+          "example": "Un bloque de quince minutos con dos invitados del propio canal.",
+          "author": "Participante sintetico 003",
+          "received_at": "2026-09-12T15:50:03.268058+00:00",
+          "synthetic": "SINTETICO"
+        }
+      ],
+      "senales": {
+        "ia": [
+          "P-001",
+          "P-002",
+          "P-003",
+          "P-004"
+        ],
+        "audiencia": {
+          "P-001": 1,
+          "P-002": 1,
+          "P-003": 1
+        },
+        "creador": [
+          "P-002",
+          "P-005"
+        ]
+      }
+    }
+  }
+}
