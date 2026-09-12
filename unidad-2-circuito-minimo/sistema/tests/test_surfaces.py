@@ -158,21 +158,45 @@ def test_the_creator_grants_the_authorization_on_the_panel(circuito, serve):
     assert circuito.is_authorized(round_["id"], "publicar") is True
 
 
-def test_the_calibration_is_reviewed_on_the_panel_and_the_correction_is_kept(circuito, serve):
-    base = serve()
-    circuito.save_calibration(CONVOCATORIA, "Priorizo lo realizable.",
-                              [{"propuesta": "Un taller", "resultado": "preseleccionada",
-                                "explicacion": "Realizable con pocos recursos."}])
+def test_a_channel_in_preparation_offers_no_form_and_refuses_a_submission(serve_preparacion):
+    base = serve_preparacion()
+    guide = httpx.get(base + "/")
+    assert "Participación cerrada" in guide.text
+    assert "<form" not in guide.text
+    assert httpx.post(base + "/propuestas", data=FORM).status_code == 400
+
+
+def test_approving_the_interpretation_on_the_panel_is_what_opens_the_channel(
+        preparacion, serve_preparacion):
+    base = serve_preparacion()
+    preparacion.save_calibration(CONVOCATORIA, "Priorizo lo realizable.",
+                                 [{"propuesta": "Un taller", "resultado": "preseleccionada",
+                                   "explicacion": "Realizable con pocos recursos."}])
     panel = httpx.get(base + access.panel_path(CAPABILITY)).text
     assert "Priorizo lo realizable." in panel
     assert "Realizable con pocos recursos." in panel
+    assert httpx.post(base + "/propuestas", data=FORM).status_code == 400
 
-    httpx.post(f"{base}{access.panel_path(CAPABILITY)}/calibracion",
+    httpx.post(f"{base}{access.panel_path(CAPABILITY)}/calibracion/aprobar",
+               data={"channel_id": CONVOCATORIA}, follow_redirects=True)
+    assert preparacion.get_channel(CONVOCATORIA)["status"] == "abierta"
+    assert httpx.post(base + "/propuestas", data=FORM).status_code == 200
+
+
+def test_returning_the_interpretation_keeps_the_channel_shut_and_records_the_discrepancy(
+        preparacion, serve_preparacion):
+    base = serve_preparacion()
+    preparacion.save_calibration(CONVOCATORIA, "Priorizo lo realizable.", [])
+    httpx.post(f"{base}{access.panel_path(CAPABILITY)}/calibracion/devolver",
                data={"channel_id": CONVOCATORIA, "correction": "Falta el peso de la audiencia."},
                follow_redirects=True)
-    calibration = circuito.get_calibration(CONVOCATORIA)
-    assert calibration["reviewed_at"]
+
+    calibration = preparacion.get_calibration(CONVOCATORIA)
+    assert calibration["reviewed_at"] is None
     assert calibration["correction"] == "Falta el peso de la audiencia."
+    assert preparacion.get_channel(CONVOCATORIA)["status"] == "preparacion"
+    assert httpx.post(base + "/propuestas", data=FORM).status_code == 400
+    assert "Falta el peso de la audiencia." in httpx.get(base + access.panel_path(CAPABILITY)).text
 
 
 @pytest.mark.parametrize("path", ["/mcp", "/mcp/", "/mcp/" + "x" * 43])
@@ -217,3 +241,32 @@ def test_the_live_view_shows_the_same_published_list_in_a_readable_layout(circui
 def test_a_get_without_the_capability_is_not_found_rather_than_method_not_allowed(serve, path):
     response = httpx.get(serve() + path, headers={"Accept": "text/event-stream"})
     assert response.status_code == 404
+
+
+def _publish_one(circuito):
+    circuito.receive_proposal(submission(1, example=""), at="2026-09-02T10:00:00+00:00")
+    round_ = circuito.open_round(CONVOCATORIA, cut_at="2026-09-30T00:00:00+00:00")
+    circuito.authorize(round_["id"], "publicar", at="2026-09-30T01:00:00+00:00")
+    circuito.publish(round_["id"], ["P-001"], operation_id="pub-1", at="2026-09-30T02:00:00+00:00")
+    return round_
+
+
+@pytest.mark.parametrize("path", ["/finalistas", "/finalistas/vivo"])
+def test_both_public_surfaces_show_every_declared_publishable_field(circuito, serve, path):
+    base = serve()
+    _publish_one(circuito)
+    page = httpx.get(base + path).text
+    for declared in domain.PUBLISHABLE_FIELDS:
+        assert f"{declared.label}:" in page
+    for declared in domain.PRIVATE_FIELDS:
+        assert f"{declared.label}:" not in page
+    assert "example.invalid" not in page
+
+
+@pytest.mark.parametrize("path", ["/finalistas", "/finalistas/vivo"])
+def test_an_empty_field_is_shown_as_empty_and_never_omitted(circuito, serve, path):
+    base = serve()
+    _publish_one(circuito)
+    page = httpx.get(base + path).text
+    assert "Ejemplo o detalle:" in page
+    assert "(sin dato)" in page

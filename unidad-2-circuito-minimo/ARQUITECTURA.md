@@ -18,7 +18,7 @@ son el resultado de una corrida real y esta arquitectura los toma como dados, si
 | 2. Las acciones consecuentes las autoriza el sistema, no una confirmación de ChatGPT | `circuit/panel.py`: publicar e invitar se autorizan en una superficie del sistema. La IA pide y lee; no otorga |
 | 3. El creador necesita un camino verificable para saber que lo que ve vino del sistema | `circuit/view.py`: la vista calcula la huella de lo que realmente mostró y la compara con la del servidor |
 | 4. El enlace de entrada debe indicar que el original se consulta por la vista, y su control negativo tiene un modo de fallo observado | `/entrada-creador` exige confirmar el acceso antes de operar y prohíbe presentar lo que no se obtuvo del sistema |
-| 5. La autenticación sin secreto en la URL queda como trabajo de U2 | Aislada en `circuit/access.py` y **declarada como decisión abierta** más abajo; no se congela sin la evidencia que la decide |
+| 5. La autenticación sin secreto en la URL queda como trabajo de U2 | Pertenece al alcance de la unidad y la ejercitan C2.6 y C2.8; el mecanismo queda decidido más abajo y se implementa con el contrato de la operación real. La frontera vive aislada en `circuit/access.py` para que el reemplazo no toque el circuito |
 | 6. La paginación por cursor entra en el diseño desde el principio | `Store.list_proposals` devuelve resumen más `next_cursor`; el detalle se pide por propuesta |
 | 7. El tratamiento de datos reales frente a la opción de entrenamiento del proveedor es restricción de diseño | U2 corre solo con datos sintéticos marcados en el propio dato; la materia documental es de U4 |
 
@@ -74,7 +74,16 @@ Las decisiones técnicas 1 a 14 de `PLAN.md` §7 no se reinterpretan. Dónde viv
 | 13. Cada registro vinculado lleva autor y tipo de relación | `records.kind` y `records.author`; la colaboración de terceros existe como tipo y está deshabilitada por defecto |
 | 14. Campos publicables declarados en un único lugar | `domain.PUBLISHABLE_FIELDS` alimenta el aviso previo al envío y la proyección pública |
 
-### Dos formas que merecen justificación
+### Tres formas que merecen justificación
+
+**Aprobar la interpretación de los criterios es lo que abre el canal.** El manifiesto y
+`PLAN.md` ponen la revisión del creador **antes** de abrir la convocatoria. Si abrir y revisar
+fueran dos actos separados, la propiedad dependería de que alguien se acuerde del orden. Acá un
+canal nace en `preparacion`, no recibe nada, y el único camino a `abierta` es
+`approve_calibration`: un canal está abierto **si y solo si** su calibración fue aprobada, y el
+estado no puede decir otra cosa. El creador también puede devolver la interpretación con una
+discrepancia: queda registrada junto a la interpretación que corrige y el canal sigue sin abrir.
+Cortar la ronda de una convocatoria la cierra, y desde entonces tampoco recibe.
 
 **La pertenencia a una ronda se deriva, no se guarda.** Una ronda conoce su canal, su corte y el
 corte anterior; el conjunto de propuestas sale de esos tres datos. Guardarlo permitiría que la
@@ -100,29 +109,56 @@ El manifiesto pide límites justificados y probados, y prohíbe exigir una elabo
 El texto del participante se guarda tal como lo envió: la única normalización es recortar los
 espacios de los extremos. Ninguna otra parte del sistema reescribe un original.
 
-## Decisión declarada y ruteada: la autenticación del extremo
+## La autenticación del extremo: qué está resuelto y qué falta
 
 U1 registró que el acceso por capacidad en la URL **no es apto para el producto** y dejó la
-autenticación sin secreto en la URL como trabajo de U2. Esta arquitectura **no la resuelve**, y no
-esconde esa decisión dentro de la implementación:
+autenticación sin secreto en la URL como trabajo de U2. Eso ya pertenece al alcance aprobado de
+la unidad, y `PLAN.md` la ejercita: C2.6 exige operación conversacional real con acceso
+autorizado, y C2.8 ejercita expresamente una sesión sin la integración disponible **o sin
+autorización**, exigiendo que no se fabriquen resultados. No es una decisión que se traslade al
+humano: elegir y proponer el mecanismo está dentro del perímetro delegado al CONSTRUCTOR y
+sujeto a auditoría.
 
-- ningún caso de U2 en `PLAN.md` ejercita la autenticación del extremo, y §14.1 del método
-  prohíbe presentar como validada una propiedad que no fue ejercitada;
-- el único mecanismo que ChatGPT admite además de la URL sin autenticación es OAuth, y U1 dejó
-  expresamente que **no se probó** que funcione en la cuenta de referencia. Congelarlo acá sería
-  fijar un mecanismo sin la evidencia que lo decide, que es lo que `PLAN.md` §7 difiere bajo
-  «forma de exposición pública del sistema»;
-- probarlo consumiría una intervención humana material —cuenta, exposición y sesión real— que el
-  criterio de terminación de U2 no pide.
+**El mecanismo está decidido y no es una conjetura abierta.** El producto probado admite dos
+formas de conectar una app propia: URL sin autenticación, u OAuth. No hay una tercera. Entonces
+«autenticación sin secreto en la URL» significa exactamente el flujo de autorización de MCP: el
+servidor se comporta como recurso protegido, publica su metadata, el anfitrión registra su
+cliente y presenta un token que el servidor verifica en cada solicitud. No hace falta suponer nada sobre la
+disponibilidad de esa superficie: el servidor del SDK instalado recibe `auth`, `token_verifier` y
+`auth_server_provider` al construirse y los propaga a la misma aplicación HTTP que ya usa este
+candidato.
 
-Lo que sí se hizo es acotar el daño y aislar el reemplazo: la capacidad se genera local, nunca
-entra en Git ni en el enlace de entrada, vive en un único módulo (`access.py`) del que dependen
-las dos superficies privadas, y toda acción consecuente exige además la autorización del creador
-en el panel, de modo que tener la capacidad no alcanza para publicar ni invitar.
+**Qué falta y dónde va.** El mecanismo se implementa y se ejercita en la intervención que
+prepara el contrato de la operación real, junto con C2.6 y C2.8, porque solo una corrida real
+demuestra que el anfitrión completa el flujo. La verificación local de este candidato no lo
+demuestra ni pretende hacerlo, y esa corrida real sí hará previsible una necesidad humana
+material —cuenta, permisos y exposición alcanzable— que **no está activa ahora**.
 
-El CONSTRUCTOR no declara que esta decisión sea correcta: la declara y la rutea. Si el AUDITOR
-sostiene que U2 debe cerrar con autenticación sin secreto en la URL, corresponde un contrato
-propio y, con él, la intervención humana material que hoy no está pedida.
+**Qué sostiene el candidato mientras tanto.** La capacidad se genera local, nunca entra en Git ni
+en el enlace de entrada del creador, y vive en un único módulo (`access.py`) del que dependen las
+dos superficies privadas, que es lo que permite reemplazarla sin tocar el circuito. Además, tener
+la capacidad no alcanza para publicar ni invitar: eso exige la autorización del creador en el
+panel. Nada de eso convierte a la capacidad en apta para el producto, y este documento no lo
+afirma.
+
+## Qué preserva una corrida
+
+Una verificación que dependa de lo que alguien recuerde, relate después o pueda repetir no es
+auditable. Por eso la corrida produce artefactos y no solamente pantalla:
+
+| Artefacto | Qué conserva | Para qué alcanza |
+|---|---|---|
+| `.data/llamadas.jsonl` | el cuerpo completo de cada solicitud y cada respuesta MCP, en el orden en que ocurrieron | comprobar qué devolvió realmente cada herramienta, incluido que ninguna respuesta trae un contacto |
+| `.data/capturas/*.html` | los bytes exactos que devolvió cada superficie, tanto al consultarla (`capturar`) como al enviarle un formulario (`enviar`), aceptaciones y rechazos por igual | comparar lo anunciado antes del envío con lo expuesto después, leer cómo se presenta la fecha y leer el texto exacto de cada rechazo |
+| `.data/sesiones/*.json` | las cookies de cada participante sintético entre llamadas | que una secuencia de votos sea del mismo participante y no de uno nuevo cada vez |
+| `.data/evidencia.json` | canales y su estado, calibraciones con su aprobación o su discrepancia, propuestas, rondas con su conjunto derivado y sus autorizaciones, evaluaciones con evaluador, razones y dudas, invitaciones, registros vinculados, votos, llamadas, solicitudes y lista publicada con sus tres señales | seguir un identificador a lo largo de todo el recorrido sin repetir la corrida |
+| `artefactos` dentro de la evidencia | nombre, tamaño y SHA-256 de cada archivo anterior | comprobar que lo que se lee después es lo que la corrida produjo |
+
+Dos cosas no salen nunca en la evidencia: el contacto de un participante, y los secretos que
+permitirían actuar en nombre de otro. La capacidad del creador y el testigo de una invitación se
+reemplazan por `<capacidad>` y `<testigo>` en todo lo que se preserva; la marca del votante viaja
+como huella. Cada sustitución se ve como tal, y el resto queda textual. Por eso la evidencia de
+una corrida puede publicarse en el repositorio de trabajo sin filtrar nada.
 
 ## Lo que este candidato no hace
 
@@ -137,6 +173,9 @@ propio y, con él, la intervención humana material que hoy no está pedida.
   exactamente eso y su límite.
 - **No demuestra comprensión de una persona real.** Que la guía se entienda sin ayuda solo lo
   decide el piloto, que el manifiesto deja fuera del cierre técnico.
+- **No autentica todavía el extremo.** El mecanismo está decidido, según la sección anterior, y
+  se implementa y se ejercita con el contrato de la operación real que cubre C2.6 y C2.8. Hasta
+  entonces la capacidad no se presenta como apta para el producto.
 - **No expone el sistema a la red.** La exposición pública sigue siendo H-2 y decisión humana de
   costo.
 - **No implementa la votación configurable** más allá del máximo por participante con tres por

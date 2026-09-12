@@ -16,6 +16,10 @@ SYNTHETIC_MARK = "SINTETICO"
 SIGNALS = ("ia", "audiencia", "creador")
 DEFAULT_MAX_VOTES = 3
 CHANNEL_KINDS = ("convocatoria", "permanente")
+# A reception channel is born in `preparacion` and only reaches `abierta` when the creator has
+# approved the interpretation of their criteria. The manifest puts that review *before* opening,
+# so a channel that never went through it cannot receive anything.
+CHANNEL_STATUSES = ("preparacion", "abierta", "cerrada")
 EVALUATION_RESULTS = ("preseleccionada", "no_preseleccionada", "duda")
 RECORD_KINDS = ("ampliacion_autor", "contribucion_tercero")
 

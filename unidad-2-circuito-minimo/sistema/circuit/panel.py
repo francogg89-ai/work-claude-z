@@ -12,7 +12,7 @@ so a request without the capability matches no route at all.
 from starlette.responses import HTMLResponse, RedirectResponse
 
 from circuit import access, domain, evaluation
-from circuit.store import NotFoundError, Store
+from circuit.store import ClosedChannelError, NotFoundError, Store
 from circuit.web import esc, field, notice, page
 
 
@@ -33,14 +33,24 @@ def panel_routes(store: Store, capability: str, clock) -> list[tuple]:
                 body += _round_block(store, base, round_)
         return HTMLResponse(page("Panel del creador", body))
 
-    async def review_calibration(request):
+    async def approve_calibration(request):
+        """Approving the interpretation is what opens the channel to participation."""
         form = await _form(request)
         try:
-            store.review_calibration(form.get("channel_id", ""), at=clock(),
-                                     correction=form.get("correction", "").strip())
-        except NotFoundError as exc:
-            return HTMLResponse(page("No se pudo revisar", "<h1>No se pudo revisar</h1>"
-                                     + notice(str(exc), "aviso error")), status_code=404)
+            store.approve_calibration(form.get("channel_id", ""), at=clock())
+        except (NotFoundError, ClosedChannelError) as exc:
+            return HTMLResponse(page("No se pudo aprobar", "<h1>No se pudo aprobar</h1>"
+                                     + notice(str(exc), "aviso error")), status_code=400)
+        return RedirectResponse(base, status_code=303)
+
+    async def return_calibration(request):
+        form = await _form(request)
+        try:
+            store.return_calibration(form.get("channel_id", ""), at=clock(),
+                                     correction=form.get("correction", ""))
+        except (NotFoundError, ValueError) as exc:
+            return HTMLResponse(page("No se pudo devolver", "<h1>No se pudo devolver</h1>"
+                                     + notice(str(exc), "aviso error")), status_code=400)
         return RedirectResponse(base, status_code=303)
 
     async def authorize(request):
@@ -64,7 +74,8 @@ def panel_routes(store: Store, capability: str, clock) -> list[tuple]:
 
     return [
         (base, ["GET"], panel),
-        (f"{base}/calibracion", ["POST"], review_calibration),
+        (f"{base}/calibracion/aprobar", ["POST"], approve_calibration),
+        (f"{base}/calibracion/devolver", ["POST"], return_calibration),
         (f"{base}/autorizar", ["POST"], authorize),
         (f"{base}/eleccion", ["POST"], choice),
     ]
@@ -75,27 +86,33 @@ def _channel_block(store: Store, base: str, channel: dict) -> str:
             f"<p>Canal <strong>{esc(channel['kind'])}</strong> ({esc(channel['id'])}), "
             f"{esc(channel['status'])}. Se seleccionan {esc(channel['selected_count'])}.</p>"
             f"<p><strong>Criterios vigentes:</strong> {esc(channel['criteria'])}</p>")
+    if channel["status"] == "preparacion":
+        body += notice("Este canal todavía no recibe propuestas. Se abre cuando aprobás la "
+                       "interpretación de tus criterios.")
     try:
         calibration = store.get_calibration(channel["id"])
     except NotFoundError:
         return body + notice("Todavía no hay una interpretación de tus criterios para revisar. "
-                             "Pedísela a tu IA antes de cortar la ronda.")
+                             "Pedísela a tu IA: sin eso el canal no se abre.")
     body += ("<h3>Interpretación de tus criterios</h3>"
              f"<p>{esc(calibration['interpretation'])}</p><h3>Ejemplos explicados</h3><ul>")
     for example in calibration["examples"]:
         body += (f"<li><strong>{esc(example.get('resultado', ''))}</strong>: "
                  f"{esc(example.get('propuesta', ''))} — {esc(example.get('explicacion', ''))}</li>")
     body += "</ul>"
+    if calibration["correction"]:
+        body += notice(f"Discrepancia que registraste: {esc(calibration['correction'])}")
     if calibration["reviewed_at"]:
-        body += notice(f"Revisada el {esc(calibration['reviewed_at'])}."
-                       + (f" Corrección registrada: {calibration['correction']}"
-                          if calibration["correction"] else ""))
+        body += notice(f"Aprobada el {esc(calibration['reviewed_at'])}: con eso se abrió el canal.")
     else:
-        body += (f'<form method="post" action="{esc(base)}/calibracion">'
+        body += (f'<form method="post" action="{esc(base)}/calibracion/aprobar">'
                  f'<input type="hidden" name="channel_id" value="{esc(channel["id"])}">'
-                 + field("Discrepancia que quieras corregir (opcional)", "correction", "",
-                         "textarea", "queda registrada junto a la interpretación", 600, False)
-                 + '<button type="submit">Revisado: puedo cortar la ronda</button></form>')
+                 '<button type="submit">Aprobar la interpretación y abrir el canal</button></form>'
+                 f'<form method="post" action="{esc(base)}/calibracion/devolver">'
+                 f'<input type="hidden" name="channel_id" value="{esc(channel["id"])}">'
+                 + field("O devolvela con la discrepancia", "correction", "", "textarea",
+                         "queda registrada y el canal sigue sin abrirse", 600, False)
+                 + '<button type="submit">Devolver sin abrir</button></form>')
     return body
 
 

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS channels (
     id TEXT PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL, question TEXT NOT NULL,
     restrictions TEXT NOT NULL, criteria TEXT NOT NULL, selected_count INTEGER NOT NULL,
     max_votes INTEGER NOT NULL, opens_at TEXT NOT NULL, closes_at TEXT,
-    status TEXT NOT NULL DEFAULT 'abierta');
+    status TEXT NOT NULL DEFAULT 'preparacion');
 CREATE TABLE IF NOT EXISTS proposals (
     id TEXT PRIMARY KEY, channel_id TEXT NOT NULL REFERENCES channels(id), what TEXT NOT NULL,
     why TEXT NOT NULL, example TEXT NOT NULL, author TEXT NOT NULL, received_at TEXT NOT NULL,
@@ -105,6 +105,12 @@ class Store:
     def create_channel(self, channel_id: str, kind: str, title: str, question: str,
                        restrictions: str, criteria: str, selected_count: int, opens_at: str,
                        closes_at: str | None, max_votes: int = domain.DEFAULT_MAX_VOTES) -> dict:
+        """Create a reception channel. It is born closed to participation.
+
+        Opening it is not part of creating it: the manifest puts the creator's review of the
+        interpretation of their criteria *before* the call opens, so the only way out of
+        `preparacion` is ``approve_calibration``.
+        """
         if kind not in domain.CHANNEL_KINDS:
             raise ValueError(f"kind debe ser uno de {domain.CHANNEL_KINDS}")
         if kind == "convocatoria" and not closes_at:
@@ -152,26 +158,58 @@ class Store:
         return self.get_channel(channel_id)
 
     def save_calibration(self, channel_id: str, interpretation: str, examples: list[dict]) -> dict:
-        self.get_channel(channel_id)
+        """Record the interpretation of the criteria and its explained examples, for review.
+
+        Only while the channel is still in preparation: once it is open, its criteria are what
+        participants read, and reinterpreting them mid-flight is the reevaluation problem that
+        belongs to the next unit.
+        """
+        channel = self.get_channel(channel_id)
+        if channel["status"] != "preparacion":
+            raise ClosedChannelError(
+                f"El canal {channel_id} ya está {channel['status']}: su calibración se revisó "
+                "antes de abrirlo y no se reinterpreta ahora.")
         with self._db:
             self._db.execute(
                 "INSERT INTO calibrations (channel_id, interpretation, examples) VALUES (?, ?, ?) "
+                # A new interpretation is never approved by arriving, and it does not erase the
+                # discrepancy the creator wrote: that stays as evidence of what was corrected.
                 "ON CONFLICT(channel_id) DO UPDATE SET interpretation = excluded.interpretation, "
-                "examples = excluded.examples, reviewed_at = NULL, correction = ''",
+                "examples = excluded.examples, reviewed_at = NULL",
                 (channel_id, interpretation, json.dumps(examples, ensure_ascii=False)))
         return self.get_calibration(channel_id)
 
-    def review_calibration(self, channel_id: str, at: str, correction: str = "") -> dict:
-        """The creator reviews the interpretation and its explained examples before opening.
+    def approve_calibration(self, channel_id: str, at: str) -> dict:
+        """The creator approves the interpretation of their criteria, and that opens the channel.
 
-        A correction is not a silent overwrite of the criteria: it is recorded next to the
-        interpretation it corrects, and the caller decides whether to also change the criteria.
+        Approving and opening are the same act on purpose: it makes the property of the plan
+        structural instead of a rule somebody has to remember. A channel is open if and only if
+        its calibration was approved, and the state cannot say otherwise.
         """
+        channel = self.get_channel(channel_id)
+        if channel["status"] != "preparacion":
+            raise ClosedChannelError(f"El canal {channel_id} ya está {channel['status']}.")
+        self.get_calibration(channel_id)
+        with self._db:
+            self._db.execute("UPDATE calibrations SET reviewed_at = ? WHERE channel_id = ?",
+                             (at, channel_id))
+            self._db.execute("UPDATE channels SET status = 'abierta', opens_at = ? WHERE id = ?",
+                             (at, channel_id))
+        return self.get_channel(channel_id)
+
+    def return_calibration(self, channel_id: str, at: str, correction: str) -> dict:
+        """The creator returns the interpretation with a discrepancy, and the channel stays shut.
+
+        The correction is recorded next to the interpretation it corrects; it is never a silent
+        overwrite of the criteria, and it does not open anything.
+        """
+        if not correction.strip():
+            raise ValueError("Devolver la calibración exige escribir la discrepancia.")
         self.get_calibration(channel_id)
         with self._db:
             self._db.execute(
-                "UPDATE calibrations SET reviewed_at = ?, correction = ? WHERE channel_id = ?",
-                (at, correction, channel_id))
+                "UPDATE calibrations SET reviewed_at = NULL, correction = ? WHERE channel_id = ?",
+                (correction.strip(), channel_id))
         return self.get_calibration(channel_id)
 
     def get_calibration(self, channel_id: str) -> dict:
@@ -204,7 +242,11 @@ class Store:
         return row
 
     def _closed_message(self, channel: dict) -> str:
-        message = f"La convocatoria «{channel['title']}» está cerrada y no recibe propuestas."
+        if channel["status"] == "preparacion":
+            message = (f"«{channel['title']}» todavía no está abierta: el creador no revisó aún "
+                       "la interpretación de sus criterios.")
+        else:
+            message = f"La convocatoria «{channel['title']}» está cerrada y no recibe propuestas."
         permanent = [c for c in self.open_channels() if c["kind"] == "permanente"]
         if permanent:
             message += (f" El canal permanente «{permanent[0]['title']}» sigue abierto: podés "
@@ -249,6 +291,9 @@ class Store:
         The permanent channel stays open and its next proposals fall into the next cut.
         """
         channel = self.get_channel(channel_id)
+        if channel["status"] != "abierta":
+            raise ClosedChannelError(
+                f"El canal {channel_id} está {channel['status']} y no tiene una ronda para cortar.")
         previous = self._db.execute(
             "SELECT cut_at FROM rounds WHERE channel_id = ? ORDER BY cut_at DESC LIMIT 1",
             (channel_id,)).fetchone()
@@ -526,6 +571,33 @@ class Store:
         return result
 
     # ------------------------------------------------------------------- evidence of a run
+
+    def all_evaluations(self) -> list[dict]:
+        rows = self._db.execute(
+            "SELECT id, round_id, proposal_id, stage, result, reasons, doubts, evaluator, "
+            "saved_at FROM evaluations ORDER BY id").fetchall()
+        return [dict(r) for r in rows]
+
+    def all_invitations(self) -> list[dict]:
+        """Invitations for the evidence. The witness never leaves: it would let anyone answer."""
+        rows = self._db.execute(
+            "SELECT id, round_id, proposal_id, question, witness, created_at, answered_at "
+            "FROM invitations ORDER BY created_at, id").fetchall()
+        return [{**{k: r[k] for k in r.keys() if k != "witness"},
+                 "witness_fp": domain.fingerprint(r["witness"])} for r in rows]
+
+    def all_records(self) -> list[dict]:
+        rows = self._db.execute(
+            "SELECT id, proposal_id, kind, author, body, created_at, invitation_id FROM records "
+            "ORDER BY created_at, id").fetchall()
+        return [dict(r) for r in rows]
+
+    def all_votes(self) -> list[dict]:
+        """Votes for the evidence. The voter mark is fingerprinted, not copied."""
+        rows = self._db.execute(
+            "SELECT round_id, proposal_id, voter, voted_at FROM votes ORDER BY voted_at").fetchall()
+        return [{"round_id": r["round_id"], "proposal_id": r["proposal_id"],
+                 "voter_fp": domain.fingerprint(r["voter"]), "voted_at": r["voted_at"]} for r in rows]
 
     def log_call(self, tool: str, arguments: dict, ok: bool, at: str, original_fp: str = "") -> None:
         with self._db:

@@ -109,6 +109,7 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
                           for r in store.rounds_of(channel["id"])]
                 channels.append({"id": channel["id"], "kind": channel["kind"],
                                  "title": channel["title"], "status": channel["status"],
+                                 "calibracion": _calibration_state(store, channel["id"]),
                                  "propuestas": len(store.list_proposals(channel["id"], limit=100)["items"]),
                                  "rondas": rounds})
             return {"sistema": "circuito-propuestas",
@@ -153,7 +154,9 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
         def propose() -> dict:
             saved = store.save_calibration(channel_id, interpretacion, ejemplos)
             return {**saved, "revisar_en": panel_url(),
-                    "aviso": "La ronda no se puede cortar hasta que el creador la revise."}
+                    "aviso": ("El canal no recibe propuestas hasta que el creador apruebe esta "
+                              "interpretación en el panel. Puede devolvértela con una "
+                              "discrepancia; en ese caso proponé otra.")}
 
         return run("proponer_calibracion",
                    {"channel_id": channel_id, "ejemplos": len(ejemplos)}, propose)
@@ -161,14 +164,15 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
     @server.tool(annotations=_WRITE)
     def cortar_ronda(channel_id: str) -> dict:
         """Cerrar una convocatoria o cortar el canal permanente: fija el conjunto de propuestas
-        y congela los criterios de esa ronda. Requiere la calibración ya revisada por el creador."""
+        y congela los criterios de esa ronda. Solo sobre un canal abierto."""
 
         def cut() -> dict:
-            calibration = store.get_calibration(channel_id)
-            if not calibration["reviewed_at"]:
+            channel = store.get_channel(channel_id)
+            if channel["status"] == "preparacion":
                 raise NotAuthorizedError(
-                    f"El creador todavía no revisó la calibración de {channel_id}. "
-                    f"Pedísela en {panel_url()} antes de cortar la ronda.")
+                    f"El canal {channel_id} todavía no se abrió: el creador no aprobó la "
+                    f"interpretación de sus criterios en {panel_url()}. Sin apertura no hubo "
+                    "recepción y no hay ronda que cortar.")
             round_ = store.open_round(channel_id, cut_at=clock())
             return {"ronda": round_["id"], "criterios": round_["criteria"],
                     "propuestas": [p["id"] for p in store.round_proposals(round_["id"])]}
@@ -246,6 +250,19 @@ def build_server(store: Store, capability: str, public_base: str = "", clock=utc
             "aviso": "Son tres señales distintas y no se combinan en un único orden."})
 
     return server
+
+
+def _calibration_state(store: Store, channel_id: str) -> str:
+    """What the AI needs to tell the creator about why a channel does or does not receive."""
+    try:
+        calibration = store.get_calibration(channel_id)
+    except NotFoundError:
+        return "sin proponer: el canal no puede abrirse"
+    if calibration["reviewed_at"]:
+        return f"aprobada por el creador el {calibration['reviewed_at']}"
+    if calibration["correction"]:
+        return f"devuelta por el creador con una discrepancia: {calibration['correction']}"
+    return "propuesta, esperando la aprobación del creador"
 
 
 def _looks_synthetic(store: Store) -> bool:

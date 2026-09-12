@@ -5,10 +5,10 @@ bearer secret in a URL is not fit for the product. This module is the single pla
 how the creator's two private surfaces — the MCP endpoint and the authorization panel — are
 gated, so replacing it with a real authorization flow does not touch the circuit.
 
-What it deliberately does not do is decide that question. No case of U2 exercises the
-authentication of the endpoint, and U1 did not demonstrate that OAuth works in the account that
-was probed, so choosing it here would be freezing a mechanism without the evidence that decides
-it. ARQUITECTURA.md records the decision and routes it.
+The capability is not the answer to that: it is what the local verification runs on. The
+mechanism that replaces it is the MCP authorization flow, and it arrives with the contract that
+covers the real conversational operation, because only a real run shows the host completing it.
+Every other module talks to this one, so that replacement does not touch the circuit.
 """
 
 import re

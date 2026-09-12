@@ -14,9 +14,17 @@ def store(tmp_path):
     store.close()
 
 
+def calibrate_and_open(store, channel_id: str, at: str = "2026-09-01T09:00:00+00:00"):
+    """Take a channel through the review the plan puts before opening it."""
+    store.save_calibration(channel_id, f"Interpretación de los criterios de {channel_id}.",
+                           [{"propuesta": "Un taller en vivo", "resultado": "preseleccionada",
+                             "explicacion": "Es realizable con pocos recursos."}])
+    return store.approve_calibration(channel_id, at=at)
+
+
 @pytest.fixture()
-def circuito(store):
-    """A store with the two reception channels open, which is the shape U2 has to close."""
+def preparacion(store):
+    """The two channels created and still shut: nothing was reviewed yet."""
     store.create_channel(
         CONVOCATORIA, kind="convocatoria", title="Ideas para el próximo ciclo",
         question="¿Qué tema querés que tratemos en profundidad?",
@@ -30,6 +38,14 @@ def circuito(store):
         criteria="Se valoran propuestas concretas y realizables.",
         selected_count=1, opens_at="2026-09-01T00:00:00+00:00", closes_at=None)
     return store
+
+
+@pytest.fixture()
+def circuito(preparacion):
+    """The two channels open, which is the shape U2 has to close."""
+    calibrate_and_open(preparacion, CONVOCATORIA)
+    calibrate_and_open(preparacion, PERMANENTE)
+    return preparacion
 
 
 def submission(n: int, channel_id: str = CONVOCATORIA, **overrides) -> dict:
@@ -64,8 +80,7 @@ def clock():
     return tick
 
 
-@pytest.fixture()
-def serve(circuito, clock):
+def _serving(store, clock):
     """Run the real application on a free local port."""
     import socket
     import threading
@@ -81,7 +96,7 @@ def serve(circuito, clock):
         with socket.socket() as probe:
             probe.bind(("127.0.0.1", 0))
             port = probe.getsockname()[1]
-        app = build_app(circuito, CAPABILITY, public_base=f"http://127.0.0.1:{port}",
+        app = build_app(store, CAPABILITY, public_base=f"http://127.0.0.1:{port}",
                         exposed=exposed, clock=clock)
         server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port,
                                                log_level="warning"))
@@ -98,3 +113,15 @@ def serve(circuito, clock):
     for server, thread in servers:
         server.should_exit = True
         thread.join(timeout=10)
+
+
+@pytest.fixture()
+def serve(circuito, clock):
+    """The application with both channels already open."""
+    yield from _serving(circuito, clock)
+
+
+@pytest.fixture()
+def serve_preparacion(preparacion, clock):
+    """The application with both channels still shut, before any review."""
+    yield from _serving(preparacion, clock)

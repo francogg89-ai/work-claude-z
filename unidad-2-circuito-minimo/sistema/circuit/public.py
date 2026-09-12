@@ -43,6 +43,23 @@ def transparency_block() -> str:
             f"<p>{esc('Mientras dura la selección, ninguna propuesta es pública.')}</p>")
 
 
+def publishable_rows(proposal: dict) -> str:
+    """Render exactly the declared publishable fields, in their declared order.
+
+    Both public surfaces go through here, so neither can quietly show one field more or one
+    field less than the notice promised. An empty value is shown as empty, not omitted: a field
+    that disappears when it has no text would be a divergence too.
+    """
+    rows = ""
+    for declared in domain.PUBLISHABLE_FIELDS:
+        value = proposal[declared.name]
+        if declared.name == "received_at":
+            value = domain.reception_label(value)
+        rows += (f'<p class="campo"><span class="etiqueta">{esc(declared.label)}:</span> '
+                 f'<span class="original">{esc(value) if value else "(sin dato)"}</span></p>')
+    return rows
+
+
 def public_routes(store: Store, clock) -> list[tuple]:
 
     def channel_block(channel: dict) -> str:
@@ -147,9 +164,7 @@ def public_routes(store: Store, clock) -> list[tuple]:
             body += f"<h1>{esc(round_['criteria']['title'])}</h1>"
             for proposal in store.finalists(round_id):
                 votes = signals["audiencia"].get(proposal["id"], 0)
-                body += (f"<section class=\"vivo\"><h2>{esc(proposal['id'])} · "
-                         f"{esc(proposal['author'])}</h2>"
-                         f"<p class=\"original\">{esc(proposal['what'])}</p>"
+                body += (f'<section class="vivo">{publishable_rows(proposal)}'
                          f"<p>Votos: {esc(votes)}</p></section>")
             body += _signals_block(signals)
         return HTMLResponse(page("Finalistas en vivo", body).replace(
@@ -258,20 +273,12 @@ def public_routes(store: Store, clock) -> list[tuple]:
 
 def _finalist_block(round_id: str, proposal: dict, signals: dict) -> str:
     votes = signals["audiencia"].get(proposal["id"], 0)
-    block = (f"<div class=\"propuesta\"><h3>{esc(proposal['id'])}</h3>"
-             f"<p class=\"original\">{esc(proposal['what'])}</p>"
-             f"<p class=\"original\">{esc(proposal['why'])}</p>")
-    if proposal["example"]:
-        block += f"<p class=\"original\">{esc(proposal['example'])}</p>"
-    block += (f"<p>Autoría: {esc(proposal['author'])}</p>"
-              f"<p>{esc(domain.reception_label(proposal['received_at']))}</p>"
-              f"<p>Dato: {esc(proposal['synthetic'])}</p>"
-              f"<p>Votos de la audiencia: {esc(votes)}</p>"
-              f'<form method="post" action="/votos">'
-              f'<input type="hidden" name="round_id" value="{esc(round_id)}">'
-              f'<input type="hidden" name="proposal_id" value="{esc(proposal["id"])}">'
-              f'<button type="submit">Votar esta propuesta</button></form></div>')
-    return block
+    return (f'<div class="propuesta">{publishable_rows(proposal)}'
+            f"<p>Votos de la audiencia: {esc(votes)}</p>"
+            f'<form method="post" action="/votos">'
+            f'<input type="hidden" name="round_id" value="{esc(round_id)}">'
+            f'<input type="hidden" name="proposal_id" value="{esc(proposal["id"])}">'
+            f'<button type="submit">Votar esta propuesta</button></form></div>')
 
 
 def _signals_block(signals: dict) -> str:

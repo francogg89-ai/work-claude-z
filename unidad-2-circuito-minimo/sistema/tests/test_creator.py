@@ -11,7 +11,7 @@ from mcp import Client
 from circuit import evaluation
 from circuit.creator import build_server
 from circuit.view import VIEW_URI
-from tests.conftest import CAPABILITY, CONVOCATORIA, submission
+from tests.conftest import CAPABILITY, CONVOCATORIA, calibrate_and_open, submission
 
 pytestmark = pytest.mark.anyio
 
@@ -95,21 +95,37 @@ async def test_listing_never_returns_contact(circuito, clock):
     assert "contact" not in listed["items"][0]
 
 
-async def test_cutting_a_round_needs_the_creator_to_have_reviewed_the_calibration(circuito, clock):
-    circuito.receive_proposal(submission(1), at="2026-09-02T10:00:00+00:00")
-    async with Client(server(circuito, clock)) as client:
+async def test_a_channel_in_preparation_cannot_be_cut_and_the_status_says_why(preparacion, clock):
+    async with Client(server(preparacion, clock)) as client:
+        status = payload(await client.call_tool("estado_del_sistema", {}))
         refused = await client.call_tool("cortar_ronda", {"channel_id": CONVOCATORIA})
-        assert refused.is_error
+    assert [c["status"] for c in status["canales"]] == ["preparacion", "preparacion"]
+    assert all("sin proponer" in c["calibracion"] for c in status["canales"])
+    assert refused.is_error
 
-        payload(await client.call_tool("proponer_calibracion", {
+
+async def test_proposing_a_calibration_does_not_open_anything_by_itself(preparacion, clock):
+    async with Client(server(preparacion, clock)) as client:
+        proposed = payload(await client.call_tool("proponer_calibracion", {
             "channel_id": CONVOCATORIA, "interpretacion": "Priorizo lo realizable.",
             "ejemplos": [{"propuesta": "Un taller", "resultado": "preseleccionada",
                           "explicacion": "Realizable con pocos recursos."}]}))
-        still_refused = await client.call_tool("cortar_ronda", {"channel_id": CONVOCATORIA})
-        assert still_refused.is_error
+        status = payload(await client.call_tool("estado_del_sistema", {}))
+        refused = await client.call_tool("cortar_ronda", {"channel_id": CONVOCATORIA})
+    assert "apruebe" in proposed["aviso"]
+    assert preparacion.get_channel(CONVOCATORIA)["status"] == "preparacion"
+    assert "esperando la aprobación" in status["canales"][0]["calibracion"]
+    assert refused.is_error
 
-        circuito.review_calibration(CONVOCATORIA, at="2026-09-12T09:00:00+00:00")
+
+async def test_once_the_creator_approves_the_channel_receives_and_the_round_can_be_cut(
+        preparacion, clock):
+    calibrate_and_open(preparacion, CONVOCATORIA)
+    preparacion.receive_proposal(submission(1), at="2026-09-02T10:00:00+00:00")
+    async with Client(server(preparacion, clock)) as client:
+        status = payload(await client.call_tool("estado_del_sistema", {}))
         cut = payload(await client.call_tool("cortar_ronda", {"channel_id": CONVOCATORIA}))
+    assert "aprobada por el creador" in status["canales"][0]["calibracion"]
     assert cut["propuestas"] == ["P-001"]
 
 
