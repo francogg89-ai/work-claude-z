@@ -132,6 +132,29 @@ está interpretada en `francogg89-ai/audit-chatgpt-z @ 856df0c3f7b50b9255ea4acab
 - Al mostrar un original, **el texto del modelo no fue literal**: cambió `SINTETICO` por
   `SINTÉTICO`. El servidor había devuelto el original exacto.
 
+## Resultado empírico de la segunda conexión real
+
+Ejecutada contra los contratos `C-U1-2A` y `C-U1-2B` congelados en
+`cb023ed6c53dd63470da9463a6ea1697294f1055`, e interpretada en
+`francogg89-ai/audit-chatgpt-z`,
+`resoluciones/H-U1-CONEXION-REAL-2-9c026956cf1cffd35d25f6c506b8a9236fa64989.md`. Los dos contratos
+resultaron en éxito. La consolidación completa está en `RESULTADO.md`; acá quedan solo los puntos
+que la documentación no resolvía:
+
+- **Las vistas de MCP Apps funcionan en la cuenta Plus personal usada.** El anfitrión pidió la
+  plantilla con `resources/read` y renderizó la vista, que mostró el original de `P-042` con la
+  huella del texto mostrado igual a la del servidor. Ninguna fuente lo declaraba para apps de modo
+  desarrollador en Plus.
+- **La falta de confirmación antes de escribir se repitió**, con la herramienta anotada como no
+  `readOnlyHint`. Es el caso en que F4 promete confirmación y no la hubo.
+- **La elección de herramienta no es determinista**: ante la misma petición, una conversación usó
+  `show_proposal` y la otra `get_proposal`. La documentación no describe cómo el modelo elige entre
+  una herramienta con vista y otra sin vista.
+- **La atribución visible de la app aparece en el panel `Sources`**, no siempre como bloque de
+  llamada en línea. No es una señal en la que el creador pueda apoyarse.
+- **El rechazo de una app inválida no atribuye causa**: `Error creating connector / Something went
+  wrong…`, sin mención de plan, cuenta, política, rol ni permisos.
+
 ## Presentación fiel de contenido
 
 El texto que el modelo escribe es una regeneración, no una copia. Para mostrar un original sin
@@ -148,12 +171,14 @@ alteraciones hace falta un canal que no pase por el modelo.
 - F11 recomienda mantener las herramientas útiles sin interfaz, para clientes que no la
   renderizan.
 - Ninguna fuente consultada declara expresamente la disponibilidad de estas vistas para apps de
-  modo desarrollador en Plus. Eso queda para verificar empíricamente.
+  modo desarrollador en Plus. La segunda conexión real lo verificó empíricamente para la cuenta
+  usada, y solo para ella.
 
 ## Costos y datos
 
 - La documentación consultada no declara un costo adicional por usar el modo desarrollador. No
-  se afirma que no exista.
+  se afirma que no exista. En las dos conexiones reales no se observó ningún cargo distinto de la
+  suscripción Plus ya contratada, ni ningún límite de uso de ChatGPT.
 - En Free, Plus, Go y Pro, "OpenAI may use information accessed from apps to train our models
   if your 'Improve the model for everyone' setting is on" (F3). La sonda usa solo datos
   sintéticos; para las propuestas reales del producto es una restricción de privacidad que U2 y

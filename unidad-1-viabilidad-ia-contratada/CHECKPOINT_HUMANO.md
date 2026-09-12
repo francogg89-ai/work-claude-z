@@ -1,5 +1,18 @@
 # CHECKPOINT HUMANO — segunda conexión real de la sonda con ChatGPT
 
+## Este checkpoint ya se ejecutó
+
+Agregado después de la ejecución, sin tocar el procedimiento. La necesidad material quedó resuelta:
+la prueba se ejecutó sobre el candidato `cb023ed6c53dd63470da9463a6ea1697294f1055`, devolvió la
+evidencia `francogg89-ai/error111 @ 9c026956cf1cffd35d25f6c506b8a9236fa64989`, y el AUDITOR la
+interpretó en
+`resoluciones/H-U1-CONEXION-REAL-2-9c026956cf1cffd35d25f6c506b8a9236fa64989.md`. Los contratos
+`C-U1-2A` y `C-U1-2B` quedaron agotados con éxito; el resultado está consolidado en `RESULTADO.md`.
+
+**No volver a ejecutar este procedimiento.** Una corrida discriminante nueva exige un contrato
+previo nuevo congelado por el AUDITOR, conforme a REVOLUTIONS §6.1. Lo que sigue se conserva como
+el procedimiento exacto que produjo esa evidencia.
+
 ## Prompt para el agente externo
 
 > Vas a ayudar a una persona a ejecutar una prueba acotada de integración entre su cuenta de
