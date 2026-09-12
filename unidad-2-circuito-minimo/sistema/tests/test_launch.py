@@ -244,3 +244,38 @@ def test_the_preserved_call_substitutes_the_witness_by_value(local, circuito, se
     assert witness not in logged
     assert "/ampliar/<testigo>" in logged
     assert "INV-" in logged
+
+
+def test_the_export_shows_the_connection_going_from_pending_to_approved(local, circuito, serve,
+                                                                       capsys):
+    base = serve()
+    (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    launch.main(["--base", base, "conectar"])
+    destination = local / "evidencia.json"
+    launch.main(["exportar", "--destino", str(destination)])
+    capsys.readouterr()
+
+    evidence = json.loads(destination.read_text(encoding="utf-8"))
+    conexiones = evidence["conexiones"]
+    assert len(conexiones) == 1
+    assert conexiones[0]["client_name"] == "circuito-local"
+    assert conexiones[0]["created_at"] and conexiones[0]["approved_at"]
+
+    tokens = evidence["tokens"]
+    assert {t["kind"] for t in tokens} == {"acceso", "refresco"}
+    assert all(len(t["huella"]) == 8 for t in tokens)
+    assert all(issued not in json.dumps(evidence) for issued in circuito.issued_tokens())
+
+
+def test_the_export_shows_a_revoked_token_as_revoked(local, circuito, serve, capsys):
+    base = serve()
+    (local / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    launch.main(["--base", base, "conectar"])
+    circuito.revoke_oauth_token((local / "token").read_text(encoding="utf-8").strip())
+    destination = local / "evidencia.json"
+    launch.main(["exportar", "--destino", str(destination)])
+    capsys.readouterr()
+
+    evidence = json.loads(destination.read_text(encoding="utf-8"))
+    revocados = [t for t in evidence["tokens"] if t["revoked_at"]]
+    assert [t["kind"] for t in revocados] == ["acceso"]

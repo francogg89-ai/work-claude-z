@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS oauth_codes (
 CREATE TABLE IF NOT EXISTS oauth_tokens (
     token TEXT PRIMARY KEY, kind TEXT NOT NULL, client_id TEXT NOT NULL, scopes TEXT NOT NULL,
     expires_at INTEGER, resource TEXT, created_at TEXT NOT NULL, revoked_at TEXT);
+CREATE TABLE IF NOT EXISTS creator_sessions (
+    id TEXT PRIMARY KEY, created_at TEXT NOT NULL, last_seen TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, kind TEXT NOT NULL,
     method TEXT NOT NULL DEFAULT '', surface TEXT NOT NULL DEFAULT '', path_ok INTEGER NOT NULL DEFAULT 0,
@@ -661,6 +663,50 @@ class Store:
         with self._db:
             self._db.execute("UPDATE oauth_tokens SET revoked_at = ? WHERE token = ?",
                              (_now(), token))
+
+    def open_creator_session(self, at: str) -> str:
+        """Mark this browser as the creator's, after it reached the panel with the capability.
+
+        It exists so the consent URL of the authorization flow carries no secret: what proves
+        the creator is this session, not something written in a link handed to a third party.
+        """
+        session_id = secrets.token_urlsafe(32)
+        with self._db:
+            self._db.execute(
+                "INSERT INTO creator_sessions (id, created_at, last_seen) VALUES (?, ?, ?)",
+                (session_id, at, at))
+        return session_id
+
+    def creator_session_is_open(self, session_id: str, at: str) -> bool:
+        row = self._db.execute(
+            "SELECT id FROM creator_sessions WHERE id = ?", (session_id or "",)).fetchone()
+        if row is None:
+            return False
+        with self._db:
+            self._db.execute("UPDATE creator_sessions SET last_seen = ? WHERE id = ?",
+                             (at, session_id))
+        return True
+
+    def revoke_client_tokens(self, client_id: str, at: str) -> int:
+        """Cut off a connection the creator no longer wants. Returns how many tokens it closed."""
+        with self._db:
+            cursor = self._db.execute(
+                "UPDATE oauth_tokens SET revoked_at = ? WHERE client_id = ? AND revoked_at IS NULL",
+                (at, client_id))
+        return cursor.rowcount
+
+    def token_ledger(self) -> list[dict]:
+        """What tokens existed and what happened to them, without any token.
+
+        The value is replaced by its fingerprint: enough to tell two tokens apart and to see one
+        revoked, useless to open anything.
+        """
+        rows = self._db.execute(
+            "SELECT token, kind, client_id, created_at, expires_at, revoked_at FROM oauth_tokens "
+            "ORDER BY created_at").fetchall()
+        return [{"huella": domain.fingerprint(r["token"]), "kind": r["kind"],
+                 "client_id": r["client_id"], "created_at": r["created_at"],
+                 "expires_at": r["expires_at"], "revoked_at": r["revoked_at"]} for r in rows]
 
     def issued_tokens(self) -> list[str]:
         """Every token issued, in clear. Same single caller as `witnesses`: the preservation step."""

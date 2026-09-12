@@ -16,6 +16,9 @@ from circuit.store import ClosedChannelError, NotAuthorizedError, NotFoundError,
 from circuit.web import esc, field, notice, page
 
 
+SESSION_COOKIE = "creador"
+
+
 def panel_routes(store: Store, capability: str, clock, authorization=None) -> list[tuple]:
     base = access.panel_path(capability)
 
@@ -24,6 +27,7 @@ def panel_routes(store: Store, capability: str, clock, authorization=None) -> li
         return await parse(request)
 
     async def panel(request):
+        """The creator's surface. Reaching it with the capability is what opens their session."""
         body = ("<h1>Panel del creador</h1>"
                 + notice("Publicar e invitar se autorizan acá, en el sistema. La IA puede "
                          "pedirlo; darlo es tuyo.")
@@ -32,7 +36,11 @@ def panel_routes(store: Store, capability: str, clock, authorization=None) -> li
             body += _channel_block(store, base, channel)
             for round_ in store.rounds_of(channel["id"]):
                 body += _round_block(store, base, round_)
-        return HTMLResponse(page("Panel del creador", body))
+        response = HTMLResponse(page("Panel del creador", body))
+        if not store.creator_session_is_open(request.cookies.get(SESSION_COOKIE, ""), clock()):
+            response.set_cookie(SESSION_COOKIE, store.open_creator_session(clock()),
+                                httponly=True, samesite="lax", max_age=60 * 60 * 24 * 30)
+        return response
 
     async def approve_calibration(request):
         """Approving the interpretation is what opens the channel to participation."""
@@ -74,13 +82,20 @@ def panel_routes(store: Store, capability: str, clock, authorization=None) -> li
         return RedirectResponse(base, status_code=303)
 
     async def connect(request):
-        """The consent surface of the authorization flow.
+        """The consent surface of the authorization flow, on a path that carries no secret.
 
-        A client that wants to operate the circuit lands here, and the creator is whoever can
-        reach this page. Approving is what issues the code the client then exchanges for a
-        token; until that happens the client holds nothing.
+        The link that gets here was handed to an authorization agent and travelled over the
+        public exposure. So it proves nothing by itself: what proves the creator is the session
+        their browser opened when it reached the panel. Without it this page shows nothing, not
+        even who is asking.
         """
-        request_id = request.query_params.get("solicitud", "")
+        if not store.creator_session_is_open(request.cookies.get(SESSION_COOKIE, ""), clock()):
+            return HTMLResponse(page("Falta tu panel", "<h1>Falta abrir tu panel</h1>" + notice(
+                "Este enlace no autoriza nada por sí solo. Abrí el panel del creador en este "
+                "mismo navegador y volvé a abrir este enlace para decidir.")), status_code=403)
+
+        request_id = (request.query_params.get("solicitud", "") if request.method == "GET"
+                      else (await _form(request)).get("solicitud", ""))
         if request.method == "GET":
             try:
                 pending = auth_module.pending_request_view(store, request_id)
@@ -94,28 +109,34 @@ def panel_routes(store: Store, capability: str, clock, authorization=None) -> li
                     f"<p>Una aplicación pide operar tu circuito en tu nombre.</p>"
                     f"<p><strong>Qué podrá hacer:</strong> leer propuestas, guardar evaluaciones y "
                     f"pedirte autorización para invitar y publicar. Autorizar esas dos acciones "
-                    f"sigue siendo tuyo, acá en el panel.</p>"
+                    f"sigue siendo tuyo, en el panel, ronda por ronda.</p>"
                     f"<p><strong>Alcance:</strong> {esc(', '.join(pending['scopes']))}</p>"
                     f"<p><strong>Volverá a:</strong> {esc(pending['redirect_uri'])}</p>"
                     f"<p><strong>Pedida el:</strong> {esc(pending['created_at'])}</p>"
                     + notice("Si no reconocés esta solicitud, cerrá esta página: sin tu "
                              "aprobación la aplicación no obtiene ningún acceso.")
-                    + f'<form method="post" action="{esc(base)}/conectar">'
+                    + f'<form method="post" action="{esc(auth_module.CONSENT_PATH)}">'
                       f'<input type="hidden" name="solicitud" value="{esc(request_id)}">'
                       '<button type="submit">Autorizar esta conexión</button></form>')
             return HTMLResponse(page("Conectar una aplicación", body))
 
-        form = await _form(request)
         try:
-            destination = authorization.approve(form.get("solicitud", ""), at=clock())
+            destination = authorization.approve(request_id, at=clock())
         except (NotFoundError, NotAuthorizedError) as exc:
             return HTMLResponse(page("No se pudo autorizar", "<h1>No se pudo autorizar</h1>"
                                      + notice(str(exc), "aviso error")), status_code=400)
         return RedirectResponse(destination, status_code=303)
 
+    async def revoke(request):
+        """The creator cuts off a connection. What it had stops working immediately."""
+        form = await _form(request)
+        store.revoke_client_tokens(form.get("client_id", ""), at=clock())
+        return RedirectResponse(base, status_code=303)
+
     return [
         (base, ["GET"], panel),
-        (f"{base}/conectar", ["GET", "POST"], connect),
+        (f"{base}/revocar", ["POST"], revoke),
+        (auth_module.CONSENT_PATH, ["GET", "POST"], connect),
         (f"{base}/calibracion/aprobar", ["POST"], approve_calibration),
         (f"{base}/calibracion/devolver", ["POST"], return_calibration),
         (f"{base}/autorizar", ["POST"], authorize),
@@ -132,11 +153,16 @@ def _connections_block(store: Store, base: str) -> str:
     for connection in connections:
         estado = (f"autorizada el {esc(connection['approved_at'])}" if connection["approved_at"]
                   else "esperando tu decisión")
-        body += f"<li>{esc(connection['client_name'])}: {estado}</li>"
+        body += f"<li>{esc(connection['client_name'])}: {estado}"
+        if connection["approved_at"]:
+            body += (f'<form method="post" action="{esc(base)}/revocar">'
+                     f'<input type="hidden" name="client_id" value="{esc(connection["client_id"])}">'
+                     '<button type="submit">Revocar esta conexión</button></form>')
+        body += "</li>"
     body += "</ul>"
     pendientes = [c for c in connections if not c["approved_at"]]
     for pendiente in pendientes:
-        body += (f'<p><a href="{esc(base)}/conectar?solicitud={esc(pendiente["id"])}">'
+        body += (f'<p><a href="{esc(auth_module.CONSENT_PATH)}?solicitud={esc(pendiente["id"])}">'
                  f'Revisar la solicitud de {esc(pendiente["client_name"])}</a></p>')
     return body
 

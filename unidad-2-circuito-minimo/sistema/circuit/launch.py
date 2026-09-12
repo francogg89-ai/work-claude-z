@@ -20,11 +20,15 @@ from circuit.store import Store
 DATA = Path(__file__).resolve().parent.parent / ".data"
 DB = DATA / "circuito.sqlite"
 CAPABILITY_FILE = DATA / "capacidad"
-TOKEN_FILE = DATA / "token"
 
 
 CONVOCATORIA = "convocatoria-1"
 PERMANENTE = "permanente"
+
+
+def token_file() -> Path:
+    """Where the access token of the local connector lives. Derived from DATA, never duplicated."""
+    return DATA / "token"
 
 
 def calls_file() -> Path:
@@ -193,6 +197,13 @@ def cmd_conectar(args) -> int:
         hashlib.sha256(verifier.encode()).digest()).decode().rstrip("=")
 
     with httpx.Client(timeout=30, follow_redirects=False) as client:
+        # The creator opens their session by reaching the panel with the capability. From then
+        # on the consent page needs no secret in its URL.
+        opened = client.get(f"{base}{access.panel_path(capability())}")
+        if opened.status_code != 200:
+            print(f"panel: {opened.status_code}")
+            return 1
+
         registered = client.post(f"{base}/register", json={
             "client_name": args.nombre, "redirect_uris": [redirect],
             "grant_types": ["authorization_code", "refresh_token"], "response_types": ["code"],
@@ -212,8 +223,7 @@ def cmd_conectar(args) -> int:
         request_id = parse_qs(urlparse(asked.headers["location"]).query)["solicitud"][0]
         print(f"El creador aprueba la solicitud {request_id} en el panel.")
 
-        approved = client.post(f"{base}{access.panel_path(capability())}/conectar",
-                               data={"solicitud": request_id})
+        approved = client.post(f"{base}{auth.CONSENT_PATH}", data={"solicitud": request_id})
         code = parse_qs(urlparse(approved.headers.get("location", "")).query).get("code", [None])[0]
         if not code:
             print(f"aprobacion: {approved.status_code} {approved.text[:200]}")
@@ -226,16 +236,17 @@ def cmd_conectar(args) -> int:
             print(f"token: {issued.status_code} {issued.text}")
             return 1
 
-    TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-    TOKEN_FILE.write_text(issued.json()["access_token"], encoding="utf-8")
-    print(f"Conexión autorizada. El token quedó en {TOKEN_FILE} y no entra en Git.")
+    destination = token_file()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(issued.json()["access_token"], encoding="utf-8")
+    print(f"Conexión autorizada. El token quedó en {destination} y no entra en Git.")
     return 0
 
 
 def token() -> str:
-    if not TOKEN_FILE.exists():
+    if not token_file().exists():
         raise SystemExit("No hay token: corré primero `conectar`.")
-    return TOKEN_FILE.read_text(encoding="utf-8").strip()
+    return token_file().read_text(encoding="utf-8").strip()
 
 
 def cmd_llamar(args) -> int:
@@ -325,6 +336,8 @@ def cmd_exportar(args) -> int:
         "invitaciones": db.all_invitations(),
         "registros_vinculados": db.all_records(),
         "votos": db.all_votes(),
+        "conexiones": db.connections(),
+        "tokens": db.token_ledger(),
         "llamadas": db.all_calls(),
         "solicitudes": db.all_requests(),
         "artefactos": _inventory(),

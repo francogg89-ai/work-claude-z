@@ -140,10 +140,14 @@ un solo proceso que el creador instala:
   `WWW-Authenticate`, y ahí es donde el anfitrión aprende a dónde ir a autorizarse;
 - el anfitrión se registra solo —registro dinámico— y pide autorización. Registrarse no es
   autorizarse: un cliente registrado no tiene nada hasta que el creador decide;
-- la solicitud queda estacionada y el anfitrión es enviado **al panel del creador**. Consentir no
+- la solicitud queda estacionada y el anfitrión es enviado a `/conectar`, **una ruta sin ningún
+  secreto**. Esto importa: esa URL se le entrega a un agente de autorización ajeno, viaja por la
+  exposición pública y queda en historiales y registros intermedios, así que poner ahí la
+  capacidad del panel habría reintroducido exactamente el problema que U1 señaló;
+- lo que prueba al creador del otro lado es su **sesión**, abierta al llegar al panel con la
+  capacidad. Sin esa sesión `/conectar` no muestra nada: ni quién pide, ni para qué. Consentir no
   es una pantalla de login nueva con credenciales nuevas que guardar: es una decisión más del
-  creador, al lado de las que autorizan publicar e invitar. Quien llega al panel es el creador,
-  que es exactamente la frontera que el panel ya tenía;
+  creador, al lado de las que autorizan publicar e invitar;
 - aprobar es lo que emite el código; el código se gasta una sola vez; el intercambio con PKCE
   entrega el token que el conector lleva desde entonces. El panel lista qué aplicaciones están
   conectadas y cuáles esperan decisión.
@@ -168,6 +172,7 @@ auditable. Por eso la corrida produce artefactos y no solamente pantalla:
 | `.data/capturas/*.html` | los bytes exactos que devolvió cada superficie, tanto al consultarla (`capturar`) como al enviarle un formulario (`enviar`), aceptaciones y rechazos por igual | comparar lo anunciado antes del envío con lo expuesto después, leer cómo se presenta la fecha y leer el texto exacto de cada rechazo |
 | `.data/sesiones/*.json` | las cookies de cada participante sintético entre llamadas | que una secuencia de votos sea del mismo participante y no de uno nuevo cada vez |
 | `.data/evidencia.json` | canales y su estado, calibraciones con su aprobación o su discrepancia, propuestas, rondas con su conjunto derivado y sus autorizaciones, evaluaciones con evaluador, razones y dudas, invitaciones, registros vinculados, votos, llamadas, solicitudes y lista publicada con sus tres señales | seguir un identificador a lo largo de todo el recorrido sin repetir la corrida |
+| `.data/evidencia.json` → `conexiones` y `tokens` | qué aplicación pidió conectarse, cuándo, y cuándo el creador la aprobó; y qué tokens existieron, de qué tipo y si fueron revocados, cada uno por su huella y nunca por su valor | comprobar después que la autorización ocurrió y que un token revocado dejó de servir, sin depender del relato |
 | `artefactos` dentro de la evidencia | nombre, tamaño y SHA-256 de cada archivo anterior | comprobar que lo que se lee después es lo que la corrida produjo |
 
 Dos cosas no salen nunca en la evidencia: el contacto de un participante, y los secretos que

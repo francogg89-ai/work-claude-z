@@ -35,6 +35,7 @@ from circuit import access
 from circuit.store import Store
 
 SCOPE = "circuito"
+CONSENT_PATH = "/conectar"
 CODE_TTL_SECONDS = 300
 TOKEN_TTL_SECONDS = 60 * 60 * 8
 REFRESH_TTL_SECONDS = 60 * 60 * 24 * 30
@@ -95,7 +96,10 @@ class CreatorAuthorization(OAuthAuthorizationServerProvider[AuthorizationCode, R
             "resource": params.resource,
             "client_name": client.client_name or client.client_id,
         })
-        return f"{self.public_base}{access.panel_path(self.capability)}/conectar?solicitud={request_id}"
+        # The URL handed to the authorization agent carries no secret: it travels over the
+        # public exposure, into browser history and into whatever logs sit in between. What
+        # proves the creator on the other end is their session, opened by reaching the panel.
+        return f"{self.public_base}{CONSENT_PATH}?solicitud={request_id}"
 
     def approve(self, request_id: str, at: str) -> str:
         """The creator approves on the panel: issue the code and build the redirect back.
