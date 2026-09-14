@@ -138,6 +138,27 @@ def cmd_seed(args) -> int:
     return 0
 
 
+def cmd_calibrar(args) -> int:
+    """Propose the interpretation of a channel's criteria, for the creator to review.
+
+    In a real operation the creator's AI proposes it through MCP. Preparing a run needs the call
+    open before seeding, and that is before any AI is connected, so this local executor proposes
+    it and says so in the text. It opens nothing: approving stays in the panel.
+    """
+    db = store()
+    channel = db.get_channel(args.canal)
+    saved = db.save_calibration(
+        args.canal,
+        f"Propuesta del ejecutor local para preparar la corrida. {channel['criteria']}",
+        [{"propuesta": "Un episodio concreto que se puede grabar con lo que ya hay",
+          "resultado": "preseleccionada",
+          "explicacion": "Está conectado con el canal y es realizable con pocos recursos."}])
+    db.close()
+    print(f"Calibración propuesta para {saved['channel_id']}. El canal sigue en preparación "
+          "hasta que el creador la apruebe en el panel.")
+    return 0
+
+
 def cmd_enlaces(args) -> int:
     base = args.base.rstrip("/")
     print(f"Guía y formulario público : {base}/")
@@ -405,6 +426,11 @@ def main(argv=None) -> int:
     seed.add_argument("--desde", type=int, default=1,
                       help="número inicial, para que dos tandas no repitan el mismo texto")
     seed.set_defaults(func=cmd_seed)
+
+    calibrate = sub.add_parser("calibrar", help="proponer la interpretación de los criterios "
+                                                "de un canal, sin abrirlo")
+    calibrate.add_argument("--canal", default=CONVOCATORIA)
+    calibrate.set_defaults(func=cmd_calibrar)
 
     links = sub.add_parser("enlaces", help="mostrar los enlaces de las tres superficies")
     links.set_defaults(func=cmd_enlaces)

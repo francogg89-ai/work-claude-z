@@ -279,3 +279,108 @@ def test_the_export_shows_a_revoked_token_as_revoked(local, circuito, serve, cap
     evidence = json.loads(destination.read_text(encoding="utf-8"))
     revocados = [t for t in evidence["tokens"] if t["revoked_at"]]
     assert [t["kind"] for t in revocados] == ["acceso"]
+
+
+@pytest.fixture()
+def fresh(tmp_path, monkeypatch):
+    """A real base on disk, created by the command line the way a run creates it."""
+    monkeypatch.setattr(launch, "DATA", tmp_path)
+    monkeypatch.setattr(launch, "DB", tmp_path / "circuito.sqlite")
+    monkeypatch.setattr(launch, "CAPABILITY_FILE", tmp_path / "capacidad")
+    (tmp_path / "capacidad").write_text(CAPABILITY, encoding="utf-8")
+    return tmp_path
+
+
+@pytest.fixture()
+def serve_fresh(fresh, clock):
+    from circuit.store import Store
+    from tests.conftest import _serving
+
+    db = Store(fresh / "circuito.sqlite")
+    yield from _serving(db, clock)
+    db.close()
+
+
+def _channel(fresh, channel_id):
+    from circuit.store import Store
+
+    db = Store(fresh / "circuito.sqlite")
+    try:
+        return db.get_channel(channel_id), db.list_proposals(channel_id)["items"]
+    finally:
+        db.close()
+
+
+def test_seeding_right_after_init_is_refused_because_the_call_is_not_open_yet(fresh, capsys):
+    from circuit.store import ClosedChannelError
+
+    launch.main(["init", "--seleccionadas", "4", "--votos", "3"])
+    with pytest.raises(ClosedChannelError):
+        launch.main(["sembrar", "--canal", launch.CONVOCATORIA, "--cantidad", "8"])
+    channel, proposals = _channel(fresh, launch.CONVOCATORIA)
+    assert channel["status"] == "preparacion"
+    assert proposals == []
+
+
+def test_calibrating_from_the_command_line_proposes_without_opening(fresh, capsys):
+    from circuit.store import ClosedChannelError, Store
+
+    launch.main(["init", "--seleccionadas", "4", "--votos", "3"])
+    assert launch.main(["calibrar", "--canal", launch.CONVOCATORIA]) == 0
+    db = Store(fresh / "circuito.sqlite")
+    try:
+        calibration = db.get_calibration(launch.CONVOCATORIA)
+        assert calibration["reviewed_at"] is None
+        assert "ejecutor local" in calibration["interpretation"]
+        assert calibration["examples"]
+    finally:
+        db.close()
+    with pytest.raises(ClosedChannelError):
+        launch.main(["sembrar", "--canal", launch.CONVOCATORIA, "--cantidad", "8"])
+
+
+def test_the_preparation_sequence_of_c_u2_4_completes(fresh, serve_fresh, capsys):
+    import httpx
+
+    launch.main(["init", "--seleccionadas", "4", "--votos", "3"])
+    launch.main(["calibrar", "--canal", launch.CONVOCATORIA])
+    base = serve_fresh()
+    panel = base + access.panel_path(CAPABILITY)
+    assert httpx.get(panel).status_code == 200
+    approved = httpx.post(panel + "/calibracion/aprobar", data={"channel_id": launch.CONVOCATORIA})
+    assert approved.status_code == 303
+
+    assert launch.main(["sembrar", "--canal", launch.CONVOCATORIA, "--cantidad", "8"]) == 0
+    assert "P-008" in capsys.readouterr().out
+    channel, proposals = _channel(fresh, launch.CONVOCATORIA)
+    assert channel["status"] == "abierta"
+    assert [p["id"] for p in proposals] == [f"P-{n:03d}" for n in range(1, 9)]
+    assert _channel(fresh, launch.PERMANENTE)[0]["status"] == "preparacion"
+
+
+def test_the_form_receives_only_while_the_call_is_open_so_assisted_runs_precede_the_cut(
+        fresh, serve_fresh, capsys):
+    import httpx
+
+    from circuit.store import Store
+
+    launch.main(["init", "--seleccionadas", "4", "--votos", "3"])
+    launch.main(["calibrar", "--canal", launch.CONVOCATORIA])
+    base = serve_fresh()
+    httpx.post(base + access.panel_path(CAPABILITY) + "/calibracion/aprobar",
+               data={"channel_id": launch.CONVOCATORIA})
+    launch.main(["sembrar", "--canal", launch.CONVOCATORIA, "--cantidad", "8"])
+    form = {"channel_id": launch.CONVOCATORIA,
+            "what": "[SINTETICO] Propongo un episodio sobre cómo verificar noticias.",
+            "why": "Aporta porque mucha gente comparte cosas falsas sin darse cuenta.",
+            "example": "", "author": "Participante sintético",
+            "contact": "participante.sintetico@example.invalid"}
+
+    assert httpx.post(base + "/propuestas", data=form).status_code == 200
+    db = Store(fresh / "circuito.sqlite")
+    try:
+        db.open_round(launch.CONVOCATORIA, cut_at="2099-01-01T00:00:00+00:00")
+    finally:
+        db.close()
+    assert httpx.post(base + "/propuestas", data=form).status_code == 400
+    assert "Participación cerrada" in httpx.get(base + "/").text
