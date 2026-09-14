@@ -348,7 +348,11 @@ def cmd_exportar(args) -> int:
         },
         "canales": channels,
         "calibraciones": _calibrations(db, channels),
-        "propuestas": {c["id"]: db.list_proposals(c["id"], limit=100)["items"] for c in channels},
+        # The whole body received —what, why, example— is what a run is judged against; the
+        # listing alone carries only `what`. get_proposal never reads the contact.
+        "propuestas": {c["id"]: [db.get_proposal(p["id"])
+                                 for p in db.list_proposals(c["id"], limit=100)["items"]]
+                       for c in channels},
         "rondas": [{**r, "propuestas": [p["id"] for p in db.round_proposals(r["id"])],
                     "autorizaciones": {kind: db.is_authorized(r["id"], kind)
                                        for kind in ("invitar", "publicar")}}

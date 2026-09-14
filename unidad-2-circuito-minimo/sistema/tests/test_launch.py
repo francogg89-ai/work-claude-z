@@ -68,6 +68,30 @@ def test_the_export_preserves_the_run_without_leaking_the_capability(local, circ
     assert evidence["campos_declarados"]["publicables"] == [f.name for f in domain.PUBLISHABLE_FIELDS]
 
 
+def test_the_export_keeps_the_whole_body_received_and_never_the_contact(local, circuito, capsys):
+    """C-U2-5: the export listed only `what`, so the text sent in R5 and R6 had to be retyped."""
+    from tests.conftest import submission
+
+    sent = submission(1, why="Aporta porque responde una duda del chat.",
+                      example="Un caso que me pasó la semana pasada.",
+                      contact="uno.sintetico@example.invalid")
+    circuito.receive_proposal(sent, at="2026-09-02T10:00:00+00:00")
+    destination = local / "evidencia.json"
+    launch.main(["exportar", "--destino", str(destination)])
+    capsys.readouterr()
+
+    raw = destination.read_text(encoding="utf-8")
+    received = json.loads(raw)["propuestas"][CONVOCATORIA][0]
+    assert received["id"] == "P-001"
+    assert received["channel_id"] == CONVOCATORIA
+    for field in ("what", "why", "example", "author"):
+        assert received[field] == sent[field]
+    assert received["received_at"] == "2026-09-02T10:00:00+00:00"
+    assert received["synthetic"]
+    assert "contact" not in received
+    assert "uno.sintetico@example.invalid" not in raw
+
+
 def test_the_local_evaluator_can_be_run_from_the_command_line(local, circuito, capsys):
     launch.main(["sembrar", "--canal", CONVOCATORIA, "--cantidad", "2"])
     round_ = circuito.open_round(CONVOCATORIA, cut_at="2099-01-01T00:00:00+00:00")
