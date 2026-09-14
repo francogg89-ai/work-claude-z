@@ -14,7 +14,8 @@ import pytest
 from circuit import launch
 
 UNIT = Path(__file__).resolve().parents[2]
-DOCUMENTS = [UNIT / "CONTRATO-C-U2-5.md", UNIT / "CHECKPOINT_HUMANO-C-U2-5.md"]
+DOCUMENTS = [UNIT / "CONTRATO-C-U2-5.md", UNIT / "CHECKPOINT_HUMANO-C-U2-5.md",
+             UNIT / "CONTRATO-C-U2-6.md", UNIT / "CHECKPOINT_HUMANO-C-U2-6.md"]
 BASE = "https://ejemplo.invalid"
 PLACEHOLDERS = {"<BASE>": BASE, "<corrida>-<repetición>": "R5-1", "<nombre>": "R5-1"}
 # A command starts with an option or a subcommand; "python -m circuit.launch …" in prose is not one.

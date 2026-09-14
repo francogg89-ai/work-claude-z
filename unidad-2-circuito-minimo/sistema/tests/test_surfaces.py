@@ -29,6 +29,14 @@ def test_the_guide_shows_objective_criteria_conditions_deadlines_and_how_to_take
     assert "Buzón permanente" in page
 
 
+def test_the_guide_tells_an_assistant_to_keep_the_idea_as_the_participant_gave_it(serve):
+    """C-U2-5 R6: an assistant turned «que hablen de música» into a narrower topic it chose."""
+    page = httpx.get(serve() + "/").text
+    assert "No conviertas la idea en un tema más específico" in page
+    assert "con sus propias palabras" in page
+    assert "decile qué falta" in page
+
+
 def test_the_guide_announces_every_publishable_field_and_the_private_one(serve):
     page = httpx.get(serve() + "/").text
     for declared in domain.PUBLISHABLE_FIELDS:
