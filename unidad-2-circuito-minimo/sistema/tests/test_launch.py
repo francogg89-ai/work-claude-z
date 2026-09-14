@@ -92,6 +92,25 @@ def test_the_export_keeps_the_whole_body_received_and_never_the_contact(local, c
     assert "uno.sintetico@example.invalid" not in raw
 
 
+def test_the_export_keeps_when_each_authorization_was_granted(local, circuito, capsys):
+    """C2.6 compares publicar_finalistas with granted_at; the rounds only said true or false."""
+    from tests.conftest import submission
+
+    circuito.receive_proposal(submission(1, contact="uno.sintetico@example.invalid"),
+                              at="2026-09-02T10:00:00+00:00")
+    round_ = circuito.open_round(CONVOCATORIA, cut_at="2026-09-30T00:00:00+00:00")
+    circuito.authorize(round_["id"], "publicar", at="2026-09-30T01:30:00+00:00")
+    destination = local / "evidencia.json"
+    launch.main(["exportar", "--destino", str(destination)])
+    capsys.readouterr()
+
+    raw = destination.read_text(encoding="utf-8")
+    assert json.loads(raw)["autorizaciones"] == [
+        {"round_id": round_["id"], "kind": "publicar", "granted_at": "2026-09-30T01:30:00+00:00"}]
+    assert "uno.sintetico@example.invalid" not in raw
+    assert CAPABILITY not in raw and launch.capability() not in raw
+
+
 def test_the_local_evaluator_can_be_run_from_the_command_line(local, circuito, capsys):
     launch.main(["sembrar", "--canal", CONVOCATORIA, "--cantidad", "2"])
     round_ = circuito.open_round(CONVOCATORIA, cut_at="2099-01-01T00:00:00+00:00")

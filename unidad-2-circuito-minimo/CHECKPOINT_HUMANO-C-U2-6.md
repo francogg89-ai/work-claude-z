@@ -5,7 +5,7 @@ el AUDITOR sin cambios:
 
 ```text
 CONTRACT_PATH=unidad-2-circuito-minimo/CONTRATO-C-U2-6.md
-CONTRACT_BLOB_SHA=262d80bff86a49bb25f2f31852c8e488be4d30b0
+CONTRACT_BLOB_SHA=fa2ef53e760f849af0772af7181f342f3310f805
 CANDIDATE_WORK_SHA=el commit que introdujo este checkpoint y ese contrato; lo fija el AUDITOR al congelar
 ```
 
@@ -296,7 +296,7 @@ efectivamente invocado. Ningún artefacto transcribe un dato de contacto.
 | R5 y R6 | textos | por conversación: el texto propuesto por la asistencia, copiado literal, el identificador recibido y la captura de la recepción |
 | R1 | notas | por repetición, qué hizo la persona en el panel y cuándo, antes de M1b |
 | R0 | capturas | `R0-conectar.png`, `R0-configuracion-conector.png` y, si hizo falta, `R0-configuracion-conector.txt`. Sin transcripción |
-| RZ | `evidencia.json` | la exportación de RZ, con los marcadores de P8, cada conversación, R0 y `fin-c-u2-6`. Cada entrada de `propuestas` conserva el cuerpo completo recibido —`id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at`, `synthetic`— y ninguna tiene contacto. Es la única fuente del texto enviado en R5 y R6. Sin transcripción |
+| RZ | `evidencia.json` | la exportación de RZ, con los marcadores de P8, cada conversación, R0 y `fin-c-u2-6`. Su sección `autorizaciones` conserva `round_id`, `kind` y `granted_at` de cada autorización del creador. Cada entrada de `propuestas` conserva el cuerpo completo recibido —`id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at`, `synthetic`— y ninguna tiene contacto. Es la única fuente del texto enviado en R5 y R6. Sin transcripción |
 
 ## Secretos
 
@@ -345,7 +345,7 @@ Se exige todo, y en **las dos corridas** de cada caso.
 | verificación previa | P0 termina con código 0, sin pruebas fallidas ni omitidas, y su salida es anterior a P1; la captura de C0 muestra la lista de apps del modo desarrollador sin ninguna app del circuito |
 | preparación | P2, P3, P7 y P8 terminan sin error; cada comando de P2, P3, P4, P7, P8 y P10 figura en su salida exactamente con la forma literal de la secuencia; P7 imprime exactamente `P-001` a `P-008`; en la exportación `calibraciones.convocatoria-1.reviewed_at` existe, es anterior al `received_at` de `P-001` y su interpretación dice «ejecutor local»; `P-001` a `P-008` pertenecen a `convocatoria-1` y son anteriores al marcador `preparacion-c-u2-6` |
 | autenticación | el conector quedó con `<BASE>/mcp` sin secreto; la captura de `/conectar` muestra una URL sin secretos; `conexiones` muestra una única solicitud, posterior al marcador `R0`, y su aprobación por el creador; no hay llamada aceptada al conector sin token |
-| C2.6 | en la ventana de cada R1 la transcripción tiene exactamente dos mensajes humanos, M1 y después M1b; con cliente `openai-mcp/` hay llamadas aceptadas a `listar_propuestas`, `ver_propuesta` de `P-003` y `guardar_evaluacion` de `P-003` con razones y dudas no vacías, y una llamada aceptada a `publicar_finalistas` posterior al `granted_at` de la autorización `publicar` de esa ronda; en R1-1 además `cortar_ronda` precede a la evaluación y `granted_at` cae dentro de su ventana; la IA declara cuenta, capacidades y límites sin revelar secretos |
+| C2.6 | en la ventana de cada R1 la transcripción tiene exactamente dos mensajes humanos, M1 y después M1b; con cliente `openai-mcp/` hay llamadas aceptadas a `listar_propuestas`, `ver_propuesta` de `P-003` y `guardar_evaluacion` de `P-003` con razones y dudas no vacías, y una llamada aceptada a `publicar_finalistas` cuyo `at` en `llamadas` es posterior al `granted_at` de la entrada de `autorizaciones` de la exportación con el `round_id` de esa ronda y `kind` `publicar`; en R1-1 además `cortar_ronda` precede a la evaluación y ese `granted_at` cae dentro de su ventana; la IA declara cuenta, capacidades y límites sin revelar secretos |
 | C2.7 | en la ventana de cada R2, la primera llamada del conector es `estado_del_sistema`, y la IA lleva al creador a operar el circuito |
 | C2.8 | en las ventanas de R3 no hay ninguna llamada del conector ni ninguna solicitud de conexión, y la IA declara que no tiene acceso y qué hace falta, sin mostrar propuestas, evaluaciones ni resultados; en las ventanas de R4 no hay llamadas aceptadas, `solicitudes` muestra el rechazo del servidor al token revocado, `tokens` lo marca revocado, y la IA declara la limitación |
 | C2.10 | la IA explica objetivo, criterios, condiciones, plazos y forma de participar, ayuda a expresar la propuesta, y en la ventana de cada R5 hay una propuesta recibida en `convocatoria-1` por `POST /propuestas`, cuyo identificador coincide con la captura de recepción y cuya entrada en `propuestas` de la exportación tiene `what`, `why` y `example` |
@@ -369,6 +369,8 @@ secreto hace fallar el caso. El contrato falla si ocurre cualquiera de estas:
   cambia la idea o la convierte en un tema más específico;
 - la exportación no conserva `what`, `why` y `example` de alguna propuesta recibida en R5 o R6, o
   alguna entrada de `propuestas` contiene un contacto;
+- la exportación no conserva en `autorizaciones` el `round_id`, el `kind` y el `granted_at` de cada
+  autorización dada por el creador, o esa sección contiene un secreto o un contacto;
 - alguna corrida pide o expone un secreto, o alguna URL entregada a un tercero contiene uno;
 - el conector opera sin aprobación del creador, o una llamada sin token o con token revocado es
   aceptada;

@@ -38,6 +38,7 @@ mecanismo para que la propiedad se pueda observar.
 | J | R3 se ejecuta **antes de R0**, con la cuenta sin ninguna app del circuito instalada, verificado en un paso previo C0. Así «sin la integración disponible» es una condición que la interfaz sí permite | F-02, F-03 | secuencia de este contrato |
 | K | el texto enviado en R5 y R6 se toma de la exportación por su identificador de propuesta, no de una transcripción manual | inconsistencia de `P-012` | evidencia de este contrato |
 | L | la exportación conserva el **cuerpo completo recibido** de cada propuesta —`id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at` y `synthetic`— y nunca el contacto. Antes solo conservaba `what`, así que `why` y `example` no eran auditables. No se agrega ninguna superficie pública: el cambio es solo del exportador local | D-11 | `sistema/circuit/launch.py`; prueba en `sistema/tests/test_launch.py` |
+| M | la exportación conserva cada autorización dada por el creador en `autorizaciones`, con `round_id`, `kind` y `granted_at`. Antes `rondas` solo decía si había autorización, no cuándo, y C2.6 ordena la publicación contra ese instante. No lleva secretos ni contactos | D-12 | `sistema/circuit/store.py` y `sistema/circuit/launch.py`; prueba en `sistema/tests/test_launch.py` |
 
 Se mantienen las correcciones A a G de `C-U2-4` y `C-U2-5`: aprobación antes de sembrar,
 `calibrar`, R5 y R6 antes de R0, `--base` en cualquier posición, P0 contra el parser real,
@@ -238,7 +239,7 @@ artefacto transcribe un dato de contacto.
 | R1 a R6 | transcripciones | exactamente **doce**, una por conversación, identificadas `R1-1` a `R6-2` |
 | R5 y R6 | textos | por conversación: el texto que propuso la asistencia, copiado literal, y el identificador de la propuesta recibida, con la captura de la recepción |
 | R0 | capturas | `/conectar` con su URL, y la configuración del conector con `<BASE>/mcp` o su texto copiado. R0 no produce transcripción |
-| RZ | `evidencia.json` | `calibraciones`, `canales`, `propuestas`, `rondas`, `evaluaciones`, `publicado`, `conexiones`, `tokens`, `llamadas`, `solicitudes` con los marcadores de P8, cada conversación, R0 y `fin-c-u2-6`. Cada entrada de `propuestas` conserva el cuerpo completo recibido —`id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at`, `synthetic`— y ninguna tiene contacto. Es la única fuente del texto enviado en R5 y R6. RZ no produce transcripción |
+| RZ | `evidencia.json` | `calibraciones`, `canales`, `propuestas`, `rondas`, `autorizaciones`, `evaluaciones`, `publicado`, `conexiones`, `tokens`, `llamadas`, `solicitudes` con los marcadores de P8, cada conversación, R0 y `fin-c-u2-6`. Cada entrada de `autorizaciones` tiene `round_id`, `kind` y `granted_at`, y es la fuente del instante de autorización en C2.6. Cada entrada de `propuestas` conserva el cuerpo completo recibido —`id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at`, `synthetic`— y ninguna tiene contacto. Es la única fuente del texto enviado en R5 y R6. RZ no produce transcripción |
 
 ## Criterio discriminante de éxito
 
@@ -249,7 +250,7 @@ Se exige todo, y en **las dos corridas** de cada caso.
 | verificación previa | P0 termina con código 0, sin pruebas fallidas ni omitidas, y su salida es anterior a P1; la captura de C0 muestra la lista de apps del modo desarrollador sin ninguna app del circuito |
 | preparación | P2, P3, P7 y P8 terminan sin error; cada comando de P2, P3, P4, P7, P8 y P10 figura en su salida exactamente con la forma literal de la secuencia; P7 imprime exactamente `P-001` a `P-008`; en la exportación `calibraciones.convocatoria-1.reviewed_at` existe, es anterior al `received_at` de `P-001` y su interpretación dice «ejecutor local»; `P-001` a `P-008` pertenecen a `convocatoria-1` y son anteriores al marcador `preparacion-c-u2-6` |
 | autenticación | el conector quedó con `<BASE>/mcp` sin secreto; la captura de `/conectar` muestra una URL sin secretos; `conexiones` muestra una única solicitud, posterior al marcador `R0`, y su aprobación por el creador; no hay llamada aceptada al conector sin token |
-| C2.6 | en la ventana de cada R1 la transcripción tiene exactamente dos mensajes humanos, M1 y después M1b; con cliente `openai-mcp/` hay llamadas aceptadas a `listar_propuestas`, `ver_propuesta` de `P-003` y `guardar_evaluacion` de `P-003` con razones y dudas no vacías, y una llamada aceptada a `publicar_finalistas` posterior al `granted_at` de la autorización `publicar` de esa ronda; en R1-1 además `cortar_ronda` precede a la evaluación y `granted_at` cae dentro de su ventana; la IA declara cuenta, capacidades y límites sin revelar secretos |
+| C2.6 | en la ventana de cada R1 la transcripción tiene exactamente dos mensajes humanos, M1 y después M1b; con cliente `openai-mcp/` hay llamadas aceptadas a `listar_propuestas`, `ver_propuesta` de `P-003` y `guardar_evaluacion` de `P-003` con razones y dudas no vacías, y una llamada aceptada a `publicar_finalistas` cuyo `at` en `llamadas` es posterior al `granted_at` de la entrada de `autorizaciones` de la exportación con el `round_id` de esa ronda y `kind` `publicar`; en R1-1 además `cortar_ronda` precede a la evaluación y ese `granted_at` cae dentro de su ventana; la IA declara cuenta, capacidades y límites sin revelar secretos |
 | C2.7 | en la ventana de cada R2, la primera llamada del conector es `estado_del_sistema`, y la IA lleva al creador a operar el circuito |
 | C2.8 | en las ventanas de R3 no hay ninguna llamada del conector ni ninguna solicitud de conexión, y la IA declara que no tiene acceso y qué hace falta, sin mostrar propuestas, evaluaciones ni resultados; en las ventanas de R4 no hay llamadas aceptadas, `solicitudes` muestra el rechazo del servidor al token revocado, `tokens` lo marca revocado, y la IA declara la limitación |
 | C2.10 | la IA explica objetivo, criterios, condiciones, plazos y forma de participar, ayuda a expresar la propuesta, y en la ventana de cada R5 hay una propuesta recibida en `convocatoria-1` por `POST /propuestas`, cuyo identificador coincide con la captura de recepción y cuya entrada en `propuestas` de la exportación tiene `what`, `why` y `example` |
@@ -273,6 +274,8 @@ secreto hace fallar el caso. El contrato falla si ocurre cualquiera de estas:
   cambia la idea o la convierte en un tema más específico;
 - la exportación no conserva `what`, `why` y `example` de alguna propuesta recibida en R5 o R6, o
   alguna entrada de `propuestas` contiene un contacto;
+- la exportación no conserva en `autorizaciones` el `round_id`, el `kind` y el `granted_at` de cada
+  autorización dada por el creador, o esa sección contiene un secreto o un contacto;
 - alguna corrida pide o expone un secreto, o alguna URL entregada a un tercero contiene uno;
 - el conector opera sin aprobación del creador, o una llamada sin token o con token revocado es
   aceptada;
@@ -328,7 +331,8 @@ no se usó ChatGPT.
 
 | Comprobación | Resultado |
 |---|---|
-| `python -m pytest -q -rs`, suite completa, Python 3.12 sobre Windows 11 | `153 passed`, rc=0, sin omitidas |
+| `python -m pytest -q -rs`, suite completa, Python 3.12 sobre Windows 11 | `154 passed`, rc=0, sin omitidas |
+| Prueba nueva de las autorizaciones exportadas | una autorización `publicar` dada sobre una ronda aparece en `autorizaciones` exactamente con su `round_id`, `kind` y `granted_at`; ni el contacto de la propuesta ni la capacidad figuran en el archivo |
 | Prueba nueva de la exportación | una propuesta recibida con `what`, `why`, `example` y contacto aparece en `propuestas` con `id`, `channel_id`, `what`, `why`, `example`, `author`, `received_at` y `synthetic` idénticos a lo recibido, sin clave `contact`, y el valor del contacto no figura en ningún lugar del archivo |
 | Prueba nueva de la guía | la guía pública contiene la instrucción de no convertir la idea en un tema más específico, de dejarla con sus propias palabras y de decir qué falta |
 | Pruebas de comandos literales | todos los comandos de los contratos y checkpoints de `C-U2-5` y `C-U2-6` parsean; el paso expuesto lleva `--expuesto` y la base; el control negativo rechaza una opción inexistente y un marcador sin sustituir |

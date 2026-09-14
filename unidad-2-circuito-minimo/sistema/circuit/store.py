@@ -413,6 +413,13 @@ class Store:
             "SELECT 1 FROM authorizations WHERE round_id = ? AND kind = ?", (round_id, kind)).fetchone()
         return row is not None
 
+    def all_authorizations(self) -> list[dict]:
+        """Every authorization the creator granted, with its instant. It holds no secret."""
+        rows = self._db.execute(
+            "SELECT round_id, kind, granted_at FROM authorizations ORDER BY granted_at, round_id, kind"
+        ).fetchall()
+        return [dict(r) for r in rows]
+
     def _require_authorization(self, round_id: str, kind: str) -> None:
         if not self.is_authorized(round_id, kind):
             raise NotAuthorizedError(

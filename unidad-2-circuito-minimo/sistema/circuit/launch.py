@@ -357,6 +357,8 @@ def cmd_exportar(args) -> int:
                     "autorizaciones": {kind: db.is_authorized(r["id"], kind)
                                        for kind in ("invitar", "publicar")}}
                    for c in channels for r in db.rounds_of(c["id"])],
+        # When the creator authorized, not only whether: C2.6 orders publication after granted_at.
+        "autorizaciones": db.all_authorizations(),
         "evaluaciones": db.all_evaluations(),
         "invitaciones": db.all_invitations(),
         "registros_vinculados": db.all_records(),
