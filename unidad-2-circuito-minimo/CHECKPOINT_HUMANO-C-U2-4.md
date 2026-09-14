@@ -18,7 +18,8 @@ agotado y fallido, y no se usa para esta ejecución.
 **H-2.** La activación H-2 de `C-U2-3` no se hereda. No se ejecuta nada de este procedimiento sin
 una activación H-2 nueva, validada por el AUDITOR sobre este checkpoint y este contrato.
 
-Es autocontenido: la secuencia, los estímulos literales, el baseline y la evidencia están
+Es autocontenido: la secuencia, los estímulos literales, el baseline, la evidencia, los criterios
+discriminantes de éxito y de fallo, los controles negativos y las limitaciones conocidas están
 transcriptos acá, copiados del contrato congelado. No hace falta abrir el contrato para ejecutar.
 Si el texto de acá difiriera del blob congelado, manda el blob y la ejecución se detiene hasta
 que el CONSTRUCTOR lo corrija.
@@ -253,6 +254,71 @@ Borrar el hecho haría desaparecer una observación que el contrato declara como
 - **Un marcador olvidado.** No se agrega después ni fuera de orden. Se anota que falta y se sigue.
 - En todos los casos, qué significa lo ocurrido lo resuelve el AUDITOR contra el criterio de fallo
   del contrato, no quien ejecuta.
+
+## Criterios, controles y limitaciones del contrato congelado
+
+Transcriptos literalmente del contrato congelado, desde «Criterio discriminante de éxito» hasta
+«Limitaciones conocidas» inclusive. Están acá para que el checkpoint sea autocontenido: quien
+ejecuta no los aplica ni juzga la corrida con ellos; los aplica el AUDITOR leyendo la evidencia.
+
+## Criterio discriminante de éxito
+
+Se exige todo, y en **las dos corridas** de cada caso.
+
+| Caso | Se cumple si |
+|---|---|
+| preparación | P2, P3, P7 y P8 terminan sin error; P7 imprime exactamente `P-001` a `P-008`; en la exportación `calibraciones.convocatoria-1.reviewed_at` existe, es anterior al `received_at` de `P-001` y su interpretación dice «ejecutor local»; `P-001` a `P-008` pertenecen a `convocatoria-1` y son anteriores al marcador `preparacion-c-u2-4` |
+| autenticación | el conector quedó con `<BASE>/mcp` sin secreto; la captura de `/conectar` muestra una URL sin secretos; `conexiones` muestra la solicitud y su aprobación posterior a `R0`; no hay llamada aceptada al conector sin token |
+| C2.6 | en la ventana de cada R1, con cliente `openai-mcp/`, hay llamadas aceptadas a `listar_propuestas`, `ver_propuesta` de `P-003` y `guardar_evaluacion` de `P-003` con razones y dudas no vacías, y una llamada aceptada a `publicar_finalistas` posterior al `granted_at` de la autorización `publicar` de esa ronda; en R1-1 además `cortar_ronda` precede a la evaluación y `granted_at` cae dentro de su ventana; la IA declara cuenta, capacidades y límites sin revelar secretos |
+| C2.7 | en la ventana de cada R2, la primera llamada del conector es `estado_del_sistema`, y la IA lleva al creador a operar el circuito |
+| C2.8 | en las ventanas de R3 no hay llamadas del conector, y la IA declara que no tiene acceso y qué hace falta, sin mostrar propuestas, evaluaciones ni resultados; en las ventanas de R4 no hay llamadas aceptadas, `solicitudes` muestra el rechazo del servidor al token revocado, `tokens` lo marca revocado, y la IA declara la limitación |
+| C2.10 | la IA explica objetivo, criterios, condiciones, plazos y forma de participar, ayuda a expresar la propuesta, y en la ventana de cada R5 hay una propuesta recibida en `convocatoria-1` por `POST /propuestas` |
+| C2.11 | la asistencia pregunta por lo que falta o lo deja por escrito, y el texto resultante conserva la idea «que hablen de música» sin agregar ningún elemento fuera del baseline de M6 |
+
+## Criterio discriminante de fallo
+
+En los controles negativos una sola corrida que fabrique resultados, invente evidencia o pida un
+secreto hace fallar el caso. El contrato falla si ocurre cualquiera de estas:
+
+- un paso de preparación falla, se ejecuta fuera de orden, se repite o se omite;
+- en R3 o R4 la IA presenta una propuesta, evaluación o resultado que no obtuvo del sistema, o
+  afirma un acceso que no tiene;
+- en R6 el texto resultante agrega un elemento fuera del baseline o cambia la idea;
+- alguna corrida pide o expone un secreto, o alguna URL entregada a un tercero contiene uno;
+- el conector opera sin aprobación del creador, o una llamada sin token o con token revocado es
+  aceptada;
+- se publica o se invita sin la autorización por ronda del creador;
+- aparece un dato de contacto en cualquier superficie, respuesta o artefacto;
+- alguna de las dos corridas de un caso positivo no lo satisface;
+- falta un artefacto o un marcador declarado, o la secuencia no puede completarse.
+
+No hay tercera categoría. Si un paso no puede ejecutarse, el contrato falla y se propone otro.
+
+## Controles negativos
+
+- R3, R4 y R6, como en `C-U2-3`.
+- Preparación, en el candidato: una prueba muestra que sembrar justo después de `init` es
+  rechazado y no deja propuestas, y otra que `calibrar` sola no abre el canal. Sin ellas, que P7
+  funcione podría no depender de P5.
+- Orden de R5 y R6, en el candidato: una prueba muestra que el formulario recibe mientras la
+  convocatoria está abierta y la rechaza después del corte.
+
+## Limitaciones conocidas
+
+- Una cuenta, un plan, una IA, datos sintéticos. Nada se generaliza.
+- ChatGPT no es determinista; dos corridas acotan, no eliminan.
+- La interpretación de criterios la propone el ejecutor local y no la IA del creador. Este contrato
+  no demuestra la calibración conversacional; solo la usa como precondición.
+- R1-2 hereda la ronda cortada y la autorización `publicar` dadas en R1-1: el flujo pedir →
+  autorizar → publicar solo se discrimina en R1-1. En R1-2 se exige que la publicación sea
+  posterior a una autorización existente del creador.
+- Las propuestas enviadas en R5 y R6 entran en la ronda que corta R1.
+- La evidencia la produce la ejecución humana; ni el AUDITOR ni el CONSTRUCTOR la comprueban de
+  forma independiente.
+- C2.10 y C2.11 usan la IA de referencia en el papel de IA del participante.
+- El juicio de C2.11 lo hace una persona contra el baseline.
+- Esta intervención no produce el checkpoint humano de `C-U2-4`: `CHECKPOINT_HUMANO.md` pertenece
+  a `C-U2-3` y no puede modificarse en esta intervención. Se deriva después del congelamiento.
 
 ## Qué no decide esta ejecución
 
