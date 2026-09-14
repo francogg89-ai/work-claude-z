@@ -1,0 +1,54 @@
+# Redacción: el valor de la capacidad del panel se sustituyó por <capacidad> en cada aparición.
+# Superficie: consola de P4 (enlaces impresos y registro de solicitudes al panel). Tipo: capacidad.
+
+== P1 2026-09-14T15:32:18Z borrar .data si existe
+.data no existía
+rc=0
+== P2 2026-09-14T15:32:18Z python -m circuit.launch init --seleccionadas 4 --votos 3
+Base creada en C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z-c-u2-4\unidad-2-circuito-minimo\sistema\.data\circuito.sqlite
+Los dos canales quedan en preparación: no reciben propuestas hasta que el creador apruebe en el panel la interpretación de sus criterios.
+Guía y formulario público : http://127.0.0.1:8000/
+Portal de finalistas      : http://127.0.0.1:8000/finalistas
+Enlace de entrada del creador: http://127.0.0.1:8000/entrada-creador
+Panel del creador (privado)  : http://127.0.0.1:8000/creador/<capacidad>
+Conector MCP                 : http://127.0.0.1:8000/mcp
+El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.
+rc=0
+== P3 2026-09-14T15:32:29Z python -m circuit.launch calibrar --canal convocatoria-1
+Calibración propuesta para convocatoria-1. El canal sigue en preparación hasta que el creador la apruebe en el panel.
+rc=0
+== P4 2026-09-14T15:32:38Z python -m circuit.launch servir
+Guía y formulario público : http://127.0.0.1:8000/
+Portal de finalistas      : http://127.0.0.1:8000/finalistas
+Enlace de entrada del creador: http://127.0.0.1:8000/entrada-creador
+Panel del creador (privado)  : http://127.0.0.1:8000/creador/<capacidad>
+Conector MCP                 : http://127.0.0.1:8000/mcp
+El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.
+INFO:     Started server process [4800]
+INFO:     Waiting for application startup.
+StreamableHTTP session manager started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51740 - "GET /creador/<capacidad> HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51740 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59673 - "GET /creador/<capacidad> HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58570 - "POST /creador/<capacidad>/calibracion/aprobar HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:58570 - "GET /creador/<capacidad> HTTP/1.1" 200 OK
+rc=1
+== P6 2026-09-14T15:46:18Z detener el servidor de P4 (pid 4800)
+CORRECTO: el proceso con PID 4800 (proceso secundario de PID 19568)
+ha sido terminado.
+rc=0
+== P7 2026-09-14T15:46:18Z python -m circuit.launch sembrar --canal convocatoria-1 --cantidad 8
+P-001  [SINTETICO] Propongo una serie de entrevistas a oyentes para
+P-002  [SINTETICO] Propongo un debate sobre hábitos de lectura para
+P-003  [SINTETICO] Propongo una guía de herramientas gratuitas para
+P-004  [SINTETICO] Propongo un especial sobre música independiente 
+P-005  [SINTETICO] Propongo una charla sobre divulgación responsabl
+P-006  [SINTETICO] Propongo un episodio sobre historia de la cienci
+P-007  [SINTETICO] Propongo un taller en vivo de edición de audio p
+P-008  [SINTETICO] Propongo una guía de herramientas gratuitas para
+rc=0
+== P8 2026-09-14T15:46:20Z python -m circuit.launch marcar preparacion-c-u2-4
+Marcador: preparacion-c-u2-4
+rc=0

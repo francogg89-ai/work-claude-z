@@ -1,0 +1,16 @@
+# Redacción: capacidad sustituida por <capacidad> donde apareció (consola de P10). Tipo: capacidad.
+
+== P10 2026-09-14T15:46:48Z python -m circuit.launch servir --expuesto --base https://prince-donald-clearance-workstation.trycloudflare.com
+Guía y formulario público : https://prince-donald-clearance-workstation.trycloudflare.com/
+Portal de finalistas      : https://prince-donald-clearance-workstation.trycloudflare.com/finalistas
+Enlace de entrada del creador: https://prince-donald-clearance-workstation.trycloudflare.com/entrada-creador
+Panel del creador (privado)  : https://prince-donald-clearance-workstation.trycloudflare.com/creador/<capacidad>
+Conector MCP                 : https://prince-donald-clearance-workstation.trycloudflare.com/mcp
+El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.
+INFO:     Started server process [13036]
+INFO:     Waiting for application startup.
+StreamableHTTP session manager started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+== DETENCION 2026-09-14T15:47:36Z detener servidor de P10 (pid 13036)
+rc=1
