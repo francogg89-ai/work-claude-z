@@ -78,37 +78,54 @@ de P1 a P8 se preserva.
 
 El canal permanente no se calibra y queda en preparación: la guía muestra solo la convocatoria.
 
-### Corridas
+### Después de la preparación
 
-Cada corrida es una **conversación nueva de ChatGPT**, vacía, con el mensaje literal como primer y
-único mensaje. Antes de abrir cada conversación, en otra terminal:
+| Fase | Qué es | ¿Es conversación? |
+|---|---|---|
+| R5 y R6 | conversaciones 1 a 4 | sí |
+| R0 | instalación y autorización del conector | **no** |
+| R1 a R4 | conversaciones 5 a 12 | sí |
+| RZ | cierre y preservación | **no** |
+
+R0 y RZ son actos de instalación y de cierre: no llevan mensaje, no producen transcripción y no
+cuentan como corrida conversacional.
+
+### Conversaciones R1 a R6
+
+R1 a R6 se ejecutan **dos veces cada una**: son exactamente **doce conversaciones**. Cada una es
+una **conversación nueva de ChatGPT**, vacía, con el mensaje literal como primer y único mensaje.
+Antes de abrir cada conversación, en otra terminal:
 `python -m circuit.launch marcar <corrida>-<repetición>` (por ejemplo `R5-1`). Esos marcadores
 delimitan en la exportación la ventana de cada conversación.
 
-| Orden | Corrida | Conector en esa conversación | Mensaje |
+| Conversación | Corrida | Conector en esa conversación | Mensaje |
 |---|---|---|---|
-| 1–2 | R5 (×2) | **no habilitado** | M5 |
-| 3–4 | R6 (×2) | **no habilitado** | M6 |
-| 5 | R0 | instalación y autorización | — |
-| 6–7 | R1 (×2) | habilitado | M1 |
-| 8–9 | R2 (×2) | habilitado | M2 |
-| 10–11 | R3 (×2) | **no habilitado** | M1 |
-| 12–13 | R4 (×2) | habilitado, con la conexión revocada desde el panel antes de R4-1 | M1 |
-| 14 | RZ | cierre y preservación | — |
-
-**R0.** En ChatGPT web, modo desarrollador, crear una app propia cuyo servidor MCP sea
-`<BASE>/mcp`, sin código ni token en la URL. Completar la autorización: ChatGPT abre `/conectar`
-en el navegador del panel; capturar esa página mostrando que su URL no lleva secretos y qué
-aplicación pide conectarse; aprobar; capturar la configuración del conector mostrando
-`<BASE>/mcp`. Se marca con `marcar R0` antes de empezar.
+| 1–2 | R5-1, R5-2 | **no habilitado** | M5 |
+| 3–4 | R6-1, R6-2 | **no habilitado** | M6 |
+| — | R0 (no es conversación) | — | — |
+| 5–6 | R1-1, R1-2 | habilitado | M1 |
+| 7–8 | R2-1, R2-2 | habilitado | M2 |
+| 9–10 | R3-1, R3-2 | **no habilitado** | M1 |
+| 11–12 | R4-1, R4-2 | habilitado, con la conexión revocada desde el panel antes de R4-1 | M1 |
+| — | RZ (no es conversación) | — | — |
 
 **Notas.** En R1, cuando la IA pida autorización para publicar, el creador la da en el panel. En
 R5 y R6 lo que la asistencia proponga se envía por el formulario público de `<BASE>/`, y se
 guarda tanto el texto propuesto como el enviado. Si una conversación se corta, no se reemplaza:
 se preserva hasta donde llegó y se sigue con la siguiente.
 
-**RZ.** `marcar fin-c-u2-4`; `exportar --destino .data/evidencia.json`; reunir la evidencia;
-bajar la exposición.
+### R0 — instalación y autorización
+
+Se ejecuta una vez, después de R6-2 y antes de R1-1. Antes de empezar, `marcar R0`. En ChatGPT
+web, modo desarrollador, crear una app propia cuyo servidor MCP sea `<BASE>/mcp`, sin código ni
+token en la URL. Completar la autorización: ChatGPT abre `/conectar` en el navegador del panel;
+capturar esa página mostrando que su URL no lleva secretos y qué aplicación pide conectarse;
+aprobar; capturar la configuración del conector mostrando `<BASE>/mcp`.
+
+### RZ — cierre y preservación
+
+Se ejecuta una vez, después de R4-2: `marcar fin-c-u2-4`;
+`exportar --destino .data/evidencia.json`; reunir la evidencia; bajar la exposición.
 
 ## Estímulos, literales
 
@@ -157,13 +174,13 @@ En `unidad-2-circuito-minimo/evidencia-c-u2-4/`, con la redacción de secretos p
 secreto que aparezca se tacha solo en su valor sobre el mismo artefacto y se anota; el artefacto
 no se reemplaza.
 
-| Artefacto | Contenido |
-|---|---|
-| `preparacion.txt` | salida de consola de P1 a P8, con la capacidad redactada |
-| `evidencia.json` | `calibraciones`, `canales`, `propuestas`, `rondas`, `evaluaciones`, `publicado`, `conexiones`, `tokens`, `llamadas`, `solicitudes` con marcadores |
-| transcripciones | trece conversaciones, identificadas por corrida y repetición |
-| capturas de R0 | `/conectar` con su URL, y la configuración del conector con `<BASE>/mcp` |
-| textos de R5 y R6 | lo propuesto por la asistencia y lo enviado por el formulario |
+| Origen | Artefacto | Contenido |
+|---|---|---|
+| preparación | `preparacion.txt` | salida de consola de P1 a P8, con la capacidad redactada |
+| R1 a R6 | transcripciones | exactamente **doce**, una por conversación, identificadas `R1-1` a `R6-2` |
+| R5 y R6 | textos enviados | lo propuesto por la asistencia y lo enviado por el formulario |
+| R0 | capturas | `/conectar` con su URL, y la configuración del conector con `<BASE>/mcp`. R0 no produce transcripción |
+| RZ | `evidencia.json` | `calibraciones`, `canales`, `propuestas`, `rondas`, `evaluaciones`, `publicado`, `conexiones`, `tokens`, `llamadas`, `solicitudes` con los marcadores de P8, R0, cada conversación y `fin-c-u2-4`. RZ no produce transcripción |
 
 ## Criterio discriminante de éxito
 
