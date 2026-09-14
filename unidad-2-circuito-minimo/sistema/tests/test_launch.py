@@ -281,6 +281,29 @@ def test_the_export_shows_a_revoked_token_as_revoked(local, circuito, serve, cap
     assert [t["kind"] for t in revocados] == ["acceso"]
 
 
+@pytest.mark.parametrize("argv", [
+    ["--base", "https://ejemplo.invalid", "servir", "--expuesto"],
+    ["servir", "--expuesto", "--base", "https://ejemplo.invalid"],
+])
+def test_the_base_is_accepted_before_or_after_the_command(argv):
+    args = launch.build_parser().parse_args(argv)
+    assert args.base == "https://ejemplo.invalid"
+    assert args.expuesto is True
+    assert args.func is launch.cmd_serve
+
+
+def test_without_a_base_the_local_default_stays():
+    args = launch.build_parser().parse_args(["servir"])
+    assert args.base == "http://127.0.0.1:8000"
+    assert args.expuesto is False
+
+
+def test_an_unknown_argument_is_still_refused():
+    with pytest.raises(SystemExit) as refused:
+        launch.build_parser().parse_args(["servir", "--inexistente"])
+    assert refused.value.code == 2
+
+
 @pytest.fixture()
 def fresh(tmp_path, monkeypatch):
     """A real base on disk, created by the command line the way a run creates it."""

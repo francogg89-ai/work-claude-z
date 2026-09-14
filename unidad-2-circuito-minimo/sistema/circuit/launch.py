@@ -406,13 +406,21 @@ def cmd_marcar(args) -> int:
     return 0
 
 
-def main(argv=None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Circuito mínimo de propuestas de audiencia")
     parser.add_argument("--base", default="http://127.0.0.1:8000",
                         help="URL base con la que se arman los enlaces")
     sub = parser.add_subparsers(dest="comando", required=True)
+    # A written procedure put --base after the command and the parser refused it. Accepting it
+    # in either position removes that trap; SUPPRESS keeps the global default when it is absent.
+    base_option = argparse.ArgumentParser(add_help=False)
+    base_option.add_argument("--base", default=argparse.SUPPRESS,
+                             help="URL base con la que se arman los enlaces")
 
-    init = sub.add_parser("init", help="crear la base con una convocatoria y el canal permanente")
+    def command(name, **kwargs):
+        return sub.add_parser(name, parents=[base_option], **kwargs)
+
+    init = command("init", help="crear la base con una convocatoria y el canal permanente")
     init.add_argument("--cierra", default="2099-01-01T00:00:00+00:00")
     init.add_argument("--seleccionadas", type=int, default=4,
                       help="cuántas propuestas preselecciona la convocatoria")
@@ -420,65 +428,69 @@ def main(argv=None) -> int:
                       help="máximo de votos por participante y por ronda")
     init.set_defaults(func=cmd_init)
 
-    seed = sub.add_parser("sembrar", help="cargar participaciones sintéticas")
+    seed = command("sembrar", help="cargar participaciones sintéticas")
     seed.add_argument("--canal", default=CONVOCATORIA)
     seed.add_argument("--cantidad", type=int, default=12)
     seed.add_argument("--desde", type=int, default=1,
                       help="número inicial, para que dos tandas no repitan el mismo texto")
     seed.set_defaults(func=cmd_seed)
 
-    calibrate = sub.add_parser("calibrar", help="proponer la interpretación de los criterios "
+    calibrate = command("calibrar", help="proponer la interpretación de los criterios "
                                                 "de un canal, sin abrirlo")
     calibrate.add_argument("--canal", default=CONVOCATORIA)
     calibrate.set_defaults(func=cmd_calibrar)
 
-    links = sub.add_parser("enlaces", help="mostrar los enlaces de las tres superficies")
+    links = command("enlaces", help="mostrar los enlaces de las tres superficies")
     links.set_defaults(func=cmd_enlaces)
 
-    serve = sub.add_parser("servir", help="levantar el sistema")
+    serve = command("servir", help="levantar el sistema")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--puerto", type=int, default=8000)
     serve.add_argument("--expuesto", action="store_true",
                        help="detrás de un servicio de reenvío: no rechaza Host ni Origin ajenos")
     serve.set_defaults(func=cmd_serve)
 
-    evaluate = sub.add_parser("evaluar", help="evaluar una ronda con el ejecutor determinista local")
+    evaluate = command("evaluar", help="evaluar una ronda con el ejecutor determinista local")
     evaluate.add_argument("--ronda", required=True)
     evaluate.add_argument("--etapa", type=int, default=1, choices=(1, 2))
     evaluate.set_defaults(func=cmd_evaluar)
 
-    connect = sub.add_parser("conectar", help="autorizar el conector y guardar su token")
+    connect = command("conectar", help="autorizar el conector y guardar su token")
     connect.add_argument("--nombre", default="circuito-local")
     connect.set_defaults(func=cmd_conectar)
 
-    call = sub.add_parser("llamar", help="llamar una herramienta MCP por HTTP")
+    call = command("llamar", help="llamar una herramienta MCP por HTTP")
     call.add_argument("herramienta")
     call.add_argument("--argumentos", default="{}")
     call.set_defaults(func=cmd_llamar)
 
-    capture = sub.add_parser("capturar", help="guardar el HTML exacto que devolvió una superficie")
+    capture = command("capturar", help="guardar el HTML exacto que devolvió una superficie")
     capture.add_argument("--ruta", action="append", required=True)
     capture.add_argument("--nombre", help="nombre del archivo, para capturar la misma ruta "
                                           "en dos momentos distintos")
     capture.add_argument("--sesion", default="anonima")
     capture.set_defaults(func=cmd_capturar)
 
-    send = sub.add_parser("enviar", help="enviar un formulario y preservar la respuesta")
+    send = command("enviar", help="enviar un formulario y preservar la respuesta")
     send.add_argument("--ruta", required=True)
     send.add_argument("--dato", action="append", default=[], metavar="campo=valor")
     send.add_argument("--nombre", required=True)
     send.add_argument("--sesion", default="anonima")
     send.set_defaults(func=cmd_enviar)
 
-    export = sub.add_parser("exportar", help="escribir la evidencia de la corrida")
+    export = command("exportar", help="escribir la evidencia de la corrida")
     export.add_argument("--destino", default=str(DATA / "evidencia.json"))
     export.set_defaults(func=cmd_exportar)
 
-    mark = sub.add_parser("marcar", help="dejar un marcador con nota en la evidencia")
+    mark = command("marcar", help="dejar un marcador con nota en la evidencia")
     mark.add_argument("nota")
     mark.set_defaults(func=cmd_marcar)
 
-    args = parser.parse_args(argv)
+    return parser
+
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
     return args.func(args)
 
 
