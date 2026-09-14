@@ -1,0 +1,52 @@
+== marcador R5-1 2026-09-14T18:02:12Z
+$ python -m circuit.launch marcar R5-1
+Marcador: R5-1
+rc=0
+== marcador R5-2 2026-09-14T18:23:19Z
+$ python -m circuit.launch marcar R5-2
+Marcador: R5-2
+rc=0
+== marcador R6-1 2026-09-14T18:54:13Z
+$ python -m circuit.launch marcar R6-1
+Marcador: R6-1
+rc=0
+== marcador R6-2 2026-09-14T19:03:03Z
+$ python -m circuit.launch marcar R6-2
+Marcador: R6-2
+rc=0
+== marcador R0 2026-09-14T19:15:22Z
+$ python -m circuit.launch marcar R0
+Marcador: R0
+rc=0
+== marcador R1-1 2026-09-14T19:42:22Z
+$ python -m circuit.launch marcar R1-1
+Marcador: R1-1
+rc=0
+== marcador R1-2 2026-09-14T19:59:22Z
+$ python -m circuit.launch marcar R1-2
+Marcador: R1-2
+rc=0
+== marcador R2-1 2026-09-14T20:13:51Z
+$ python -m circuit.launch marcar R2-1
+Marcador: R2-1
+rc=0
+== marcador R2-2 2026-09-14T20:17:54Z
+$ python -m circuit.launch marcar R2-2
+Marcador: R2-2
+rc=0
+== marcador R3-1 2026-09-14T20:32:44Z
+$ python -m circuit.launch marcar R3-1
+Marcador: R3-1
+rc=0
+== marcador R3-2 2026-09-14T20:38:54Z
+$ python -m circuit.launch marcar R3-2
+Marcador: R3-2
+rc=0
+== marcador R4-1 2026-09-14T21:35:58Z
+$ python -m circuit.launch marcar R4-1
+Marcador: R4-1
+rc=0
+== marcador R4-2 2026-09-14T21:44:31Z
+$ python -m circuit.launch marcar R4-2
+Marcador: R4-2
+rc=0

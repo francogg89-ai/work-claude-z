@@ -1,0 +1,18 @@
+== RZ-1 2026-09-14T21:55:23Z
+$ python -m circuit.launch marcar fin-c-u2-5
+Marcador: fin-c-u2-5
+rc=0
+== RZ-2 2026-09-14T21:55:25Z
+$ python -m circuit.launch exportar --destino .data/evidencia.json
+Evidencia escrita en .data\evidencia.json
+rc=0
+== RZ-3 2026-09-14T21:55:27Z
+(acción) reunir la evidencia: copiar .data/evidencia.json al área de preservación
+rc=0
+== RZ-4 2026-09-14T21:55:28Z
+(acción) bajar la exposición pública: detener servidor de P10 (pid 26388) y Quick Tunnel
+CORRECTO: el proceso con PID 26388 (proceso secundario de PID 14588)
+ha sido terminado.
+Correcto: se terminó el proceso "cloudflared.exe" con PID 14996.
+puerto 8000 libre
+cloudflared detenido

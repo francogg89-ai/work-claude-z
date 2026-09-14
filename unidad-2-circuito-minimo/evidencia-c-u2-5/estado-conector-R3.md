@@ -1,0 +1,1 @@
+En R3-1 creí que el conector no estaba seleccionado en la conversación. La conexión global continuaba activa y el servidor registró siete llamadas MCP durante esa ventana.

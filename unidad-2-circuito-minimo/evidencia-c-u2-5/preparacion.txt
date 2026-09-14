@@ -1,0 +1,59 @@
+# Redacción: el valor de la capacidad se sustituyó por <capacidad> (5 apariciones). Tipo: capacidad. Superficie: consola de P4 (enlaces impresos y registro de solicitudes al panel).
+
+# entorno: clon en 3c6f7ef7a0091b80d67a52ec2a46f5082283f574, venv activado; python=/c/FRANCO_PERSONAL/Ideas_streaming/work-claude-z-c-u2-5/unidad-2-circuito-minimo/sistema/.venv/Scripts/python
+== P1 2026-09-14T16:54:49Z
+(acción) borrar .data si existe
+.data no existía
+rc=0
+== P2 2026-09-14T16:54:49Z
+$ python -m circuit.launch init --seleccionadas 4 --votos 3
+Base creada en C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z-c-u2-5\unidad-2-circuito-minimo\sistema\.data\circuito.sqlite
+Los dos canales quedan en preparación: no reciben propuestas hasta que el creador apruebe en el panel la interpretación de sus criterios.
+Guía y formulario público : http://127.0.0.1:8000/
+Portal de finalistas      : http://127.0.0.1:8000/finalistas
+Enlace de entrada del creador: http://127.0.0.1:8000/entrada-creador
+Panel del creador (privado)  : http://127.0.0.1:8000/creador/<capacidad>
+Conector MCP                 : http://127.0.0.1:8000/mcp
+El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.
+rc=0
+== P3 2026-09-14T16:54:52Z
+$ python -m circuit.launch calibrar --canal convocatoria-1
+Calibración propuesta para convocatoria-1. El canal sigue en preparación hasta que el creador la apruebe en el panel.
+rc=0
+== P4 2026-09-14T16:55:03Z
+$ python -m circuit.launch servir
+Guía y formulario público : http://127.0.0.1:8000/
+Portal de finalistas      : http://127.0.0.1:8000/finalistas
+Enlace de entrada del creador: http://127.0.0.1:8000/entrada-creador
+Panel del creador (privado)  : http://127.0.0.1:8000/creador/<capacidad>
+Conector MCP                 : http://127.0.0.1:8000/mcp
+El conector no lleva secreto en la URL: pide autorización y vos la aprobás en el panel. El enlace del panel sí lleva la capacidad: no lo pegues en material público.
+INFO:     Started server process [25172]
+INFO:     Waiting for application startup.
+StreamableHTTP session manager started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59774 - "GET /creador/<capacidad> HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58006 - "POST /creador/<capacidad>/calibracion/aprobar HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:58006 - "GET /creador/<capacidad> HTTP/1.1" 200 OK
+rc=1
+== P6 2026-09-14T17:57:22Z
+(acción) detener el servidor de P4 (pid 25172)
+CORRECTO: el proceso con PID 25172 (proceso secundario de PID 29272)
+ha sido terminado.
+rc=0
+== P7 2026-09-14T17:57:23Z
+$ python -m circuit.launch sembrar --canal convocatoria-1 --cantidad 8
+P-001  [SINTETICO] Propongo una serie de entrevistas a oyentes para
+P-002  [SINTETICO] Propongo un debate sobre hábitos de lectura para
+P-003  [SINTETICO] Propongo una guía de herramientas gratuitas para
+P-004  [SINTETICO] Propongo un especial sobre música independiente 
+P-005  [SINTETICO] Propongo una charla sobre divulgación responsabl
+P-006  [SINTETICO] Propongo un episodio sobre historia de la cienci
+P-007  [SINTETICO] Propongo un taller en vivo de edición de audio p
+P-008  [SINTETICO] Propongo una guía de herramientas gratuitas para
+rc=0
+== P8 2026-09-14T17:57:24Z
+$ python -m circuit.launch marcar preparacion-c-u2-5
+Marcador: preparacion-c-u2-5
+rc=0

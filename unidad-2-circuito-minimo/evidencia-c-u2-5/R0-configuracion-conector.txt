@@ -1,0 +1,31 @@
+Circuito propuestas C-U2-5
+Prueba sintética del circuito de propuestas C-U2-5
+
+Connection
+Circuito propuestas C-U2-5
+
+Permissions
+Choose when ChatGPT should ask for permission when using this plugin.
+Allow low-risk actions
+Default
+Developer mode
+Actions
+No app actions available yet.
+
+Refresh
+Connected on
+14 de sept de 2026
+URL
+https://attempting-basename-used-provided.trycloudflare.com/mcp
+Authorization supported
+OAuth
+Authorization used
+OAuth
+Version name
+dev mode
+Version Id
+asdk_app_v_6aa84a67c04481919fabaf3437dd2347
+App Id
+asdk_app_6aa84a67c03c819184bb1a650bb9c153
+Review status
+development
