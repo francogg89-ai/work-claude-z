@@ -1,0 +1,33 @@
+# GATE AMBIENTAL — C-U2-9 — INTENTO 1
+
+El gate se ejecutó una sola vez desde el directorio exacto indicado por el checkpoint. No se ejecutó P0 ni ningún paso posterior.
+
+COMMAND=Get-Location
+OUTPUT:
+
+Path
+----
+C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z\unidad-2-circuito-minimo\sistema
+
+EXIT_CODE=0
+
+COMMAND=Test-Path .\.venv\Scripts\python.exe
+OUTPUT:
+True
+EXIT_CODE=0
+
+COMMAND=.\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"
+OUTPUT:
+C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z\unidad-2-circuito-minimo\sistema\.venv\Scripts\python.exe
+3.12.4 (tags/v3.12.4:8e8a4ba, Jun  6 2024, 19:30:16) [MSC v.1940 64 bit (AMD64)]
+EXIT_CODE=0
+
+COMMAND=.\.venv\Scripts\python.exe -c "from importlib.metadata import version; expected={'pytest':'9.1.1','mcp':'2.2.0','httpx':'0.28.1'}; actual={k:version(k) for k in expected}; assert actual == expected, (actual, expected); print(' '.join(f'{k}={actual[k]}' for k in ('pytest','mcp','httpx')))"
+OUTPUT:
+pytest=9.1.1 mcp=2.2.0 httpx=0.28.1
+EXIT_CODE=0
+
+COMMAND=.\.venv\Scripts\python.exe -m pip check
+OUTPUT:
+No broken requirements found.
+EXIT_CODE=0
