@@ -1,0 +1,9 @@
+# P0 — C-U2-9
+
+COMMAND=.\.venv\Scripts\python.exe -m pytest -q tests/test_comandos_literales.py
+OUTPUT:
+.............                                                            [100%]
+13 passed in 1.34s
+EXIT_CODE=0
+
+P0 fue ejecutado una sola vez desde unidad-2-circuito-minimo\\sistema. No se ejecutó C0 ni ningún paso posterior.
