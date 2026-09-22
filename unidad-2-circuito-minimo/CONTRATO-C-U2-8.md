@@ -8,7 +8,7 @@ Se preservan sin cambios las propiedades, correcciones F-01..F-04, cierres D-11/
 
 ## Objetivo del sucesor
 
-Repetir la verificación discriminante de C-U2-6 únicamente si, antes de consumir P0, una preparación ambiental no discriminante demuestra objetivamente que todos los comandos se ejecutarán con el intérprete virtual del candidato y que `pytest==9.1.1` y las dependencias de `sistema/requirements.txt` están disponibles. La preparación no decide el resultado de los casos; solo evita agotar un contrato por una precondición implícita.
+Ejecutar la verificación discriminante propia de C-U2-8 únicamente si, antes de consumir P0, una preparación ambiental no discriminante demuestra objetivamente que todos los comandos se ejecutarán con el intérprete virtual del candidato y que `pytest==9.1.1` y las dependencias de `sistema/requirements.txt` están disponibles. La preparación no decide el resultado de los casos; solo evita agotar un contrato por una precondición implícita.
 
 ## Requisito de entorno explícito
 
@@ -34,7 +34,7 @@ La evidencia debe demostrar que el ejecutable real está dentro de `sistema\.ven
 
 ## Secuencia discriminante
 
-Una vez aprobada la preparación ambiental y solo con el ejecutable explícito, se ejecuta la secuencia de C-U2-6 sin alterar orden, cardinalidad, estímulos, acciones humanas, controles, criterios ni reglas de detención. Todos los comandos Python se invocan como:
+Una vez aprobada la preparación ambiental y solo con el ejecutable explícito, se ejecuta la secuencia propia de C-U2-8 sin alterar orden, cardinalidad, estímulos, acciones humanas, controles, criterios ni reglas de detención. Todos los comandos Python se invocan como:
 
 ```text
 .\.venv\Scripts\python.exe -m ...
@@ -60,7 +60,7 @@ El gate es PREVIO y NO DISCRIMINANTE. Si falla, se preserva su evidencia, se emi
 
 ## Secuencia autocontenida
 
-La secuencia completa, los estímulos, la evidencia, los criterios, controles, limitaciones y reglas de detención del sucesor están transcriptos a continuación; no se heredan instrucciones vivas de C-U2-6.
+La secuencia completa, los estímulos, la evidencia, los criterios, controles, limitaciones y reglas de detención del sucesor están transcriptos a continuación; no se heredan instrucciones vivas de antecedentes.
 
 ## Secuencia fija
 
