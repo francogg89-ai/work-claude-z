@@ -18,7 +18,7 @@ Test-Path .\.venv\Scripts\python.exe
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-La salida completa se guarda en `evidencia-c-u2-8/entorno-preparacion.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
+La salida completa se guarda en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
 
 ## Gate ambiental y necesidad humana
 
@@ -408,3 +408,9 @@ el cierre de la unidad es una decisión humana posterior y separada.
 ## Condición nueva de trazabilidad
 
 Este checkpoint no autoriza ejecución por sí solo. Antes de cada gate, la autorización humana material para ese intento debe estar ya comprometida en `evidencia-c-u2-8/autorizaciones/gate-intento-<N>.md` y su blob exacto debe estar referenciado por el AUDITOR. Cada intento usa una ruta nueva e inmutable `evidencia-c-u2-8/gate-intento-<N>/`; está prohibido sobrescribir o modificar evidencia de cualquier intento anterior. Una autorización posterior al comando no regulariza el intento.
+
+## Handshake previo obligatorio
+
+La autorización humana se registra primero ante el AUDITOR y debe referir el `BASE_WORK_SHA` existente, el número de intento y las identidades del contrato y checkpoint. El CONSTRUCTOR sólo materializa luego el archivo `evidencia-c-u2-8/autorizaciones/gate-intento-<N>.md` sin anticipar el SHA de ese propio commit. El AUDITOR verifica el blob y congela el `WORK_SHA` resultante antes de permitir cualquier comando del gate. Una autorización posterior al gate no valida nada.
+
+El gate se documenta únicamente en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`; si falla, la detención queda en ese mismo directorio. No existe `entorno-preparacion.txt` como fuente válida en C-U2-8.

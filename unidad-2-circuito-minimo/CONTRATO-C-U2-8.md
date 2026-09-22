@@ -22,7 +22,7 @@ No se acepta que `python` dependa de PATH o de una activación implícita. Si el
 
 ## Preparación ambiental no discriminante
 
-Antes de P0, sin crear `.data` y sin abrir túnel, se registran en `evidencia-c-u2-8/entorno-preparacion.txt`, con el comando efectivamente invocado:
+Antes de P0, sin crear `.data` y sin abrir túnel, se registran en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`, con el comando efectivamente invocado:
 
 1. `Get-Location` y verificación de que la terminal está en `unidad-2-circuito-minimo/sistema`.
 2. `Test-Path .\.venv\Scripts\python.exe`.
@@ -349,3 +349,18 @@ La primera ejecución tampoco queda exenta: `gate-intento-1` requiere autorizaci
 5. Si el gate pasa, consumir P0 una sola vez y preservar su salida en el artefacto exclusivo de P0.
 
 No se ejecuta C0, P1-P11, R0-R6 ni RZ durante esta propuesta; la ejecución requiere congelamiento posterior del AUDITOR y una autorización humana nueva ligada al checkpoint exacto.
+
+## Handshake no circular de autorización material
+
+La autorización previa no incorpora el SHA del commit que todavía no existe. El handshake obligatorio es:
+
+1. El humano entrega al AUDITOR la autorización con el `BASE_WORK_SHA` ya existente, el contrato y checkpoint propuestos, sus identidades conocidas, el número de intento y sus límites.
+2. El AUDITOR registra y congela esa autorización en su repositorio, y entrega al CONSTRUCTOR un sobre que ordena materializarla.
+3. El CONSTRUCTOR crea `evidencia-c-u2-8/autorizaciones/gate-intento-<N>.md` en un único commit nuevo sobre ese `BASE_WORK_SHA`. El archivo conserva `BASE_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, `ATTEMPT_NUMBER`, alcance y prohibiciones; no inventa ni anticipa el SHA de su propio commit.
+4. El CONSTRUCTOR devuelve el `WORK_SHA` resultante y el blob del archivo de autorización al AUDITOR.
+5. El AUDITOR verifica ambos contra el sobre humano y emite el congelamiento de C-U2-8 referenciando el `WORK_SHA`, el blob de autorización y el intento exacto.
+6. Recién con ese congelamiento, el CONSTRUCTOR puede ejecutar el gate desde el `WORK_SHA` recibido. Si la verificación falla, no ejecuta nada.
+
+Así la autorización está materialmente en WORK antes del gate, mientras el SHA final es verificado y congelado después de materializar el archivo, sin dependencia circular. El `WORK_SHA` del congelamiento identifica el candidato ejecutable; el archivo conserva el `BASE_WORK_SHA` que el humano autorizó antes de su creación.
+
+Las únicas rutas de evidencia del gate son `evidencia-c-u2-8/gate-intento-<N>/comandos.txt` y, si corresponde, su `DETENCION.md`; queda prohibida toda ruta alternativa como `entorno-preparacion.txt`.
