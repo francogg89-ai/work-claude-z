@@ -2,7 +2,7 @@
 
 ## Estado
 
-Este checkpoint es una propuesta sucesora de C-U2-6. No autoriza ejecución, instalación ni modificación del entorno. Solo será válido si el AUDITOR congela exactamente este checkpoint y el contrato C-U2-8, y si luego existe una H-2 nueva y una autorización humana nueva para esas identidades.
+Este checkpoint es una propuesta sucesora de C-U2-7. No autoriza ejecución, instalación ni modificación del entorno. Solo será válido si el AUDITOR congela exactamente este checkpoint y el contrato C-U2-8, y si luego existe una H-2 nueva y una autorización humana nueva para esas identidades.
 
 C-U2-6 permanece cerrado, agotado y fallido por P0. No se reabre ni se reintenta. La evidencia de C-U2-6 se conserva intacta.
 
