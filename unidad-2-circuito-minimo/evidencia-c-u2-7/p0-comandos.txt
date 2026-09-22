@@ -1,0 +1,4 @@
+COMMAND: .\.venv\Scripts\python.exe -m pytest -q tests/test_comandos_literales.py
+.............                                                            [100%]
+13 passed in 2.19s
+EXIT_CODE=0

@@ -3,9 +3,7 @@ COMMAND: Get-Location
 
 Path
 ----
-C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z
-
-
+C:\FRANCO_PERSONAL\Ideas_streaming\work-claude-z\unidad-2-circuito-minimo\sistema
 EXIT_CODE=0
 
 COMMAND: Test-Path .\.venv\Scripts\python.exe
