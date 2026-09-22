@@ -14,11 +14,11 @@ La persona operadora debe trabajar en `unidad-2-circuito-minimo/sistema` y demos
 Get-Location
 Test-Path .\.venv\Scripts\python.exe
 .\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"
-.\.venv\Scripts\python.exe -c "import pytest, mcp, httpx; assert pytest.__version__ == '9.1.1'; assert mcp.__version__ == '2.2.0'; assert httpx.__version__ == '0.28.1'; print('pytest=9.1.1 mcp=2.2.0 httpx=0.28.1')"
+.\.venv\Scripts\python.exe -c "from importlib.metadata import version; expected={'pytest':'9.1.1','mcp':'2.2.0','httpx':'0.28.1'}; actual={k:version(k) for k in expected}; assert actual == expected, (actual, expected); print(' '.join(f'{k}={actual[k]}' for k in ('pytest','mcp','httpx')))"
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-La salida completa se guarda en `evidencia-c-u2-7/entorno-preparacion.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
+La salida completa se guarda en `evidencia-c-u2-7/entorno-preparacion.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
 
 ## Gate ambiental y necesidad humana
 

@@ -27,10 +27,10 @@ Antes de P0, sin crear `.data` y sin abrir túnel, se registran en `evidencia-c-
 1. `Get-Location` y verificación de que la terminal está en `unidad-2-circuito-minimo/sistema`.
 2. `Test-Path .\.venv\Scripts\python.exe`.
 3. `.\.venv\Scripts\python.exe -c "import sys; print(sys.executable); print(sys.version)"`.
-4. `.\.venv\Scripts\python.exe -c "import pytest, mcp, httpx; assert pytest.__version__ == '9.1.1'; assert mcp.__version__ == '2.2.0'; assert httpx.__version__ == '0.28.1'; print('pytest=9.1.1 mcp=2.2.0 httpx=0.28.1')"`.
+4. `.\.venv\Scripts\python.exe -c "from importlib.metadata import version; expected={'pytest':'9.1.1','mcp':'2.2.0','httpx':'0.28.1'}; actual={k:version(k) for k in expected}; assert actual == expected, (actual, expected); print(' '.join(f'{k}={actual[k]}' for k in ('pytest','mcp','httpx')))"`.
 5. `.\.venv\Scripts\python.exe -m pip check`.
 
-La evidencia debe demostrar que el ejecutable real está dentro de `sistema\.venv`, que pytest está disponible y que el entorno es utilizable. Esta fase no ejecuta `circuit.launch`, no crea datos y no consume P0.
+La evidencia debe demostrar que el ejecutable real está dentro de `sistema\.venv`, que las versiones de distribución observadas son exactamente pytest==9.1.1, mcp==2.2.0 y httpx==0.28.1, y que el entorno es utilizable. Esta fase no ejecuta `circuit.launch`, no crea datos y no consume P0.
 
 ## Secuencia discriminante
 
