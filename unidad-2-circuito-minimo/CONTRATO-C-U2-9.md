@@ -324,7 +324,7 @@ Este contrato no autoriza ejecución. Requiere revisión del AUDITOR, fijación 
 
 ## Garantías adicionales de C-U2-9
 
-C-U2-9 es un sucesor separado de C-U2-8 conforme a REVOLUTIONS §6.1. C-U2-8 queda bloqueado, no ejecutado y cerrado, agotado y no validable; no se reintenta su gate ni su P0, y no se consume ninguna evidencia suya como resultado contractual de este sucesor.
+C-U2-9 es un sucesor separado de C-U2-8 conforme a REVOLUTIONS §6.1. C-U2-8 queda BLOQUEADO y NO_EJECUTADO por ruptura del handshake; no se reintenta su gate ni su P0, y no se consume ninguna evidencia suya como resultado contractual de este sucesor.
 
 ### Evidencia APPEND-ONLY por intento
 
@@ -338,7 +338,7 @@ Cada gate requiere el handshake material descrito en «Handshake no circular de 
 
 Antes de ejecutar `gate-intento-N`, el CONSTRUCTOR debe verificar desde Git que el sobre de EJECUCION_GATE referencia exactamente `ATTEMPT_NUMBER=N`, `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`, que el commit de autorización agrega únicamente el archivo requerido sobre `PARENT_WORK_SHA`, y que el blob coincide con la identidad entregada por el AUDITOR. Si falta cualquiera de esas relaciones, el gate no se ejecuta y se devuelve `human_need`. La autorización no puede ser retroactiva: un archivo creado o comprometido después del gate no lo valida.
 
-La primera ejecución tampoco queda exenta: `gate-intento-1` requiere autorización material previa. Toda autorización habilita como máximo un intento de gate y, si el gate pasa, como máximo el P0 único de este sucesor. No existe autorización heredada desde C-U2-7 ni desde otra unidad.
+La primera ejecución tampoco queda exenta: `gate-intento-1` requiere autorización material previa. Toda autorización habilita como máximo un intento de gate y, si el gate pasa, como máximo el P0 único de este sucesor. No existe autorización heredada desde C-U2-8, C-U2-7 ni desde ningún antecedente o unidad.
 
 ### Orden de control obligatorio
 
