@@ -424,4 +424,4 @@ Este checkpoint no autoriza ejecución por sí solo. Antes de cada gate, la auto
 
 La autorización humana se registra primero ante el AUDITOR y debe referir el `BASE_WORK_SHA` existente, el número de intento y las identidades del contrato y checkpoint. El CONSTRUCTOR sólo materializa luego el archivo `evidencia-c-u2-8/autorizaciones/gate-intento-<N>.md` sin anticipar el SHA de ese propio commit. El AUDITOR verifica el blob y congela el `WORK_SHA` resultante antes de permitir cualquier comando del gate. Una autorización posterior al gate no valida nada.
 
-El gate se documenta únicamente en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`; si falla, la detención queda en ese mismo directorio. No existe `entorno-preparacion.txt` como fuente válida en C-U2-8.
+El gate se documenta únicamente en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`; si falla, la detención queda en ese mismo directorio.
