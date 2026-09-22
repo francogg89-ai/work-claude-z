@@ -20,9 +20,20 @@ Test-Path .\.venv\Scripts\python.exe
 
 La salida completa se guarda en `evidencia-c-u2-8/gate-intento-<N>/comandos.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
 
+## Handshake operativo previo al gate
+
+Antes de cualquier comando del gate se ejecuta este handshake, también para `gate-intento-1`:
+
+1. El humano autoriza al AUDITOR exactamente un `gate-intento-N`, indicando `PARENT_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, alcance y prohibiciones.
+2. El AUDITOR entrega al CONSTRUCTOR un sobre que autoriza únicamente MATERIALIZAR el registro, no ejecutar el gate.
+3. El CONSTRUCTOR agrega únicamente `evidencia-c-u2-8/autorizaciones/gate-intento-N.md` sobre `PARENT_WORK_SHA` y devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
+4. El AUDITOR verifica el delta, el blob y el número de intento, y emite un nuevo sobre `EJECUCION_GATE` que referencia exactamente `ATTEMPT_NUMBER=N`, `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
+5. Solo entonces el CONSTRUCTOR puede ejecutar el gate desde ese `WORK_SHA_AUTORIZACION` y escribir en el directorio nuevo `gate-intento-N/`.
+
+Si falta una identidad o el delta agrega algo más, no se ejecuta ningún comando. Una autorización posterior no regulariza.
 ## Gate ambiental y necesidad humana
 
-El gate es PREVIO y NO DISCRIMINANTE. Si falla, se preserva `entorno-preparacion.txt`, se emite `human_need` y C-U2-8 queda CONGELADO/NO_EJECUTADO/NO_AGOTADO. No se instala ni modifica nada sin autorización humana separada. Tras una remediación autorizada, solo puede repetirse con autorización nueva y explícita del AUDITOR y del humano. Un gate exitoso habilita P0 una sola vez.
+El gate es PREVIO y NO DISCRIMINANTE. Si falla, se preserva únicamente `evidencia-c-u2-8/gate-intento-<N>/comandos.txt` y, si corresponde, su `DETENCION.md` en el mismo directorio; se emite `human_need` y C-U2-8 queda CONGELADO/NO_EJECUTADO/NO_AGOTADO. No se instala ni modifica nada sin autorización humana separada. Tras una remediación autorizada, solo puede repetirse con autorización nueva y explícita del AUDITOR y del humano. Un gate exitoso habilita P0 una sola vez.
 
 ## Ejecución posterior, solo si la preparación pasa
 
@@ -52,7 +63,7 @@ Las acciones de navegador, ChatGPT, panel, formulario, instalación/autoridad de
 
 ## Evidencia
 
-La evidencia nueva queda en `evidencia-c-u2-8/`, incluyendo `entorno-preparacion.txt`, `p0-comandos.txt`, `DETENCION.md` si corresponde, y el paquete material completo solo si la corrida supera P0 y continúa. El checkpoint no se aplica hasta que el AUDITOR lo congele y el humano autorice la nueva ejecución.
+La evidencia nueva queda en `evidencia-c-u2-8/`, incluyendo el directorio inmutable `gate-intento-<N>/comandos.txt`, su `DETENCION.md` dentro del mismo directorio si corresponde, `p0-comandos.txt`, y el paquete material completo solo si la corrida supera P0 y continúa. El checkpoint no se aplica hasta que el AUDITOR lo congele y el humano autorice la nueva ejecución.
 
 
 ## Secuencia autocontenida completa
