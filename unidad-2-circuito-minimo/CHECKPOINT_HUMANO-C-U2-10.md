@@ -4,7 +4,7 @@
 
 Este checkpoint es una propuesta sucesora de C-U2-9. No autoriza ejecución, instalación ni modificación del entorno. Solo será válido si el AUDITOR congela exactamente este checkpoint y el contrato C-U2-10, y si luego existe una H-2 nueva y una autorización humana nueva para esas identidades.
 
-C-U2-9 permanece cerrado/bloqueado por ruptura de autoridad y criterio de C0 no satisfacible literalmente. No se reabre ni reintenta, y su captura local no committeada no es evidencia de C-U2-10. C-U2-10 usa autoridad nueva y `evidencia-c-u2-10/`; no hereda autorizaciones anteriores.
+`C-U2-9` es el antecedente histórico inmediato de C-U2-10 y permanece cerrado/bloqueado por ruptura de autoridad y criterio de C0 no satisfacible literalmente. No se reabre ni reintenta, y su captura local no committeada no es evidencia de C-U2-10. C-U2-10 usa autoridad nueva y `evidencia-c-u2-10/`; no reutiliza autorización ni evidencia operativa de C-U2-9 ni de ningún antecesor.
 
 ## Intervención ambiental previa, no discriminante
 
@@ -18,22 +18,22 @@ Test-Path .\.venv\Scripts\python.exe
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-La salida completa se guarda en `evidencia-c-u2-10/gate-intento-<N>/comandos.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
+La salida completa se guarda en `evidencia-c-u2-10/gate-intento-1/comandos.txt`, encabezando cada tramo con el comando efectivamente invocado. Debe quedar visible que el ejecutable real es el `.venv` del candidato, que las tres versiones de distribución coinciden exactamente y que pytest/dependencias están disponibles. Si falla cualquier comprobación, se detiene antes de P0. No se instala, no se modifica el entorno y se entrega la necesidad de autorización humana separada.
 
 ## Handshake operativo previo al gate
 
-Antes de cualquier comando del gate se ejecuta este handshake, también para `gate-intento-1`:
+Antes de cualquier comando del único gate, `gate-intento-1`, se ejecuta este handshake:
 
-1. El humano autoriza al AUDITOR exactamente un `gate-intento-N`, indicando `PARENT_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, alcance y prohibiciones.
+1. El humano autoriza al AUDITOR exactamente un `gate-intento-1`, indicando `PARENT_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, alcance y prohibiciones.
 2. El AUDITOR entrega al CONSTRUCTOR un sobre que autoriza únicamente MATERIALIZAR el registro, no ejecutar el gate.
-3. El CONSTRUCTOR agrega únicamente `evidencia-c-u2-10/autorizaciones/gate-intento-N.md` sobre `PARENT_WORK_SHA` y devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
-4. El AUDITOR verifica el delta, el blob y el número de intento, y emite un nuevo sobre `EJECUCION_GATE` que referencia exactamente `ATTEMPT_NUMBER=N`, `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
-5. Solo entonces el CONSTRUCTOR puede ejecutar el gate desde ese `WORK_SHA_AUTORIZACION` y escribir en el directorio nuevo `gate-intento-N/`.
+3. El CONSTRUCTOR agrega únicamente `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` sobre `PARENT_WORK_SHA` y devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
+4. El AUDITOR verifica en Git que el commit agrega únicamente ese archivo sobre `PARENT_WORK_SHA` y comprueba los valores exactos de `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`. Solo después de esa verificación emite un nuevo sobre `EJECUCION_GATE` ligado a `ATTEMPT_NUMBER=1`, `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`.
+5. Solo ese sobre habilita al CONSTRUCTOR a ejecutar una vez el gate desde ese `WORK_SHA_AUTORIZACION` y escribir en `gate-intento-1/`.
 
 Si falta una identidad o el delta agrega algo más, no se ejecuta ningún comando. Una autorización posterior no regulariza.
 ## Gate ambiental y necesidad humana
 
-El gate es PREVIO y NO DISCRIMINANTE. Si falla, se preserva únicamente `evidencia-c-u2-10/gate-intento-<N>/comandos.txt` y, si corresponde, su `DETENCION.md` en el mismo directorio; se emite `human_need` y C-U2-10 queda CONGELADO/NO_EJECUTADO/NO_AGOTADO. No se instala ni modifica nada sin autorización humana separada. Tras una remediación autorizada, solo puede repetirse con autorización nueva y explícita del AUDITOR y del humano. Un gate exitoso habilita P0 una sola vez.
+El gate es PREVIO y NO DISCRIMINANTE. Se permite exactamente una ejecución, `gate-intento-1`. Si falla, se preserva únicamente `evidencia-c-u2-10/gate-intento-1/comandos.txt` y, si corresponde, su `DETENCION.md` en el mismo directorio; se emite `human_need` y C-U2-10 se detiene como fallido. No se reintenta ni se remedia dentro de C-U2-10; cualquier nueva ejecución exige propuesta sucesora separada, con nuevas identidades y autorizaciones. No se instala ni modifica nada sin autorización humana separada. Solo si el gate pasa, y mediante autorización/sobre separado, se habilita P0 una sola vez.
 
 ## Ejecución posterior, solo si la preparación pasa
 
@@ -63,7 +63,7 @@ Las acciones de navegador, ChatGPT, panel, formulario, instalación/autoridad de
 
 ## Evidencia
 
-La evidencia nueva queda en `evidencia-c-u2-10/`, incluyendo el directorio inmutable `gate-intento-<N>/comandos.txt`, su `DETENCION.md` dentro del mismo directorio si corresponde, `p0-comandos.txt`, y el paquete material completo solo si la corrida supera P0 y continúa. El checkpoint no se aplica hasta que el AUDITOR lo congele y el humano autorice la nueva ejecución.
+La evidencia nueva queda en `evidencia-c-u2-10/`, incluyendo el directorio inmutable `gate-intento-1/comandos.txt`, su `DETENCION.md` dentro del mismo directorio si corresponde, `p0-comandos.txt`, y el paquete material completo solo si la corrida supera P0 y continúa. El checkpoint no se aplica hasta que el AUDITOR lo congele y el humano autorice la nueva ejecución.
 
 
 ## Secuencia autocontenida completa
@@ -87,7 +87,7 @@ C0 evalúa el estado, no la visibilidad absoluta. Las definiciones históricas p
 1. Registrar cada definición visible del circuito en `evidencia-c-u2-10/c0-matriz-estados.md`, con nombre exacto, señal de UI transcrita, significado, resultado y referencia a la captura que muestra nombre y señal.
 2. Incluir como mínimo `Sonda propuestas U1`, `Sonda propuestas U1 v2` y `Circuito propuestas C-U2-5`, además de toda otra app inequívocamente del circuito que aparezca.
 3. Para cada una, aceptar `+` únicamente si el contexto o tooltip demuestra inequívocamente que permite agregar/conectar esa app, o `Instalar complemento` solo si ese botón corresponde sin ambigüedad a esa definición. La matriz documenta la señal exacta; cuando la señal no sea clara, detenerse.
-4. Guardar captura(s) sin editar en `evidencia-c-u2-10/c0-estado-apps.png`; deben mostrar el nombre exacto y el indicador para cada fila (pueden ser varias capturas). La matriz liga cada fila a su captura.
+4. Guardar capturas sin editar con nombres consecutivos `evidencia-c-u2-10/c0-estado-apps-01.png`, `c0-estado-apps-02.png`, etc., sin huecos ni reutilización. Cada captura debe mostrar el nombre exacto y el indicador para las filas que documenta. En `c0-matriz-estados.md`, cada fila debe indicar el nombre exacto del archivo de captura que muestra simultáneamente ese nombre y su estado.
 5. C0 pasa solo con evidencia positiva de que ninguna app del circuito está instalada/conectada. Una definición visible por sí sola no es fallo y su ausencia no es prueba suficiente.
 
 Si se ve una app instalada/conectada, no la desinstales ni desconectes dentro de este alcance: detenete y pedí autorización humana separada que identifique explícitamente la app y la acción. Cualquier estado desconocido/ambiguo o app de pertenencia incierta también requiere detenerse. Tras una intervención separadamente autorizada, verificar de nuevo antes de continuar. No instalar, conectar ni reconectar apps. Esta propuesta no autoriza operar la UI; toda futura acción requerirá congelamiento auditor y H-2/autorización nuevos.
@@ -279,7 +279,7 @@ efectivamente invocado. Ningún artefacto transcribe un dato de contacto.
 | Origen | Artefacto | Contenido |
 |---|---|---|
 | verificación previa | `p0-comandos.txt` | salida completa de P0 |
-| cuenta | `c0-estado-apps.png` y `c0-matriz-estados.md` | evidencia durable de no instalada/no conectada para cada app conocida/visible |
+| cuenta | `c0-estado-apps-01.png`, `c0-estado-apps-02.png`, etc. y `c0-matriz-estados.md` | evidencia durable de no instalada/no conectada para cada app conocida/visible; cada fila indica el nombre exacto de su captura |
 | preparación | `preparacion.txt` | salida de consola de P1 a P8, con el valor de la capacidad redactado |
 | exposición | `p9-p10.txt` | salida de la exposición de P9 y del servidor de P10, con el valor de la capacidad redactado |
 | conversaciones 1–12 | transcripciones | exactamente **doce**, una por conversación, completas, identificadas `R5-1`, `R5-2`, `R6-1`, `R6-2`, `R3-1`, `R3-2`, `R1-1`, `R1-2`, `R2-1`, `R2-2`, `R4-1`, `R4-2` |
@@ -305,7 +305,7 @@ Borrar el hecho haría desaparecer una observación que el contrato declara como
 
 ## Decisión sobre gate y P0
 
-Esta propuesta exige exactamente un gate ambiental (`gate-intento-1`) y un P0 bajo C-U2-10, con autorizaciones y evidencia nuevas. No presume vigente el gate histórico y P0 debe validar exactamente el contrato/checkpoint que congele el AUDITOR para este sucesor. Si uno falla, detenerse: no hay reintentos bajo esta propuesta. Se requieren H-2 y autorización humana, handshakes y sobres auditor separados. Esta propuesta no autoriza ninguna de esas acciones.
+Esta propuesta exige exactamente un gate ambiental (`gate-intento-1`) y un P0 bajo C-U2-10, con autorizaciones y evidencia nuevas. No presume vigente el gate histórico y P0 debe validar exactamente el contrato/checkpoint que congele el AUDITOR para este sucesor. Si el gate falla, C-U2-10 se detiene y cualquier ejecución futura requiere propuesta sucesora; si P0 falla, detenerse sin reintento. Se requieren H-2 y autorización humana, handshakes y sobres auditor separados. Esta propuesta no autoriza ninguna de esas acciones.
 
 ## Reglas de detención
 
@@ -422,16 +422,16 @@ el cierre de la unidad es una decisión humana posterior y separada.
 
 ## Condición nueva de trazabilidad
 
-Este checkpoint no autoriza ejecución por sí solo. Antes de cada gate, la autorización humana material para ese intento debe estar ya comprometida en `evidencia-c-u2-10/autorizaciones/gate-intento-<N>.md` y su blob exacto debe estar referenciado por el AUDITOR. Cada intento usa una ruta nueva e inmutable `evidencia-c-u2-10/gate-intento-<N>/`; está prohibido sobrescribir o modificar evidencia de cualquier intento anterior. Una autorización posterior al comando no regulariza el intento.
+Este checkpoint no autoriza ejecución por sí solo. Antes del único gate, la autorización humana material debe estar ya comprometida en `evidencia-c-u2-10/autorizaciones/gate-intento-1.md`; el AUDITOR debe verificar en Git el `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA` exactos antes de emitir el nuevo sobre `EJECUCION_GATE`. La ejecución, si ese sobre la habilita, usa únicamente la ruta inmutable `evidencia-c-u2-10/gate-intento-1/`. Una autorización posterior al comando no regulariza el intento.
 
 ## Handshake previo obligatorio
 
-La autorización humana se registra primero ante el AUDITOR y debe referir el `BASE_WORK_SHA` existente, el número de intento y las identidades del contrato y checkpoint. El CONSTRUCTOR sólo materializa luego el archivo `evidencia-c-u2-10/autorizaciones/gate-intento-<N>.md` sin anticipar el SHA de ese propio commit. El AUDITOR verifica el blob y congela el `WORK_SHA` resultante antes de permitir cualquier comando del gate. Una autorización posterior al gate no valida nada.
+La autorización humana se registra primero ante el AUDITOR y debe referir el `BASE_WORK_SHA` existente, `ATTEMPT_NUMBER=1` y las identidades del contrato y checkpoint. El CONSTRUCTOR sólo materializa luego `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` sin anticipar el SHA de ese propio commit, y devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`. El AUDITOR verifica el commit y blob exactos en Git y emite el nuevo sobre `EJECUCION_GATE`; antes de ese sobre no se permite ningún comando del gate. Una autorización posterior al gate no valida nada.
 
-El gate se documenta únicamente en `evidencia-c-u2-10/gate-intento-<N>/comandos.txt`; si falla, la detención queda en ese mismo directorio.
+El único gate se documenta únicamente en `evidencia-c-u2-10/gate-intento-1/comandos.txt`; si falla, la detención queda en ese mismo directorio y C-U2-10 se cierra como fallido, sin reintento.
 
 ## Namespace limpio y orden de autorización
 
-C-U2-9 queda cerrado/bloqueado; este checkpoint no lo reabre ni hereda sus autorizaciones. Toda evidencia de C-U2-10 usa exclusivamente `evidencia-c-u2-10/`, con un primer `gate-intento-1/` nuevo. No se modifica ni se consume evidencia o autorización histórica de C-U2-9.
+C-U2-9 es el antecedente histórico inmediato y queda cerrado/bloqueado; este checkpoint no lo reabre. Toda evidencia de C-U2-10 usa exclusivamente `evidencia-c-u2-10/`, con su único `gate-intento-1/` nuevo. No se reutiliza, modifica ni consume ninguna autorización ni evidencia operativa de C-U2-9 o de cualquier antecesor.
 
-Antes de materializar la autorización debe existir el sobre auditor que permite únicamente MATERIALIZAR. El CONSTRUCTOR materializa sólo `evidencia-c-u2-10/autorizaciones/gate-intento-1.md`, devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`, y se detiene. Sólo después de la verificación del AUDITOR y de un nuevo sobre `EJECUCION_GATE` puede comenzar el gate. La autorización humana y el congelamiento del contrato no sustituyen el sobre de materialización.
+Antes de materializar la autorización debe existir el sobre auditor que permite únicamente MATERIALIZAR. El CONSTRUCTOR materializa sólo `evidencia-c-u2-10/autorizaciones/gate-intento-1.md`, devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`, y se detiene. El AUDITOR verifica ambos valores y el delta Git; únicamente después emite el nuevo sobre `EJECUCION_GATE` ligado a esas identidades y al intento 1. Solo ese sobre habilita el gate. La autorización humana y el congelamiento del contrato no sustituyen ni el sobre de materialización ni el de ejecución.

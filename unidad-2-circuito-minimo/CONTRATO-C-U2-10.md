@@ -2,7 +2,7 @@
 
 ## Naturaleza y antecedente
 
-`C-U2-10` es una propuesta de sucesor separada conforme a REVOLUTIONS §6.1, autorizada únicamente para análisis y propuesta. `C-U2-9` permanece cerrado/bloqueado por ruptura de autoridad en C0 y por un criterio de C0 no satisfacible literalmente; no se reabre, corrige ni reintenta. C-U2-10 usa autoridad nueva y `evidencia-c-u2-10/`; no hereda autorizaciones ni consume la captura local no committeada de C-U2-9. El candidato base solicitado es `04814040b03ad38868f292689735717928d3184f`. Fuentes auditoras: `397effc67476a3c9607eb01aaf9d3d274976eaa7`, incluyendo `incidentes/C0-C-U2-9-REINTENTO-SIN-AUTORIDAD-Y-CRITERIO-UI.md` y `decisiones/C0-C-U2-10-CRITERIO-DE-ESTADO.md`.
+`C-U2-10` es una propuesta de sucesor separada conforme a REVOLUTIONS §6.1, autorizada únicamente para análisis y propuesta. `C-U2-9` es su antecedente histórico inmediato y permanece cerrado/bloqueado por ruptura de autoridad en C0 y por un criterio de C0 no satisfacible literalmente; no se reabre, corrige ni reintenta. C-U2-10 usa autoridad nueva y `evidencia-c-u2-10/`; no hereda autorizaciones ni consume evidencia de C-U2-9 ni de ningún antecesor. El candidato base solicitado es `04814040b03ad38868f292689735717928d3184f`. Fuentes auditoras: `397effc67476a3c9607eb01aaf9d3d274976eaa7`, incluyendo `incidentes/C0-C-U2-9-REINTENTO-SIN-AUTORIDAD-Y-CRITERIO-UI.md` y `decisiones/C0-C-U2-10-CRITERIO-DE-ESTADO.md`.
 
 Se preservan sin cambios las propiedades, correcciones F-01..F-04, cierres D-11/D-12 y toda evidencia histórica de C-U2-4, C-U2-5 y C-U2-6. Las identidades del sucesor las fijará el AUDITOR al congelar.
 
@@ -22,7 +22,7 @@ No se acepta que `python` dependa de PATH o de una activación implícita. Si el
 
 ## Preparación ambiental no discriminante
 
-Antes de P0, sin crear `.data` y sin abrir túnel, se registran en `evidencia-c-u2-10/gate-intento-<N>/comandos.txt`, con el comando efectivamente invocado:
+Antes de P0, sin crear `.data` y sin abrir túnel, se registran en `evidencia-c-u2-10/gate-intento-1/comandos.txt`, con el comando efectivamente invocado:
 
 1. `Get-Location` y verificación de que la terminal está en `unidad-2-circuito-minimo/sistema`.
 2. `Test-Path .\.venv\Scripts\python.exe`.
@@ -56,7 +56,7 @@ Toda evidencia nueva pertenece exclusivamente a `unidad-2-circuito-minimo/eviden
 
 ## Semántica del gate ambiental
 
-El gate es PREVIO y NO DISCRIMINANTE. Si falla, se preserva su evidencia, se emite human_need y C-U2-10 permanece CONGELADO, NO_EJECUTADO y NO_AGOTADO. No se instala ni modifica nada sin autorización humana separada. Después de una remediación autorizada, el gate solo puede repetirse bajo una nueva autorización explícita del AUDITOR y del humano. Solo un gate exitoso habilita consumir P0 una sola vez; no existe una tercera categoría.
+El gate es PREVIO y NO DISCRIMINANTE. Se permite exactamente una ejecución: `gate-intento-1`. Si falla cualquier comprobación, se preserva su evidencia, se emite `human_need`, C-U2-10 se detiene y queda fallido; no se reintenta ni se remedia dentro de C-U2-10. Cualquier nueva ejecución requiere una propuesta sucesora separada, con contrato, checkpoint, identidades y autorizaciones nuevos. No se instala ni modifica nada sin autorización humana separada. Solo si `gate-intento-1` pasa, el AUDITOR puede habilitar P0 una sola vez mediante su autorización/sobre correspondiente.
 
 ## Secuencia autocontenida
 
@@ -92,7 +92,7 @@ Solo se acepta `+` cuando el contexto/tooltip/acción visible demuestra inequív
 
 Si cualquier app aparece instalada/conectada, C0 no pasa. No desinstalar ni desconectar en esta ejecución sin autorización humana separada, explícita y previa que identifique la app y la acción; después de una autorización válida se requiere nueva verificación. Cualquier app visible cuya relación con el circuito sea incierta también exige detenerse, no clasificar por conjetura.
 
-La evidencia durable incluye `c0-estado-apps.png` y `c0-matriz-estados.md`. La matriz debe identificar cada fila con la captura/recorte donde se ven simultáneamente el nombre y el estado, registrar la señal literal, y explicar el criterio de lectura. La captura sola o una lista vacía no basta sin la matriz; no se redactan nombres/estados inferidos. C0 no autoriza instalar, conectar, reconectar, abrir túneles ni ejecutar pasos posteriores.
+La evidencia durable incluye `c0-estado-apps-01.png`, `c0-estado-apps-02.png` y así sucesivamente, según sean necesarias, y `c0-matriz-estados.md`. La numeración es consecutiva, sin huecos ni reutilización. La matriz debe identificar para cada fila el nombre exacto de archivo de la captura/recorte donde se ven simultáneamente el nombre y el estado, registrar la señal literal, y explicar el criterio de lectura. La captura sola o una lista vacía no basta sin la matriz; no se redactan nombres/estados inferidos. C0 no autoriza instalar, conectar, reconectar, abrir túneles ni ejecutar pasos posteriores.
 
 ### Preparación
 
@@ -231,7 +231,7 @@ artefacto transcribe un dato de contacto.
 | Origen | Artefacto | Contenido |
 |---|---|---|
 | verificación previa | `p0-comandos.txt` | salida completa de P0 |
-| cuenta | `c0-estado-apps.png` y `c0-matriz-estados.md` | inventario completo de definiciones del circuito consideradas y evidencia positiva por app de estado no instalado/no conectado; la visibilidad en «Created by me» puede persistir |
+| cuenta | `c0-estado-apps-01.png`, `c0-estado-apps-02.png`, etc. y `c0-matriz-estados.md` | inventario completo de definiciones del circuito consideradas y evidencia positiva por app de estado no instalado/no conectado; la visibilidad en «Created by me» puede persistir; cada fila de matriz indica el nombre exacto de su captura |
 | preparación | `preparacion.txt` | salida de consola de P1 a P8, con la capacidad redactada |
 | exposición | `p9-p10.txt` | salida de la exposición de P9 y del servidor de P10, con la capacidad redactada |
 | R1 a R6 | transcripciones | exactamente **doce**, una por conversación, identificadas `R1-1` a `R6-2` |
@@ -338,28 +338,28 @@ C-U2-10 es un sucesor separado de C-U2-9 conforme a REVOLUTIONS §6.1. C-U2-9 pe
 
 ### Decisión de repetición de gate y P0
 
-La propuesta exige exactamente un gate (`gate-intento-1`) y un P0 en C-U2-10, cada uno con trazabilidad independiente; si cualquiera falla, se detiene y no se reintenta bajo esta propuesta. El gate previo es evidencia ambiental histórica y no se presume vigente. P0 se repite porque debe validar los comandos del checkpoint/contrato exactos que el AUDITOR congele para C-U2-10; no se asume que resultados históricos cubran este sucesor. Se requieren H-2, autorización humana, handshake de materialización y sobres del AUDITOR separados; ningún paso está autorizado por esta propuesta.
+La propuesta exige exactamente un gate (`gate-intento-1`) y un P0 en C-U2-10, cada uno con trazabilidad independiente; si cualquiera falla, C-U2-10 se detiene y cualquier nueva ejecución requiere una propuesta sucesora. El gate previo es evidencia ambiental histórica y no se presume vigente. P0 se repite porque debe validar los comandos del checkpoint/contrato exactos que el AUDITOR congele para C-U2-10; no se asume que resultados históricos cubran este sucesor. Se requieren H-2, autorización humana, handshake de materialización y sobres del AUDITOR separados; ningún paso está autorizado por esta propuesta.
 
 ### Evidencia APPEND-ONLY por intento
 
-Cada intento del gate ambiental debe escribirse en un directorio inmutable y exclusivo dentro de `unidad-2-circuito-minimo/evidencia-c-u2-10/`, antes de cualquier resultado posterior. El nombre canónico es `gate-intento-<N>/`, empezando en `gate-intento-1/`; dentro se conserva `comandos.txt` con cada comando literal efectivamente invocado, su salida y código de salida. Un intento posterior usa un directorio nuevo (`gate-intento-2/`, etc.) y nunca puede modificar, reemplazar, renombrar ni completar archivos de un intento anterior. Si un intento falla, se agrega `DETENCION.md` dentro de ese mismo directorio y el contrato se detiene. La verificación de append-only compara el árbol previo y el nuevo árbol antes del commit: cualquier delta sobre un `gate-intento-*` ya existente es una regla de detención.
+La única ejecución del gate ambiental se registra en el directorio inmutable y exclusivo `unidad-2-circuito-minimo/evidencia-c-u2-10/gate-intento-1/`; dentro se conserva `comandos.txt` con cada comando literal efectivamente invocado, su salida y código de salida. No existe `gate-intento-2` bajo C-U2-10. Si `gate-intento-1` falla, se agrega `DETENCION.md` dentro de ese mismo directorio, C-U2-10 se detiene y cualquier intento futuro exige una propuesta sucesora. La verificación de append-only compara el árbol previo y el nuevo árbol antes del commit: cualquier delta sobre `gate-intento-1/` ya existente es una regla de detención.
 
 La evidencia de P0, si llega a autorizarse, también es exclusiva del sucesor y se ubica en `evidencia-c-u2-10/p0-comandos.txt`; no se escribe en ningún `gate-intento-*` ni en paquetes de C-U2-7 o anteriores. El contrato no permite reparar o reconstituir post hoc un intento ya registrado.
 
-### Autorización material antes de repetir el gate
+### Autorización material antes del único gate
 
-Cada gate requiere el handshake material descrito en «Handshake no circular de autorización material». La autorización debe existir como `evidencia-c-u2-10/autorizaciones/gate-intento-<N>.md` y contener `ATTEMPT_NUMBER`, `PARENT_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, la referencia a la decisión humana/auditora que autorizó MATERIALIZAR, el alcance, las prohibiciones de instalación/modificación y la regla de detención. El sobre auditor de EJECUCION_GATE debe referenciar el `WORK_SHA_AUTORIZACION`, `AUTH_BLOB_SHA` y el intento exacto.
+El único gate requiere el handshake material descrito en «Handshake no circular de autorización material». La autorización debe existir como `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` y contener `ATTEMPT_NUMBER=1`, `PARENT_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, la referencia a la decisión humana/auditora que autorizó MATERIALIZAR, el alcance, las prohibiciones de instalación/modificación y la regla de detención. El sobre auditor de EJECUCION_GATE debe referenciar el `WORK_SHA_AUTORIZACION`, `AUTH_BLOB_SHA` y `ATTEMPT_NUMBER=1` exactos.
 
-Antes de ejecutar `gate-intento-N`, el CONSTRUCTOR debe verificar desde Git que el sobre de EJECUCION_GATE referencia exactamente `ATTEMPT_NUMBER=N`, `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`, que el commit de autorización agrega únicamente el archivo requerido sobre `PARENT_WORK_SHA`, y que el blob coincide con la identidad entregada por el AUDITOR. Si falta cualquiera de esas relaciones, el gate no se ejecuta y se devuelve `human_need`. La autorización no puede ser retroactiva: un archivo creado o comprometido después del gate no lo valida.
+Después de materializar la autorización, el AUDITOR verifica desde Git que el commit agrega únicamente `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` sobre `PARENT_WORK_SHA`, y confirma `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA` exactos. Solo tras esa verificación el AUDITOR emite un nuevo sobre `EJECUCION_GATE`, limitado a `ATTEMPT_NUMBER=1` y ligado a esos dos identificadores. Antes de ejecutar, el CONSTRUCTOR verifica que las tres identidades del sobre coincidan con Git. Si falta cualquiera de esas relaciones, no se ejecuta el gate y se devuelve `human_need`. La autorización no puede ser retroactiva: un archivo creado o comprometido después del gate no lo valida.
 
-La primera ejecución tampoco queda exenta: `gate-intento-1` requiere autorización material previa. Toda autorización habilita como máximo un intento de gate y, si el gate pasa, como máximo el P0 único de este sucesor. No existe autorización heredada desde C-U2-8 ni desde ningún antecedente o contrato previo; cada intento de C-U2-10 requiere su propio handshake completo.
+La única ejecución, `gate-intento-1`, requiere autorización material previa. La autorización habilita solo ese gate; si pasa, el P0 único requiere su propia autorización/sobre según el protocolo. No se reutiliza autorización ni evidencia operativa de C-U2-9 ni de ningún antecesor.
 
 ### Orden de control obligatorio
 
 1. Verificar en Git la autorización material y sus identidades.
 2. Congelar el estado previo de `evidencia-c-u2-10/` y comprobar que el directorio del intento aún no existe.
-3. Ejecutar los cinco comandos congelados únicamente desde `sistema`, usando `.\\.venv\\Scripts\\python.exe` y registrándolos en el nuevo directorio del intento.
-4. Si el gate falla, detenerse y preservar solo ese resultado.
+3. Ejecutar los cinco comandos congelados exactamente una vez, únicamente desde `sistema`, usando `.\\.venv\\Scripts\\python.exe` y registrándolos en `gate-intento-1/`.
+4. Si el gate falla, detener C-U2-10 y preservar ese resultado; no reintentar. Cualquier ejecución futura requiere una propuesta sucesora.
 5. Si el gate pasa, consumir P0 una sola vez y preservar su salida en el artefacto exclusivo de P0.
 
 No se ejecuta C0, P1-P11, R0-R6 ni RZ durante esta propuesta; la ejecución requiere congelamiento posterior del AUDITOR y una autorización humana nueva ligada al checkpoint exacto.
@@ -368,19 +368,19 @@ No se ejecuta C0, P1-P11, R0-R6 ni RZ durante esta propuesta; la ejecución requ
 
 La autorización previa no incorpora el SHA del commit que todavía no existe. El handshake obligatorio es:
 
-1. El humano entrega al AUDITOR la autorización con el `BASE_WORK_SHA` ya existente, el contrato y checkpoint propuestos, sus identidades conocidas, el número de intento y sus límites.
+1. El humano entrega al AUDITOR la autorización con el `BASE_WORK_SHA` ya existente, el contrato y checkpoint propuestos, sus identidades conocidas, `ATTEMPT_NUMBER=1` y sus límites.
 2. El AUDITOR registra y congela esa autorización en su repositorio, y entrega al CONSTRUCTOR un sobre que ordena materializarla.
-3. El CONSTRUCTOR crea `evidencia-c-u2-10/autorizaciones/gate-intento-<N>.md` en un único commit nuevo sobre ese `BASE_WORK_SHA`. El archivo conserva `BASE_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, `ATTEMPT_NUMBER`, alcance y prohibiciones; no inventa ni anticipa el SHA de su propio commit.
-4. El CONSTRUCTOR devuelve el `WORK_SHA` resultante y el blob del archivo de autorización al AUDITOR.
-5. El AUDITOR verifica ambos contra el sobre humano y emite el congelamiento de C-U2-10 referenciando el `WORK_SHA`, el blob de autorización y el intento exacto.
-6. Recién con ese congelamiento, el CONSTRUCTOR puede ejecutar el gate desde el `WORK_SHA` recibido. Si la verificación falla, no ejecuta nada.
+3. El CONSTRUCTOR crea únicamente `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` en un único commit nuevo sobre ese `BASE_WORK_SHA`. El archivo conserva `BASE_WORK_SHA`, `CONTRACT_BLOB_SHA`, `CHECKPOINT_BLOB_SHA`, `ATTEMPT_NUMBER=1`, alcance y prohibiciones; no inventa ni anticipa el SHA de su propio commit.
+4. El CONSTRUCTOR devuelve `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA` al AUDITOR.
+5. El AUDITOR verifica en Git el commit y blob exactos, confirma `WORK_SHA_AUTORIZACION` y `AUTH_BLOB_SHA`, y solo entonces emite un nuevo sobre `EJECUCION_GATE` ligado a `ATTEMPT_NUMBER=1` y a esas identidades.
+6. Solo ese nuevo sobre habilita al CONSTRUCTOR a ejecutar una vez el gate desde `WORK_SHA_AUTORIZACION`. Si la verificación falla o falta el sobre, no ejecuta nada.
 
 Así la autorización está materialmente en WORK antes del gate, mientras el SHA final es verificado y congelado después de materializar el archivo, sin dependencia circular. El `WORK_SHA` del congelamiento identifica el candidato ejecutable; el archivo conserva el `BASE_WORK_SHA` que el humano autorizó antes de su creación.
 
-Las únicas rutas de evidencia del gate son `evidencia-c-u2-10/gate-intento-<N>/comandos.txt` y, si corresponde, su `DETENCION.md`; queda prohibida toda ruta alternativa como `entorno-preparacion.txt`.
+Las únicas rutas de evidencia del único gate son `evidencia-c-u2-10/gate-intento-1/comandos.txt` y, si corresponde, `evidencia-c-u2-10/gate-intento-1/DETENCION.md`; queda prohibida toda ruta alternativa como `entorno-preparacion.txt`.
 
 ## Namespace limpio del sucesor
 
-C-U2-8 queda bloqueado por ruptura del handshake y no se reabre. C-U2-10 usa exclusivamente `evidencia-c-u2-10/`; no reutiliza, modifica ni consume `evidencia-c-u2-8/autorizaciones/gate-intento-1.md`. El primer intento de C-U2-10 es `gate-intento-1` dentro del namespace nuevo.
+C-U2-9 es el antecedente histórico inmediato y queda cerrado/bloqueado; no se reabre. C-U2-10 usa exclusivamente `evidencia-c-u2-10/`; no reutiliza, modifica ni consume autorizaciones ni evidencia operativa de C-U2-9 o de ningún antecesor. Su única ejecución de gate es `gate-intento-1` dentro del namespace nuevo.
 
 El orden obligatorio para ese primer intento es material: (1) autorización humana al AUDITOR; (2) sobre del AUDITOR que autoriza únicamente MATERIALIZAR; (3) CONSTRUCTOR materializa sólo `evidencia-c-u2-10/autorizaciones/gate-intento-1.md` y devuelve `WORK_SHA_AUTORIZACION` + `AUTH_BLOB_SHA`; (4) AUDITOR verifica y emite el sobre nuevo `EJECUCION_GATE`; (5) sólo entonces se ejecuta el gate. La autorización humana por sí sola no permite materializar y el congelamiento del contrato tampoco sustituye el sobre de materialización.
