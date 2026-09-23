@@ -159,3 +159,9 @@ Esta corrección no edita ni elimina los apéndices previos de `EVENTO.md`.
 - **D30 — antecedente durable del preflight:** `unidad-2-circuito-minimo/evidencia-c-u2-11/preflight/resultado.md` es un artefacto local y no se trata como evidencia durable. La auditoría durable `efc712117ef7045806314ac6cc2500bec9a8ead0` preserva el antecedente de que el método fue reportado; C-U2-12 sigue exigiendo un preflight nuevo antes de cualquier ejecución futura.
 
 El alcance de esta corrección es documental. No se ejecutaron preflight, inspección de UI, C0, P1 ni pruebas operativas; no se modificaron apps ni entorno. Se publica en el único commit correctivo autorizado para revisión del AUDITOR. No autoriza acción operativa alguna.
+
+## Corrección append-only de procedencia documental C-U2-12 — D31 (INCOMING_TURN_ID=170)
+
+La frase del apéndice D28-D30 que atribuía a una «autorización humana actual» la habilitación del commit `49bd63f131dde9a88c5d344896e33fc249596e01` y su push fue incorrecta. El alcance documental de ese commit correctivo provenía del sobre del AUDITOR `b231bddbffeb72d609d900c905c73635aedaa274`; no se debe atribuir retroactivamente a la autorización humana posterior para esta corrección D31.
+
+Esta nueva autorización humana habilita exclusivamente el presente commit documental D31 y su push. No es fuente ni justificación de la autoridad del commit `49bd63f131dde9a88c5d344896e33fc249596e01`. Este apéndice corrige la procedencia sin editar los registros anteriores y no autoriza pasos operativos.
