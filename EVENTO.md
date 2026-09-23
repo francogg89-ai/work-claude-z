@@ -149,3 +149,13 @@ La propuesta no autoriza ejecución. Si el AUDITOR la congela, cualquier ejecuci
 ### Archivos y límite de esta intervención
 
 La entrega documental comprende `unidad-2-circuito-minimo/CONTRATO-C-U2-12.md`, `unidad-2-circuito-minimo/CHECKPOINT_HUMANO-C-U2-12.md` y este apéndice append-only de `EVENTO.md`. Se permitió el commit y push de este único conjunto documental. No se ejecutaron pruebas ni pasos operativos, no se inspeccionó la UI ni detalles/apps durante esta intervención documental, no se modificaron apps ni entorno y no se creó evidencia operacional de C-U2-12. Cualquier ejecución futura queda sujeta a revisión auditora y nueva autorización humana.
+
+## Corrección append-only de propuesta C-U2-12 — D28-D30 (INCOMING_TURN_ID=169)
+
+Esta corrección no edita ni elimina los apéndices previos de `EVENTO.md`.
+
+- **D28 — navegación como hipótesis:** la afirmación del apéndice anterior de C-U2-12 sobre enlaces accesibles `Abrir <nombre exacto>` observados en C-U2-11 no está respaldada como hecho observado y queda corregida. La existencia de un enlace, su rol accesible/DOM `link`, el destino same-origin y la correspondencia exacta con la app son hipótesis a verificar en una futura ejecución autorizada antes de activarlo. Ningún detalle se abrió en C-U2-11. El contrato y el checkpoint corregidos expresan esta condición.
+- **D29 — autoridad documental:** la atribución del apéndice anterior a una autorización humana para la propuesta C-U2-12 fue incorrecta. El alcance documental original deriva del sobre/decisión del AUDITOR `AUDIT_SHA=ddd3c8cba086f3c967c104f4513c1bbd74846717`; no debe representarse como una nueva autorización humana. La autorización humana actual habilita únicamente este commit documental correctivo y su push.
+- **D30 — antecedente durable del preflight:** `unidad-2-circuito-minimo/evidencia-c-u2-11/preflight/resultado.md` es un artefacto local y no se trata como evidencia durable. La auditoría durable `efc712117ef7045806314ac6cc2500bec9a8ead0` preserva el antecedente de que el método fue reportado; C-U2-12 sigue exigiendo un preflight nuevo antes de cualquier ejecución futura.
+
+El alcance de esta corrección es documental. No se ejecutaron preflight, inspección de UI, C0, P1 ni pruebas operativas; no se modificaron apps ni entorno. Se publica en el único commit correctivo autorizado para revisión del AUDITOR. No autoriza acción operativa alguna.
