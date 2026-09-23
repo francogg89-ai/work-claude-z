@@ -1,0 +1,15 @@
+ATTEMPT_NUMBER=1
+PARENT_WORK_SHA=5848d734ffd3917ee58c4b4164e93f1b022430b6
+CONTRACT_BLOB_SHA=2e96c72aaf0b18cc67fccba11282f545d4025d1b
+CHECKPOINT_BLOB_SHA=709595ae1cd12a46d3d432d9b6fddc79c4a596c2
+AUDIT_SHA=cc8dc0639755a5689832433475b3206e3b1c359c
+H2=ACTIVADA
+AUTORIZACION_HUMANA=SI
+AUTORIZO_UNICAMENTE_EL_INICIO_DEL_HANDSHAKE_DE_MATERIALIZACION=SI
+AUTORIZACION_AUDITOR=MATERIALIZAR_UNICAMENTE_AUTH_PATH
+ALCANCE=Materializar únicamente este registro de autorización para gate-intento-1.
+PROHIBICIONES=No ejecutar gate-intento-1, P0, C0, P1-P11, R0, R1-R6 ni RZ; no instalar/desinstalar/conectar apps; no modificar entorno; no abrir UI operacional, servidor, túnel ni exposición pública; no crear gate-intento-1/, comandos.txt, DETENCION.md ni p0-comandos.txt.
+DETENCION=Después de este único commit, detenerse y devolver WORK_SHA_AUTORIZACION y AUTH_BLOB_SHA junto con AUTH_PATH.
+EJECUCION_GATE=NO_AUTORIZADA
+P0=NO_AUTORIZADO
+C0_Y_POSTERIORES=NO_AUTORIZADOS
