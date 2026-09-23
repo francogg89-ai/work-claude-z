@@ -99,3 +99,27 @@ entrega los corrige y vuelve a registrar la necesidad.
 
 El CONSTRUCTOR registra y rutea esta necesidad; no declara que sea real ni activa al humano.
 Esa determinación, y si el plan ya es suficiente para pedirla, corresponde al AUDITOR.
+
+## Propuesta documental del CONSTRUCTOR — C-U2-11 (INCOMING_TURN_ID=162)
+
+### Recepción y corte de trabajo
+
+Se recibió el sobre auditor identificado por `INCOMING_TURN_ID=162` para preparar una propuesta no ejecutable de sucesor C-U2-11. El corte indicado es `BASE_WORK_SHA=ce89a58c0862abced634224dea1dc42a27505b6a`; la trazabilidad de auditoría recibida es `INCIDENT_AUDIT_SHA=1ddaa82eb668f0d09f1d99835c6e0d3b97ef3264` y `C0_AUDIT_SHA=e937a00dc0ec6cea427c5031971873e255281791`. Se preserva como historia C-U2-10 con `CONTRACT_BLOB_SHA=2e96c72aaf0b18cc67fccba11282f545d4025d1b` y `CHECKPOINT_BLOB_SHA=709595ae1cd12a46d3d432d9b6fddc79c4a596c2`.
+
+### Hecho recibido, no reinterpretado
+
+La pasada visual única de C-U2-10 mostró en «Personal > Created by me» exactamente `Sonda propuestas U1`, `Sonda propuestas U1 v2` y `Circuito propuestas C-U2-5`, cada una con `+`. No se hicieron clics ni cambios de estado. No se guardaron PNG ni matriz local. El glifo carecía de tooltip y etiqueta accesible observados; el significado atribuido por la explicación humana no quedó probado por la interfaz y el AUDITOR no acreditó C0. La pasada quedó consumida: no se repite ni se materializa evidencia retrospectiva.
+
+### Diseño propuesto
+
+Se propone una inspección C0 nueva y única, limitada a lectura, que exige texto explícito de estado asociado en pantalla al nombre exacto de cada app. Ni `+`, ni botones sin etiqueta, ni ausencia de entradas/lista vacía cuentan como prueba. Antes de abrir apps, la persona debe superar un preflight en página neutral: guardar manualmente con el flujo Windows/Paint un PNG en el destino de `evidencia-c-u2-11/preflight/`, reabrirlo desde disco y documentar lectura legible. Si no se prueba el guardado/relectura en el destino, no comienza la inspección. Durante la inspección, la persona preserva capturas PNG secuenciales sin editar y una matriz por app que transcribe la señal literal y referencia la imagen donde aparecen juntos nombre y estado; luego se detiene para revisión auditora.
+
+Las expresiones de acción citadas en contrato/checkpoint son ejemplos condicionales; no se afirma que esa UI ni la capacidad de persistencia existan. No se usa como prueba la API de captura CUA, porque no se ha demostrado que guarde archivos. Cualquier ambigüedad, señal no explícita, estado instalado/conectado, afiliación dudosa o fallo de persistencia detiene C0 sin reintento ni alteración de apps. La evidencia y los nuevos documentos usan el namespace sucesor `evidencia-c-u2-11`; C-U2-10 permanece intacto.
+
+### Autoridad y alcance
+
+El gate y P0 C-U2-10 son históricos y no se heredan como autorizaciones. La propuesta C-U2-11 es exclusivamente remediación documental/inspección C0; no incluye P1 ni pasos posteriores. Requiere congelamiento exacto del AUDITOR, nuevas identidades, H-2/autorización humana específica y los sobres que correspondan antes de cualquier acción. Este registro y los documentos no autorizan UI ni ejecución.
+
+### Archivos y verificación de alcance
+
+Archivos de propuesta: `unidad-2-circuito-minimo/CONTRATO-C-U2-11.md`, `unidad-2-circuito-minimo/CHECKPOINT_HUMANO-C-U2-11.md` y este apéndice de `EVENTO.md`. Ningún otro archivo debe modificarse en esta entrega; no se hace commit ni push. No se ejecutaron gate, P0, C0, P1, app/servicio ni UI; no se tocó el entorno ni se creó evidencia operativa. La revisión y congelamiento corresponden al AUDITOR.
