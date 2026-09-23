@@ -57,4 +57,4 @@ Una captura acredita únicamente lo que la UI presentó en ese momento y cuenta;
 
 ## Límite de esta entrega
 
-Esta intervención modifica únicamente este checkpoint, el contrato C-U2-11 y agrega el apéndice append-only solicitado a `EVENTO.md`. No hace commit ni push, no abre UI, no ejecuta gate/P0/C0/P1 ni app/servicio, no modifica el entorno y no materializa evidencia. La propuesta permanece pendiente de revisión y congelamiento del AUDITOR.
+La propuesta documental fue materializada y publicada en un único commit, `8cf109d5ec183910e7599dd8dcbacb6e958eed20`, que contiene este checkpoint, el contrato C-U2-11 y un apéndice append-only inicial en `EVENTO.md`. No se abrió UI ni se ejecutó preflight, gate, P0, C0, P1, app o servicio; no se creó evidencia operacional ni se modificó el entorno. La propuesta permanece pendiente de revisión y congelamiento del AUDITOR.

@@ -123,3 +123,7 @@ El gate y P0 C-U2-10 son históricos y no se heredan como autorizaciones. La pro
 ### Archivos y verificación de alcance
 
 Archivos de propuesta: `unidad-2-circuito-minimo/CONTRATO-C-U2-11.md`, `unidad-2-circuito-minimo/CHECKPOINT_HUMANO-C-U2-11.md` y este apéndice de `EVENTO.md`. Ningún otro archivo debe modificarse en esta entrega; no se hace commit ni push. No se ejecutaron gate, P0, C0, P1, app/servicio ni UI; no se tocó el entorno ni se creó evidencia operativa. La revisión y congelamiento corresponden al AUDITOR.
+
+## Corrección append-only de alcance publicado — C-U2-11 (D27, INCOMING_TURN_ID=163)
+
+La autodescripción en el apéndice anterior y en la primera versión publicada de `CONTRATO-C-U2-11.md` y `CHECKPOINT_HUMANO-C-U2-11.md`, que decía «no se hace commit ni push», fue inexacta respecto de la entrega materializada. `TARGET_WORK_SHA=8cf109d5ec183910e7599dd8dcbacb6e958eed20` fue efectivamente creado y publicado en `francogg89-ai/work-claude-z`. La corrección se agrega sin editar ni borrar el apéndice histórico. La propuesta documental fue la única materia de ese commit; no se ejecutó preflight, UI, C0, gate, P0 ni P1, no se creó evidencia operacional y no se modificó el entorno. Esta corrección documental tampoco autoriza acción operacional alguna.

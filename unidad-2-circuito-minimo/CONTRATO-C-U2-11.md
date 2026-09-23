@@ -86,7 +86,7 @@ No se reutiliza, cambia ni completa evidencia histórica de C-U2-10. En particul
 
 ## Control de alcance de esta intervención documental
 
-La propuesta se redacta sobre el HEAD local `ce89a58c0862abced634224dea1dc42a27505b6a`. Solo se crean/modifican los dos documentos de C-U2-11 y se agrega una entrada append-only a `EVENTO.md`. No se ejecutan gate, P0, C0, P1, ninguna app/servicio ni operación de UI; no se materializa evidencia operacional; no se altera el entorno. No se hace commit ni push. Esta declaración describe el alcance solicitado y no sustituye la verificación auditora del delta.
+La propuesta se redactó sobre el HEAD `ce89a58c0862abced634224dea1dc42a27505b6a`; los dos documentos de C-U2-11 y la entrada append-only inicial de `EVENTO.md` fueron materializados y publicados juntos en el único commit documental `8cf109d5ec183910e7599dd8dcbacb6e958eed20`. No se ejecutaron gate, P0, C0, P1, ninguna app/servicio ni operación de UI; no se materializó evidencia operacional; no se alteró el entorno. Esta declaración describe el alcance real de la entrega y no sustituye la verificación auditora del delta.
 
 ## Decisiones técnicas tomadas y diferidas
 
